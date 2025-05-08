@@ -45,4 +45,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function activeLoans()
+    {
+        return $this->hasMany(Loan::class)
+                    ->whereIn('status', ['active', 'overdue', 'suspended']);
+    }
 }

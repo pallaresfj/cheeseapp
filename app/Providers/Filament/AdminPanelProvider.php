@@ -29,6 +29,9 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->profile(isSimple: false)
             ->sidebarCollapsibleOnDesktop()
+            ->brandLogo(asset('images/logo-light.svg'))
+            ->darkModeBrandLogo((asset('images/logo-dark.svg')))
+            ->brandLogoHeight('6rem')
             ->colors([
                 'primary' => '#f50404',
                 'success' => '#00c853',
