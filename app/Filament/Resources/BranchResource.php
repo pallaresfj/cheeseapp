@@ -64,7 +64,18 @@ class BranchResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->label('')
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('success')
+                    ->tooltip('Editar')
+                    ->iconSize('h-6 w-6'),
+                Tables\Actions\DeleteAction::make()
+                    ->label('')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger')
+                    ->tooltip('Borrar')
+                    ->iconSize('h-6 w-6'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -76,7 +87,7 @@ class BranchResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\FarmsRelationManager::class,
         ];
     }
 

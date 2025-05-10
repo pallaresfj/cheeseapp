@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Validation\Rule;
 
 class MilkPurchaseResource extends Resource
 {
@@ -28,22 +29,41 @@ class MilkPurchaseResource extends Resource
             ->schema([
                 Forms\Components\Select::make('branch_id')
                     ->label('Sucursal')
-                    ->relationship('branch', 'name')
-                    ->required(),
+                    ->placeholder('Seleccione sucursal')
+                    ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
+                    ->required()
+                    ->reactive(),
                 Forms\Components\Select::make('farm_id')
                     ->label('Finca')
-                    ->relationship('farm', 'name')
-                    ->required(),
+                    ->options(function (callable $get) {
+                        $branchId = $get('branch_id');
+                        if (!$branchId) {
+                            return [];
+                        }
+
+                        return \App\Models\Farm::where('branch_id', $branchId)
+                            ->where('status', true)
+                            ->with('user')
+                            ->get()
+                            ->mapWithKeys(function ($farm) {
+                                return [$farm->id => "{$farm->user->name} - {$farm->name}"];
+                            });
+                    })
+                    ->placeholder('Seleccione finca')
+                    ->reactive()
+                    ->required()
+                    ->searchable(),
                 Forms\Components\DatePicker::make('date')
                     ->label('Fecha')
-                    ->required(),
+                    ->required()
+                    ->default(fn () => session('last_milk_purchase_date', now())),
                 Forms\Components\TextInput::make('liters')
                     ->label('Litros')
                     ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('status')
-                    ->label('Estado')
-                    ->required(),
+                    ->numeric()
+                    ->default(0.0),
+                Forms\Components\Hidden::make('status')
+                    ->default('pending'),
             ]);
     }
 
@@ -53,12 +73,11 @@ class MilkPurchaseResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('branch.name')
                     ->label('Sucursal')
-                    ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('farm.name')
-                    ->label('Finca')
-                    ->numeric()
-                    ->sortable(),
+                    ->label('Proveedor - Finca')
+                    ->sortable()
+                    ->formatStateUsing(fn ($state, $record) => "{$record->farm->user->name} - {$record->farm->name}"),
                 Tables\Columns\TextColumn::make('date')
                     ->label('Fecha')
                     ->date()
@@ -67,14 +86,46 @@ class MilkPurchaseResource extends Resource
                     ->label('Litros')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->label('Estado'),
+                Tables\Columns\IconColumn::make('status')
+                    ->label('Estado')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-clock')
+                    ->falseIcon('heroicon-o-check')
+                    ->getStateUsing(fn ($record) => $record->status === 'pending')
+                    ->tooltip(fn ($record) => ucfirst($record->status)),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('branch_id')
+                    ->label('Sucursal')
+                    ->relationship('branch', 'name')
+                    ->searchable(),
+                Tables\Filters\SelectFilter::make('farm_id')
+                    ->label('Finca')
+                    ->relationship('farm', 'name')
+                    ->searchable(),
+            ])
+            ->persistFiltersInSession()
+            ->groups([
+                Tables\Grouping\Group::make('branch.name')
+                    ->label('Sucursal')
+                    ->collapsible(),
+                Tables\Grouping\Group::make('farm.name')
+                    ->label('Finca')
+                    ->collapsible(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->label('')
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('success')
+                    ->tooltip('Editar')
+                    ->iconSize('h-6 w-6'),
+                Tables\Actions\DeleteAction::make()
+                    ->label('')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger')
+                    ->tooltip('Borrar')
+                    ->iconSize('h-6 w-6'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

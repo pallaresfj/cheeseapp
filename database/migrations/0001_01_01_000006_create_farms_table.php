@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('farm_type_id')->constrained()->cascadeOnDelete();
             $table->string('location')->nullable();
-            $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
+            $table->boolean('status')->default(true);
             $table->timestamps();
         });
     }

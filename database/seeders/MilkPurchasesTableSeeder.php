@@ -18,7 +18,7 @@ class MilkPurchasesTableSeeder extends Seeder
             $dateRange->push($date->copy());
         }
 
-        $farms = Farm::with('branch')->get();
+        $farms = Farm::with('branch')->where('status', true)->get();
 
         foreach ($farms as $farm) {
             foreach ($dateRange as $date) {
@@ -26,7 +26,7 @@ class MilkPurchasesTableSeeder extends Seeder
                     'branch_id' => $farm->branch_id,
                     'farm_id' => $farm->id,
                     'date' => $date->format('Y-m-d'),
-                    'liters' => fake()->randomFloat(2, 5, 100),
+                    'liters' => fake()->numberBetween(5, 100),
                     'status' => 'pending',
                 ]);
             }

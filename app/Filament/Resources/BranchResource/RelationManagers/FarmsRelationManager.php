@@ -1,28 +1,20 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\BranchResource\RelationManagers;
 
-use App\Filament\Resources\FarmResource\Pages;
-use App\Filament\Resources\FarmResource\RelationManagers;
-use App\Models\Farm;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class FarmResource extends Resource
+class FarmsRelationManager extends RelationManager
 {
-    protected static ?string $model = Farm::class;
-    protected static ?int $navigationSort = 3;
-    protected static ?string $navigationIcon = 'heroicon-o-swatch';
-    protected static ?string $navigationGroup = 'Empresa';
-    protected static ?string $label = 'Finca';
-    protected static ?string $pluralLabel = 'Fincas';
+    protected static string $relationship = 'farms';
 
-    public static function form(Form $form): Form
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -54,14 +46,11 @@ class FarmResource extends Resource
             ]);
     }
 
-    public static function table(Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('branch.name')
-                    ->label('Sucursal')
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Proveedor - Finca')
                     ->sortable()
@@ -79,10 +68,6 @@ class FarmResource extends Resource
                     ->boolean(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('branch_id')
-                    ->label('Sucursal')
-                    ->relationship('branch', 'name')
-                    ->searchable(),
                 Tables\Filters\SelectFilter::make('farm_type_id')
                     ->label('Tipo de finca')
                     ->relationship('farmType', 'name')
@@ -90,9 +75,12 @@ class FarmResource extends Resource
             ])
             ->persistFiltersInSession()
             ->groups([
-                Tables\Grouping\Group::make('branch.name')
-                    ->label('Sucursal')
+                Tables\Grouping\Group::make('farm_type_id')
+                    ->label('Tipo de finca')
                     ->collapsible()
+            ])
+            ->headerActions([
+                Tables\Actions\CreateAction::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
@@ -113,21 +101,5 @@ class FarmResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListFarms::route('/'),
-            'create' => Pages\CreateFarm::route('/create'),
-            'edit' => Pages\EditFarm::route('/{record}/edit'),
-        ];
     }
 }

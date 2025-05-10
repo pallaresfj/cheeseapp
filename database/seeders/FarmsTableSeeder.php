@@ -30,7 +30,7 @@ class FarmsTableSeeder extends Seeder
                     'user_id' => $supplierId,
                     'farm_type_id' => fake()->randomElement($farmTypes),
                     'location' => fake()->city . ', ' . fake()->state,
-                    'status' => 'active',
+                    'status' => true,
                 ]);
 
                 $count++;
