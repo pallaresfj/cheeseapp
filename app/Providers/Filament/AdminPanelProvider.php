@@ -6,6 +6,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -49,6 +50,22 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
+            ])
+            ->navigationGroups([
+                NavigationGroup::make()
+                     ->label('Compras')
+                     ->icon('heroicon-o-shopping-cart'),
+                NavigationGroup::make()
+                    ->label('Ventas')
+                    ->icon('heroicon-o-currency-dollar'),
+                NavigationGroup::make()
+                    ->label('Préstamos')
+                    ->icon('heroicon-o-arrow-left-end-on-rectangle')
+                    ->collapsed(),
+                NavigationGroup::make()
+                    ->label('Empresa')
+                    ->icon('heroicon-o-cog-6-tooth')
+                    ->collapsed(),
             ])
             ->middleware([
                 EncryptCookies::class,

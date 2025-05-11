@@ -14,23 +14,25 @@ class FarmsRelationManager extends RelationManager
 {
     protected static string $relationship = 'farms';
 
+    protected static ?string $modelLabel = 'Finca';
+    protected static ?string $pluralLabel = 'Fincas';
+    protected static ?string $title = 'Fincas';
+
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('user_id')
                     ->label('Proveedor')
-                    ->relationship('user', 'name')
+                    ->options(\App\Models\User::where('role', 'supplier')->pluck('name', 'id'))
                     ->searchable()
                     ->required(),
                 Forms\Components\TextInput::make('name')
                     ->label('Finca')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Select::make('branch_id')
-                    ->label('Sucursal')
-                    ->relationship('branch', 'name')
-                    ->required(),
+                Forms\Components\Hidden::make('branch_id')
+                    ->default(fn ($livewire) => $livewire->getOwnerRecord()->id),
                 Forms\Components\Select::make('farm_type_id')
                     ->label('Tipo de finca')
                     ->relationship('farmType', 'name')

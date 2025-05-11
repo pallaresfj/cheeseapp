@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class CustomerClassificationResource extends Resource
 {
     protected static ?string $model = CustomerClassification::class;
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 6;
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
     protected static ?string $navigationGroup = 'Empresa';
     protected static ?string $label = 'Tipo de Cliente';
@@ -53,7 +53,7 @@ class CustomerClassificationResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('price')
                     ->label('Precio')
-                    ->money()
+                    ->money('COP')
                     ->sortable(),
             ])
             ->filters([

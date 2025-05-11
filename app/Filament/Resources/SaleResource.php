@@ -26,40 +26,73 @@ class SaleResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\DatePicker::make('sale_date')
+                    ->label('Fecha de Venta')
+                    ->default(now())
+                    ->required(),
                 Forms\Components\Select::make('branch_id')
                     ->label('Sucursal')
-                    ->relationship('branch', 'name')
+                    ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
                     ->required(),
                 Forms\Components\Select::make('user_id')
                     ->label('Cliente')
-                    ->relationship('user', 'name')
+                    ->searchable()
+                    ->options(\App\Models\User::where('role', 'customer')->pluck('name', 'id'))
                     ->required(),
                 Forms\Components\Select::make('classification_id')
                     ->label('Tipo Cliente')
                     ->relationship('classification', 'name')
-                    ->required(),
-                Forms\Components\DatePicker::make('sale_date')
-                    ->label('Fecha de Venta')
-                    ->required(),
+                    ->required()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $classification = \App\Models\CustomerClassification::find($state);
+                        if ($classification) {
+                            $set('price_per_kilo', $classification->price);
+                        }
+                    }),
                 Forms\Components\TextInput::make('kilos')
                     ->label('Kilos')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('price_per_kilo')
-                    ->label('Precio por Kilo')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('amount_paid')
-                    ->label('Monto Pagado')
+                    ->default(0.00)
                     ->required()
                     ->numeric()
-                    ->default(0.00),
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                        $set('amount_paid', ($state ?? 0) * ($get('price_per_kilo') ?? 0));
+                    }),
+                Forms\Components\TextInput::make('price_per_kilo')
+                    ->label('Precio por Kilo')
+                    ->default(0.00)
+                    ->required()
+                    ->numeric()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                        $set('amount_paid', ($get('kilos') ?? 0) * ($state ?? 0));
+                    }),
+                Forms\Components\TextInput::make('amount_paid')
+                    ->label('Monto')
+                    ->prefix('$')
+                    ->numeric()
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->reactive()
+                    ->default(0.00)
+                    ->afterStateHydrated(function ($component, $state) {
+                        $record = $component->getRecord();
+                        if ($record) {
+                            $component->state($record->kilos * $record->price_per_kilo);
+                        }
+                    }),
                 Forms\Components\TextInput::make('balance')
                     ->label('Saldo')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('status')
+                Forms\Components\Select::make('status')
                     ->label('Estado')
+                    ->options([
+                        'active' => 'Activo',
+                        'cancelled' => 'Cancelado',
+                    ])
+                    ->default('active')
                     ->required(),
             ]);
     }
@@ -94,7 +127,7 @@ class SaleResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('amount_paid')
                     ->label('Monto Pagado')
-                    ->numeric()
+                    ->money('COP')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('balance')
                     ->label('Saldo')

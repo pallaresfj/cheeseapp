@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class FarmTypeResource extends Resource
 {
     protected static ?string $model = FarmType::class;
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 5;
     protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
     protected static ?string $navigationGroup = 'Empresa';
     protected static ?string $label = 'Tipo de finca';
@@ -35,6 +35,7 @@ class FarmTypeResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('base_price')
                     ->label('Precio base')
+                    ->prefix('$')
                     ->required()
                     ->numeric(),
             ]);
@@ -52,7 +53,7 @@ class FarmTypeResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('base_price')
                     ->label('Precio base')
-                    ->numeric()
+                    ->money('COP')
                     ->sortable(),
             ])
             ->filters([

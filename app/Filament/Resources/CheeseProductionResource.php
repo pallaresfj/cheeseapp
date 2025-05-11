@@ -26,19 +26,20 @@ class CheeseProductionResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\DatePicker::make('date')
-                    ->label('Fecha')
-                    ->required(),
                 Forms\Components\Select::make('branch_id')
                     ->label('Sucursal')
-                    ->relationship('branch', 'name')
+                    ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
                     ->required(),
-                Forms\Components\TextInput::make('produced_kilos')
-                    ->label('Kilos Producidos')
-                    ->required()
-                    ->numeric(),
+                Forms\Components\DatePicker::make('date')
+                    ->label('Fecha')
+                    ->default(now())
+                    ->required(),
                 Forms\Components\TextInput::make('processed_liters')
                     ->label('Litros Procesados')
+                    ->required()
+                    ->numeric(),
+                Forms\Components\TextInput::make('produced_kilos')
+                    ->label('Kilos Producidos')
                     ->required()
                     ->numeric(),
             ]);

@@ -11,12 +11,13 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class FarmResource extends Resource
 {
     protected static ?string $model = Farm::class;
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 2;
     protected static ?string $navigationIcon = 'heroicon-o-swatch';
     protected static ?string $navigationGroup = 'Empresa';
     protected static ?string $label = 'Finca';
@@ -28,8 +29,8 @@ class FarmResource extends Resource
             ->schema([
                 Forms\Components\Select::make('user_id')
                     ->label('Proveedor')
-                    ->relationship('user', 'name')
                     ->searchable()
+                    ->options(\App\Models\User::where('role', 'supplier')->pluck('name', 'id'))
                     ->required(),
                 Forms\Components\TextInput::make('name')
                     ->label('Finca')
@@ -37,7 +38,7 @@ class FarmResource extends Resource
                     ->maxLength(255),
                 Forms\Components\Select::make('branch_id')
                     ->label('Sucursal')
-                    ->relationship('branch', 'name')
+                    ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
                     ->required(),
                 Forms\Components\Select::make('farm_type_id')
                     ->label('Tipo de finca')
@@ -111,6 +112,16 @@ class FarmResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('activar')
+                        ->label('Activar seleccionadas')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->action(fn (Collection $records) => $records->each->update(['status' => true])),
+                    Tables\Actions\BulkAction::make('inactivar')
+                        ->label('Inactivar seleccionadas')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->action(fn (Collection $records) => $records->each->update(['status' => false])),
                 ]),
             ]);
     }
