@@ -29,19 +29,86 @@ class CheeseProductionResource extends Resource
                 Forms\Components\Select::make('branch_id')
                     ->label('Sucursal')
                     ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
-                    ->required(),
+                    ->required()
+                    ->reactive()
+                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                        $branchId = $state;
+                        $date = $get('date');
+
+                        if ($branchId && $date) {
+                            $totalLiters = \App\Models\MilkPurchase::where('branch_id', $branchId)
+                                ->whereDate('date', $date)
+                                ->sum('liters');
+
+                            $set('processed_liters', $totalLiters);
+                        }
+                    }),
                 Forms\Components\DatePicker::make('date')
                     ->label('Fecha')
                     ->default(now())
-                    ->required(),
+                    ->required()
+                    ->reactive()
+                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                        $branchId = $get('branch_id');
+                        $date = $state;
+
+                        if ($branchId && $date) {
+                            $totalLiters = \App\Models\MilkPurchase::where('branch_id', $branchId)
+                                ->whereDate('date', $date)
+                                ->sum('liters');
+
+                            $set('processed_liters', $totalLiters);
+                        }
+                    }),
                 Forms\Components\TextInput::make('processed_liters')
                     ->label('Litros Procesados')
-                    ->required()
-                    ->numeric(),
+                    ->numeric()
+                    ->disabled()
+                    ->dehydrated(true)
+                    ->reactive()
+                    ->afterStateHydrated(function (Forms\Components\TextInput $component, $state, $set, $get) {
+                        $branchId = $get('branch_id');
+                        $date = $get('date');
+
+                        if ($branchId && $date) {
+                            $totalLiters = \App\Models\MilkPurchase::where('branch_id', $branchId)
+                                ->whereDate('date', $date)
+                                ->sum('liters');
+
+                            $set('processed_liters', $totalLiters);
+
+                            $productividad = cache('app_settings')['sistema.productividad'] ?? 0;
+                            $set('produced_kilos', round($totalLiters * floatval($productividad), 2));
+                        }
+                    })
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $productividad = cache('app_settings')['sistema.productividad'] ?? 0;
+                        $set('produced_kilos', round($state * floatval($productividad), 2));
+                    }),
                 Forms\Components\TextInput::make('produced_kilos')
                     ->label('Kilos Producidos')
-                    ->required()
-                    ->numeric(),
+                    ->numeric()
+                    ->default(0)
+                    ->dehydrated(true)
+                    ->reactive()
+                    ->afterStateHydrated(function ($component, $state, $set, $get) {
+                        if (! $state || $state == 0) {
+                            $litros = $get('processed_liters');
+                            $productividad = cache('app_settings')['sistema.productividad'] ?? 0;
+
+                            if ($litros && $productividad) {
+                                $set('produced_kilos', round($litros * floatval($productividad), 2));
+                            }
+                        }
+                    })
+                    ->hint(function (callable $get) {
+                        $litros = $get('processed_liters');
+                        $productividad = cache('app_settings')['sistema.productividad'] ?? 0;
+
+                        return ($litros && $productividad)
+                            ? 'Sugerido: ' . round($litros * floatval($productividad), 2) . ' kg'
+                            : null;
+                    }),
             ]);
     }
 
@@ -57,18 +124,68 @@ class CheeseProductionResource extends Resource
                     ->label('Sucursal')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('produced_kilos')
-                    ->label('Kilos Producidos')
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('processed_liters')
                     ->label('Litros Procesados')
                     ->numeric()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('produced_kilos_sugerido')
+                    ->label('Kilos Esperados')
+                    ->state(function ($record) {
+                        $productividad = cache('app_settings')['sistema.productividad'] ?? 0;
+                        return round($record->processed_liters * floatval($productividad), 2);
+                    }),
+                Tables\Columns\TextColumn::make('produced_kilos')
+                    ->label('Kilos Producidos')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('produced_kilos_porcentaje')
+                    ->label('% Producción')
+                    ->state(function ($record) {
+                        $productividad = cache('app_settings')['sistema.productividad'] ?? 0;
+                        $esperado = floatval($record->processed_liters) * floatval($productividad);
+                        if ($esperado > 0) {
+                            return round(($record->produced_kilos / $esperado) * 100, 1) . '%';
+                        }
+                        return '0%';
+                    })
+                    ->color(function ($record) {
+                        $productividad = cache('app_settings')['sistema.productividad'] ?? 0;
+                        $esperado = floatval($record->processed_liters) * floatval($productividad);
+                        if ($esperado <= 0) return 'gray';
+
+                        $porcentaje = ($record->produced_kilos / $esperado) * 100;
+
+                        return match (true) {
+                            $porcentaje >= 100 => 'success',
+                            $porcentaje >= 80 => 'info',
+                            default => 'warning',
+                        };
+                    })
+                    ->badge(),
             ])
+            ->groups([
+                Tables\Grouping\Group::make('branch.name')
+                    ->label('Sucursal')
+                    ->collapsible()
+            ])
+            ->defaultGroup('branch.name')
+            ->defaultSort('date', 'desc')
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('branch_id')
+                    ->label('Sucursal')
+                    ->relationship('branch', 'name')
+                    ->searchable()
+                    ->preload(),
+                Tables\Filters\Filter::make('date')
+                    ->label('Fecha')
+                    ->form([
+                        Forms\Components\DatePicker::make('date')->label('Fecha'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when($data['date'], fn ($q) => $q->whereDate('date', $data['date']));
+                    }),
             ])
+            ->persistFiltersInSession()
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->label('')
