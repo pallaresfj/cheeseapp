@@ -84,8 +84,7 @@ class MilkPurchaseResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('liters')
                     ->label('Litros')
-                    ->numeric()
-                    ->sortable(),
+                    ->numeric(),
                 Tables\Columns\IconColumn::make('status')
                     ->label('Estado')
                     ->boolean()
@@ -94,24 +93,41 @@ class MilkPurchaseResource extends Resource
                     ->getStateUsing(fn ($record) => $record->status === 'pending')
                     ->tooltip(fn ($record) => ucfirst($record->status)),
             ])
+            ->modifyQueryUsing(fn (Builder $query) =>
+                $query->join('farms', 'milk_purchases.farm_id', '=', 'farms.id')
+                    ->join('branches', 'milk_purchases.branch_id', '=', 'branches.id')
+                    ->join('users', 'farms.user_id', '=', 'users.id')
+                    ->orderByDesc('milk_purchases.date')
+                    ->orderBy('branches.name')
+                    ->orderByRaw("CONCAT(users.name, ' - ', farms.name)")
+                    ->select('milk_purchases.*')
+            )
             ->filters([
                 Tables\Filters\SelectFilter::make('branch_id')
                     ->label('Sucursal')
                     ->relationship('branch', 'name')
-                    ->searchable(),
+                    ->searchable()
+                    ->preload(),
                 Tables\Filters\SelectFilter::make('farm_id')
                     ->label('Finca')
                     ->relationship('farm', 'name')
-                    ->searchable(),
+                    ->searchable()
+                    ->preload(),
+                Tables\Filters\Filter::make('date')
+                    ->label('Fecha')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')->label('Desde'),
+                        Forms\Components\DatePicker::make('until')->label('Hasta'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when($data['from'], fn ($query, $date) => $query->whereDate('milk_purchases.date', '>=', $date))
+                            ->when($data['until'], fn ($query, $date) => $query->whereDate('milk_purchases.date', '<=', $date));
+                    }),
             ])
             ->persistFiltersInSession()
             ->groups([
-                Tables\Grouping\Group::make('branch.name')
-                    ->label('Sucursal')
-                    ->collapsible(),
-                Tables\Grouping\Group::make('farm.name')
-                    ->label('Finca')
-                    ->collapsible(),
+                //
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
