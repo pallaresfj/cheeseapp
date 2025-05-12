@@ -169,7 +169,7 @@ class CheeseProductionResource extends Resource
                     ->collapsible()
             ])
             ->defaultGroup('branch.name')
-            ->defaultSort('date', 'desc')
+            ->groupingSettingsHidden()
             ->filters([
                 Tables\Filters\SelectFilter::make('branch_id')
                     ->label('Sucursal')

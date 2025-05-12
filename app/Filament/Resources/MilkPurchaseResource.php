@@ -87,16 +87,24 @@ class MilkPurchaseResource extends Resource
                     ->numeric(),
                 Tables\Columns\IconColumn::make('status')
                     ->label('Estado')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-clock')
-                    ->falseIcon('heroicon-o-check')
-                    ->getStateUsing(fn ($record) => $record->status === 'pending')
-                    ->tooltip(fn ($record) => ucfirst($record->status)),
+                    ->icon(fn (string $state): string => match ($state) {
+                        'pending' => 'heroicon-o-clock',
+                        'liquidated' => 'heroicon-o-check',
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'pending' => 'warning',
+                        'liquidated' => 'success',
+                    })
+                    ->tooltip(fn (string $state): string => match ($state) {
+                        'pending' => 'Pendiente',
+                        'liquidated' => 'Liquidada',
+                    }),
             ])
             ->modifyQueryUsing(fn (Builder $query) =>
                 $query->join('farms', 'milk_purchases.farm_id', '=', 'farms.id')
                     ->join('branches', 'milk_purchases.branch_id', '=', 'branches.id')
                     ->join('users', 'farms.user_id', '=', 'users.id')
+                    ->where('milk_purchases.status', 'pending')
                     ->orderByDesc('milk_purchases.date')
                     ->orderBy('branches.name')
                     ->orderByRaw("CONCAT(users.name, ' - ', farms.name)")
