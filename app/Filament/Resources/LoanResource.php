@@ -29,11 +29,15 @@ class LoanResource extends Resource
                 Forms\Components\Select::make('user_id')
                     ->label('Proveedor')
                     ->relationship('user', 'name')
-                    ->required(),
+                    ->required()
+                    ->searchable()
+                    ->preload(),
                 Forms\Components\Select::make('farm_id')
                     ->label('Finca')
                     ->relationship('farm', 'name')
-                    ->required(),
+                    ->required()
+                    ->searchable()
+                    ->preload(),
                 Forms\Components\DatePicker::make('date')
                     ->label('Fecha')
                     ->required(),

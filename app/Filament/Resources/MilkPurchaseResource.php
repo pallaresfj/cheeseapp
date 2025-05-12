@@ -37,11 +37,16 @@ class MilkPurchaseResource extends Resource
                     ->placeholder('Seleccione sucursal')
                     ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
                     ->required()
-                    ->reactive()
+                    ->searchable()
+                    ->preload()
                     ->default(fn () => session('last_milk_purchase_branch_id'))
                     ->afterStateUpdated(fn ($state) => session(['last_milk_purchase_branch_id' => $state])),
                 Forms\Components\Select::make('farm_id')
                     ->label('Finca')
+                    ->placeholder('Seleccione finca')
+                    ->required()
+                    ->searchable()
+                    ->preload()
                     ->options(function (callable $get) {
                         $branchId = $get('branch_id');
                         if (!$branchId) {
@@ -54,11 +59,7 @@ class MilkPurchaseResource extends Resource
                             ->mapWithKeys(function ($farm) {
                                 return [$farm->id => "{$farm->user->name} - {$farm->name}"];
                             });
-                    })
-                    ->placeholder('Seleccione finca')
-                    ->reactive()
-                    ->required()
-                    ->searchable(),
+                    }),
                 Forms\Components\TextInput::make('liters')
                     ->label('Litros')
                     ->required()
