@@ -9,6 +9,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -28,43 +29,98 @@ class LoanResource extends Resource
             ->schema([
                 Forms\Components\Select::make('user_id')
                     ->label('Proveedor')
-                    ->relationship('user', 'name')
+                    ->relationship('user', 'name', function (Builder $query, \Filament\Forms\Get $get) {
+                        $query->where('role', 'supplier');
+
+                        // Solo aplicar filtro si es creación (no hay ID aún)
+                        if (blank($get('id'))) {
+                            $query->whereDoesntHave('loans', function ($q) {
+                                $q->whereIn('status', ['active', 'overdue', 'suspended']);
+                            });
+                        }
+                    })
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
                     ->required()
                     ->searchable()
                     ->preload(),
                 Forms\Components\Select::make('farm_id')
                     ->label('Finca')
-                    ->relationship('farm', 'name')
+                    ->relationship('farm', 'name', modifyQueryUsing: fn (Builder $query, \Filament\Forms\Get $get) => 
+                        $query->where('user_id', $get('user_id'))
+                    )
                     ->required()
                     ->searchable()
                     ->preload(),
-                Forms\Components\DatePicker::make('date')
-                    ->label('Fecha')
-                    ->required(),
-                Forms\Components\TextInput::make('amount')
-                    ->label('Monto')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('installments')
-                    ->label('Número de cuotas')
-                    ->required()
-                    ->numeric()
-                    ->default(1),
-                Forms\Components\TextInput::make('installment_value')
-                    ->label('Valor de la cuota')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('paid_value')
-                    ->label('Valor pagado')
-                    ->required()
-                    ->numeric()
-                    ->default(0.00),
+                Forms\Components\Grid::make(3)->schema([
+                    Forms\Components\DatePicker::make('date')
+                        ->label('Fecha')
+                        ->default(now())
+                        ->required(),
+                    Forms\Components\TextInput::make('amount')
+                        ->label('Monto')
+                        ->required()
+                        ->numeric()
+                        ->live()
+                        ->afterStateUpdated(function ($state, $set, $get) {
+                            $amount = $state ?? 0;
+                            $paid = $get('paid_value') ?? 0;
+                            $installments = $get('installments') ?? 1;
+                            $set('saldo', round($amount - $paid, 2));
+                            $set('installment_value', $installments > 0 ? round(($amount - $paid) / $installments, 2) : 0);
+                        }),
+                    Forms\Components\TextInput::make('installments')
+                        ->label('Cuotas')
+                        ->required()
+                        ->numeric()
+                        ->default(1)
+                        ->live()
+                        ->afterStateUpdated(function ($state, $set, $get) {
+                            $amount = $get('amount') ?? 0;
+                            $paid = $get('paid_value') ?? 0;
+                            $installments = $state ?? 1;
+                            $set('installment_value', $installments > 0 ? round(($amount - $paid) / $installments, 2) : 0);
+                        }),
+                ]),
+                Forms\Components\Grid::make(3)->schema([
+                    Forms\Components\TextInput::make('installment_value')
+                        ->label('Cuota')
+                        ->disabled()
+                        ->dehydrated(),
+                    Forms\Components\TextInput::make('paid_value')
+                        ->label('Pagado')
+                        ->required()
+                        ->numeric()
+                        ->default(0.00)
+                        ->live()
+                        ->disabled()
+                        ->afterStateUpdated(function ($state, $set, $get) {
+                            $amount = $get('amount') ?? 0;
+                            $paid = $state ?? 0;
+                            $installments = $get('installments') ?? 1;
+                            $set('saldo', round($amount - $paid, 2));
+                            $set('installment_value', $installments > 0 ? round(($amount - $paid) / $installments, 2) : 0);
+                        }),
+                    Forms\Components\TextInput::make('saldo')
+                        ->label('Saldo')
+                        ->disabled()
+                        ->dehydrated(false),
+                ]),
                 Forms\Components\Textarea::make('description')
                     ->label('Descripción')
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('status')
+                Forms\Components\Select::make('status')
                     ->label('Estado')
-                    ->required(),
+                    ->searchable()
+                    ->preload()
+                    ->options([
+                        'active' => 'Activo',
+                        'paid' => 'Pagado',
+                        'overdue' => 'Vencido',
+                        'suspended' => 'Suspendido',
+                    ])
+                    ->default('active')
+                    ->required()
+                    ->hiddenOn('create'),
             ]);
     }
 
@@ -72,13 +128,29 @@ class LoanResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('Proveedor')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('farm.name')
-                    ->label('Finca')
-                    ->numeric()
+                IconColumn::make('status')
+                    ->label('Estado')
+                    ->icon(fn (string $state): string => match ($state) {
+                        'active' => 'heroicon-o-currency-dollar',
+                        'paid' => 'heroicon-o-check-circle',
+                        'overdue' => 'heroicon-o-x-circle',
+                        'suspended' => 'heroicon-o-pause-circle',
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'active' => 'success',
+                        'paid' => 'info',
+                        'overdue' => 'danger',
+                        'suspended' => 'warning',
+                    })
+                    ->tooltip(fn (string $state): string => match ($state) {
+                        'active' => 'Activo',
+                        'paid' => 'Pagado',
+                        'overdue' => 'Vencido',
+                        'suspended' => 'Suspendido',
+                    }),
+                Tables\Columns\TextColumn::make('user_and_farm')
+                    ->label('Proveedor - Finca')
+                    ->getStateUsing(fn ($record) => "{$record->user->name} - {$record->farm->name}")
                     ->sortable(),
                 Tables\Columns\TextColumn::make('date')
                     ->label('Fecha')
@@ -86,22 +158,20 @@ class LoanResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('amount')
                     ->label('Monto')
-                    ->numeric()
-                    ->sortable(),
+                    ->numeric(),
                 Tables\Columns\TextColumn::make('installments')
-                    ->label('Número de cuotas')
-                    ->numeric()
-                    ->sortable(),
+                    ->label('Cuotas')
+                    ->numeric(),
                 Tables\Columns\TextColumn::make('installment_value')
-                    ->label('Valor de la cuota')
-                    ->numeric()
-                    ->sortable(),
+                    ->label('Cuota')
+                    ->numeric(),
                 Tables\Columns\TextColumn::make('paid_value')
-                    ->label('Valor pagado')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->label('Estado'),
+                    ->label('Pagado')
+                    ->numeric(),
+                Tables\Columns\TextColumn::make('saldo')
+                    ->label('Saldo')
+                    ->getStateUsing(fn ($record) => $record->amount - $record->paid_value)
+                    ->numeric(),
             ])
             ->filters([
                 //
@@ -130,7 +200,7 @@ class LoanResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\PaymentsRelationManager::class,
         ];
     }
 

@@ -55,4 +55,9 @@ class User extends Authenticatable
         return $this->hasMany(Loan::class)
                     ->whereIn('status', ['active', 'overdue', 'suspended']);
     }
+
+    public function loans()
+    {
+        return $this->hasMany(Loan::class);
+    }
 }
