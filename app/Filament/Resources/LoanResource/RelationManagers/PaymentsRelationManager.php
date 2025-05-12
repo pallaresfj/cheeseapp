@@ -52,7 +52,8 @@ class PaymentsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                    ->disabled(fn ($livewire) => $livewire->getOwnerRecord()->status === 'paid'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

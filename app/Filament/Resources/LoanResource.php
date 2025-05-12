@@ -103,7 +103,10 @@ class LoanResource extends Resource
                     Forms\Components\TextInput::make('saldo')
                         ->label('Saldo')
                         ->disabled()
-                        ->dehydrated(false),
+                        ->dehydrated(false)
+                        ->formatStateUsing(function ($state, $record) {
+                            return $record?->amount - $record?->paid_value;
+                        }),
                 ]),
                 Forms\Components\Textarea::make('description')
                     ->label('Descripción')
