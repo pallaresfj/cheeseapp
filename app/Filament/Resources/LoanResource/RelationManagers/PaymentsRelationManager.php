@@ -14,22 +14,39 @@ class PaymentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'payments';
 
+    protected static ?string $modelLabel = 'Pago';
+    protected static ?string $pluralLabel = 'Pagos';
+    protected static ?string $title = 'Pagos';
+
     public function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('loan_id')
+                Forms\Components\Hidden::make('loan_id')
+                    ->default(fn ($livewire) => $livewire->getOwnerRecord()->id),
+                Forms\Components\DatePicker::make('date')
+                    ->label('Fecha')
+                    ->default(now())
+                    ->required(),
+                Forms\Components\TextInput::make('amount')
+                    ->label('Monto')
                     ->required()
-                    ->maxLength(255),
+                    ->numeric(),
             ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('loan_id')
+            ->recordTitleAttribute('date')
             ->columns([
-                Tables\Columns\TextColumn::make('loan_id'),
+                Tables\Columns\TextColumn::make('date')
+                    ->label('Fecha')
+                    ->date()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('amount')
+                    ->label('Valor')
+                    ->money('COP'),
             ])
             ->filters([
                 //
@@ -38,8 +55,18 @@ class PaymentsRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->label('')
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('success')
+                    ->tooltip('Editar')
+                    ->iconSize('h-6 w-6'),
+                Tables\Actions\DeleteAction::make()
+                    ->label('')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger')
+                    ->tooltip('Borrar')
+                    ->iconSize('h-6 w-6'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
