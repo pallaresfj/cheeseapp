@@ -27,12 +27,19 @@ class MilkPurchaseResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\DatePicker::make('date')
+                    ->label('Fecha')
+                    ->required()
+                    ->default(fn () => session('last_milk_purchase_date', now()))
+                    ->afterStateUpdated(fn ($state) => session(['last_milk_purchase_date' => $state])),
                 Forms\Components\Select::make('branch_id')
                     ->label('Sucursal')
                     ->placeholder('Seleccione sucursal')
                     ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
                     ->required()
-                    ->reactive(),
+                    ->reactive()
+                    ->default(fn () => session('last_milk_purchase_branch_id'))
+                    ->afterStateUpdated(fn ($state) => session(['last_milk_purchase_branch_id' => $state])),
                 Forms\Components\Select::make('farm_id')
                     ->label('Finca')
                     ->options(function (callable $get) {
@@ -40,7 +47,6 @@ class MilkPurchaseResource extends Resource
                         if (!$branchId) {
                             return [];
                         }
-
                         return \App\Models\Farm::where('branch_id', $branchId)
                             ->where('status', true)
                             ->with('user')
@@ -53,10 +59,6 @@ class MilkPurchaseResource extends Resource
                     ->reactive()
                     ->required()
                     ->searchable(),
-                Forms\Components\DatePicker::make('date')
-                    ->label('Fecha')
-                    ->required()
-                    ->default(fn () => session('last_milk_purchase_date', now())),
                 Forms\Components\TextInput::make('liters')
                     ->label('Litros')
                     ->required()
