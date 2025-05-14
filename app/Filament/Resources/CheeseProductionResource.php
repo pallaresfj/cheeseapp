@@ -33,7 +33,15 @@ class CheeseProductionResource extends Resource
                     ->reactive()
                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                         $branchId = $state;
-                        $date = $get('date');
+
+                        // Obtener la fecha más reciente de milk_purchases para la sucursal
+                        $lastDate = \App\Models\MilkPurchase::when($branchId, fn ($query) => $query->where('branch_id', $branchId))
+                            ->orderByDesc('date')
+                            ->value('date') ?? now();
+
+                        $set('date', $lastDate);
+
+                        $date = $lastDate;
 
                         if ($branchId && $date) {
                             $totalLiters = \App\Models\MilkPurchase::where('branch_id', $branchId)
@@ -45,12 +53,19 @@ class CheeseProductionResource extends Resource
                     }),
                 Forms\Components\DatePicker::make('date')
                     ->label('Fecha')
-                    ->default(now())
+                    ->default(function (callable $get) {
+                        $branchId = $get('branch_id');
+                        return \App\Models\MilkPurchase::when($branchId, fn ($query) => $query->where('branch_id', $branchId))
+                            ->orderByDesc('date')
+                            ->value('date') ?? now();
+                    })
                     ->required()
                     ->reactive()
                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                         $branchId = $get('branch_id');
                         $date = $state;
+
+                        $set('date', $date);
 
                         if ($branchId && $date) {
                             $totalLiters = \App\Models\MilkPurchase::where('branch_id', $branchId)
