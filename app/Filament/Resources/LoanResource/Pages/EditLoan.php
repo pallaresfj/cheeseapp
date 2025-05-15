@@ -13,7 +13,7 @@ class EditLoan extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            // Actions\DeleteAction::make(),
         ];
     }
 
@@ -39,5 +39,19 @@ class EditLoan extends EditRecord
     protected function getRedirectUrl(): string
     {
         return static::getResource()::getUrl('index');
+    }
+    public function mount($record): void
+    {
+        parent::mount($record);
+
+        if ($this->record->status === 'paid') {
+            \Filament\Notifications\Notification::make()
+                ->title('El préstamo ya fue pagado')
+                ->body('Este préstamo no puede ser editado porque su estado es Pagado.')
+                ->danger()
+                ->send();
+
+            $this->redirect(static::getResource()::getUrl('index'));
+        }
     }
 }

@@ -116,17 +116,15 @@ class LoanResource extends Resource
                     ->columnSpanFull(),
                 Forms\Components\Select::make('status')
                     ->label('Estado')
-                    ->searchable()
-                    ->preload()
-                    ->options([
+                    ->options(fn (\Filament\Forms\Get $get) => [
                         'active' => 'Activo',
-                        'paid' => 'Pagado',
                         'overdue' => 'Vencido',
                         'suspended' => 'Suspendido',
+                        ...($get('status') === 'paid' ? ['paid' => 'Pagado'] : []),
                     ])
-                    ->default('active')
                     ->required()
-                    ->hiddenOn('create'),
+                    ->hiddenOn('create')
+                    ->disabled(fn (\Filament\Forms\Get $get) => $get('status') === 'paid'),
             ]);
     }
 
@@ -197,18 +195,23 @@ class LoanResource extends Resource
                     ->icon('heroicon-o-pencil-square')
                     ->color('success')
                     ->tooltip('Editar')
-                    ->iconSize('h-6 w-6'),
+                    ->iconSize('h-6 w-6')
+                    ->disabled(fn ($record) => $record->status === 'paid'),
                 Tables\Actions\DeleteAction::make()
                     ->label('')
                     ->icon('heroicon-o-trash')
                     ->color('danger')
                     ->tooltip('Borrar')
-                    ->iconSize('h-6 w-6'),
+                    ->iconSize('h-6 w-6')
+                    ->disabled(fn ($record) =>
+                        in_array($record->status, ['overdue', 'suspended']) ||
+                        ($record->status === 'active' && $record->amount > $record->paid_value && $record->paid_value > 0)
+                    ),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+                /* Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                ]), */
             ]);
     }
 
