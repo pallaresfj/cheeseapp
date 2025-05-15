@@ -42,7 +42,8 @@ class LoanResource extends Resource
                     ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
                     ->required()
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->disabledOn('edit'),
                 Forms\Components\Select::make('farm_id')
                     ->label('Finca')
                     ->relationship('farm', 'name', modifyQueryUsing: fn (Builder $query, \Filament\Forms\Get $get) => 
@@ -55,7 +56,8 @@ class LoanResource extends Resource
                     Forms\Components\DatePicker::make('date')
                         ->label('Fecha')
                         ->default(now())
-                        ->required(),
+                        ->required()
+                        ->disabledOn('edit'),
                     Forms\Components\TextInput::make('amount')
                         ->label('Monto')
                         ->required()
@@ -67,7 +69,8 @@ class LoanResource extends Resource
                             $installments = $get('installments') ?? 1;
                             $set('saldo', round($amount - $paid, 2));
                             $set('installment_value', $installments > 0 ? round(($amount - $paid) / $installments, 2) : 0);
-                        }),
+                        })
+                        ->disabledOn('edit'),
                     Forms\Components\TextInput::make('installments')
                         ->label('Cuotas')
                         ->required()
@@ -82,10 +85,6 @@ class LoanResource extends Resource
                         }),
                 ]),
                 Forms\Components\Grid::make(3)->schema([
-                    Forms\Components\TextInput::make('installment_value')
-                        ->label('Cuota')
-                        ->disabled()
-                        ->dehydrated(),
                     Forms\Components\TextInput::make('paid_value')
                         ->label('Pagado')
                         ->required()
@@ -107,6 +106,10 @@ class LoanResource extends Resource
                         ->formatStateUsing(function ($state, $record) {
                             return $record?->amount - $record?->paid_value;
                         }),
+                    Forms\Components\TextInput::make('installment_value')
+                        ->label('Cuota')
+                        ->disabled()
+                        ->dehydrated(),
                 ]),
                 Forms\Components\Textarea::make('description')
                     ->label('Descripción')
@@ -130,6 +133,7 @@ class LoanResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('date', 'desc')
             ->columns([
                 IconColumn::make('status')
                     ->label('Estado')
@@ -151,10 +155,13 @@ class LoanResource extends Resource
                         'overdue' => 'Vencido',
                         'suspended' => 'Suspendido',
                     }),
-                Tables\Columns\TextColumn::make('user_and_farm')
+                Tables\Columns\TextColumn::make('proveedor_finca')
                     ->label('Proveedor - Finca')
                     ->getStateUsing(fn ($record) => "{$record->user->name} - {$record->farm->name}")
-                    ->sortable(),
+                    ->searchable(query: function ($query, $search) {
+                        return $query->whereHas('user', fn ($q) => $q->where('name', 'like', "%{$search}%"))
+                                    ->orWhereHas('farm', fn ($q) => $q->where('name', 'like', "%{$search}%"));
+                    }),
                 Tables\Columns\TextColumn::make('date')
                     ->label('Fecha')
                     ->date()
@@ -177,8 +184,13 @@ class LoanResource extends Resource
                     ->numeric(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('branch_id')
+                    ->label('Sucursal')
+                    ->relationship('farm.branch', 'name')
+                    ->searchable()
+                    ->preload(),
             ])
+            ->persistFiltersInSession()
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->label('')
