@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\LiquidationSummaryResource\Pages;
 use App\Filament\Resources\LiquidationSummaryResource\RelationManagers;
 use App\Models\LiquidationSummary;
+use App\Models\MilkPurchase;
+use App\Models\Liquidation;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables\Filters\SelectFilter;
@@ -12,6 +14,8 @@ use Filament\Tables\Filters\Filter;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Illuminate\Support\Collection;
+use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -36,6 +40,8 @@ class LiquidationSummaryResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->heading('Liquidaciones Previas')
+            ->description('Revise antes de generar las liquidaciones definitivas.')
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
@@ -53,7 +59,7 @@ class LiquidationSummaryResource extends Resource
                     ->alignEnd(),
                 TextColumn::make('total_paid')
                     ->label('Producido')
-                    ->money('COP')
+                    ->money('COP', locale: 'es_CO')
                     ->alignEnd(),
                 TextColumn::make('loan_amount')
                     ->label('Prestado')
@@ -139,7 +145,27 @@ class LiquidationSummaryResource extends Resource
                     ->searchable()
                     ->preload(),
             ])
-            ->persistFiltersInSession();
+            ->persistFiltersInSession()
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('delete')
+                    ->label('Deshacer liquidación')
+                    ->icon('heroicon-o-arrow-uturn-down')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->action(function (Collection $records) {
+                        foreach ($records as $record) {
+                            MilkPurchase::where('liquidation_id', $record->id)
+                                ->update([
+                                    'status' => 'pending',
+                                    'liquidation_id' => null,
+                                ]);
+
+                            Liquidation::where('id', $record->id)->delete();
+                        }
+                    }),
+                ]),
+            ]);
     }
 
     public static function getRelations(): array
