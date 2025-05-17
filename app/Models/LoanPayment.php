@@ -20,16 +20,6 @@ class LoanPayment extends Model
 
     protected static function booted()
     {
-        static::created(function ($payment) {
-            DB::statement("CALL update_paid_value(?)", [$payment->loan_id]);
-        });
-
-        static::updated(function ($payment) {
-            DB::statement("CALL update_paid_value(?)", [$payment->loan_id]);
-        });
-
-        static::deleted(function ($payment) {
-            DB::statement("CALL update_paid_value(?)", [$payment->loan_id]);
-        });
+        //
     }
 }
