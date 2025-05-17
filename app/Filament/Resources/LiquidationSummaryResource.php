@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\LiquidationSummaryResource\Pages;
 use App\Filament\Resources\LiquidationSummaryResource\RelationManagers;
 use App\Models\LiquidationSummary;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
@@ -15,6 +16,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\HtmlString;
 
 class LiquidationSummaryResource extends Resource
 {
@@ -77,6 +79,40 @@ class LiquidationSummaryResource extends Resource
                     ->label('Neto')
                     ->money('COP', locale: 'es_CO')
                     ->alignEnd(),
+            ])
+            ->actions([
+                Tables\Actions\Action::make('ver_detalles')
+                    ->label('')
+                    ->icon('heroicon-o-ellipsis-vertical')
+                    ->color('info')
+                    ->tooltip('Detalles')
+                    ->iconSize('h-6 w-6')
+                    ->modalHeading(fn (LiquidationSummary $record) => $record->farm_display)
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Cerrar')
+                    ->modalWidth('md')
+                    ->modalContent(fn (LiquidationSummary $record) =>
+                        new HtmlString(
+                            '<div class="overflow-x-auto text-sm w-full">
+                                <table class="table-auto w-full border border-gray-300">
+                                    <thead class="bg-gray-100 text-left">
+                                        <tr>
+                                            <th class="px-4 py-2 border-b">Fecha</th>
+                                            <th class="px-4 py-2 border-b">Litros</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>' .
+                                    collect($record->details)->map(fn ($item) =>
+                                        '<tr>
+                                            <td class="px-4 py-1 border-b">' . e(\Carbon\Carbon::parse($item['date'] ?? '')->format('d/m/Y')) . '</td>
+                                            <td class="px-4 py-1 border-b text-right">' . e(number_format($item['liters'] ?? 0, 2, ',', '.')) . '</td>
+                                        </tr>'
+                                    )->implode('') .
+                                '</tbody>
+                                </table>
+                            </div>'
+                        )
+                    ),
             ])
             ->groups([
                 Tables\Grouping\Group::make('date')

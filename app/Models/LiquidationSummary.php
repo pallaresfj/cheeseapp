@@ -11,6 +11,10 @@ class LiquidationSummary extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'details' => 'array',
+    ];
+
     public function branch()
     {
         return $this->belongsTo(Branch::class);

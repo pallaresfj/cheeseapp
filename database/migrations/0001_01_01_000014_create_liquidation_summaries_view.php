@@ -19,6 +19,7 @@ return new class extends Migration
                 L.date,
                 L.branch_id,
                 L.farm_id,
+                L.details,
                 L.total_liters,
                 L.price_per_liter,
                 (L.total_liters * L.price_per_liter) AS total_paid,
