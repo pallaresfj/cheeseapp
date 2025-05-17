@@ -30,7 +30,8 @@ class LoanResource extends Resource
                 Forms\Components\Select::make('user_id')
                     ->label('Proveedor')
                     ->relationship('user', 'name', function (Builder $query, \Filament\Forms\Get $get) {
-                        $query->where('role', 'supplier');
+                        $query->where('role', 'supplier')
+                              ->whereHas('farms');
 
                         // Solo aplicar filtro si es creación (no hay ID aún)
                         if (blank($get('id'))) {
