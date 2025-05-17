@@ -23,7 +23,6 @@ return new class extends Migration
                 L.price_per_liter,
                 (L.total_liters * L.price_per_liter) AS total_paid,
 
-                -- Último préstamo activo/overdue/suspended por finca (si hay)
                 COALESCE(
                     CASE
                         WHEN P.status IN ('active', 'overdue', 'suspended') THEN P.amount
@@ -33,7 +32,7 @@ return new class extends Migration
 
                 COALESCE(
                     CASE
-                        WHEN P.status IN ('active', 'overdue', 'suspended') THEN P.amount - P.paid_value
+                        WHEN P.status IN ('active', 'overdue', 'suspended') THEN (P.amount - P.paid_value)
                         ELSE 0
                     END, 0
                 ) AS loan_balance,
@@ -45,40 +44,55 @@ return new class extends Migration
                     END, 0
                 ) AS installment_value,
 
-                -- Descuento calculado
                 COALESCE(
                     CASE
-                        WHEN P.status NOT IN ('active', 'overdue', 'suspended') THEN 0
-                        WHEN (P.amount - P.paid_value) >= P.installment_value AND (L.total_liters * L.price_per_liter) >= P.installment_value
-                            THEN P.installment_value
-                        WHEN (P.amount - P.paid_value) < P.installment_value AND (L.total_liters * L.price_per_liter) >= (P.amount - P.paid_value)
-                            THEN (P.amount - P.paid_value)
+                        WHEN P.id IS NULL OR P.status = 'paid' THEN 0
+                        WHEN P.status = 'suspended' THEN 0
+                        WHEN (P.amount - P.paid_value) >= P.installment_value AND (L.total_liters * L.price_per_liter) >= P.installment_value THEN P.installment_value
+                        WHEN (P.amount - P.paid_value) < P.installment_value AND (L.total_liters * L.price_per_liter) >= (P.amount - P.paid_value) THEN (P.amount - P.paid_value)
+                        WHEN P.installment_value > (L.total_liters * L.price_per_liter) THEN (L.total_liters * L.price_per_liter)
                         ELSE 0
                     END, 0
                 ) AS discount,
 
-                -- Neto
                 (L.total_liters * L.price_per_liter) -
                 COALESCE(
                     CASE
-                        WHEN P.status NOT IN ('active', 'overdue', 'suspended') THEN 0
-                        WHEN (P.amount - P.paid_value) >= P.installment_value AND (L.total_liters * L.price_per_liter) >= P.installment_value
-                            THEN P.installment_value
-                        WHEN (P.amount - P.paid_value) < P.installment_value AND (L.total_liters * L.price_per_liter) >= (P.amount - P.paid_value)
-                            THEN (P.amount - P.paid_value)
+                        WHEN P.id IS NULL OR P.status = 'paid' THEN 0
+                        WHEN P.status = 'suspended' THEN 0
+                        WHEN (P.amount - P.paid_value) >= P.installment_value AND (L.total_liters * L.price_per_liter) >= P.installment_value THEN P.installment_value
+                        WHEN (P.amount - P.paid_value) < P.installment_value AND (L.total_liters * L.price_per_liter) >= (P.amount - P.paid_value) THEN (P.amount - P.paid_value)
+                        WHEN P.installment_value > (L.total_liters * L.price_per_liter) THEN (L.total_liters * L.price_per_liter)
                         ELSE 0
                     END, 0
-                ) AS net_amount
+                ) AS net_amount,
+                ((CASE
+                    WHEN P.status IN ('active', 'overdue', 'suspended') THEN (P.amount - P.paid_value)
+                    ELSE 0
+                END) -
+                COALESCE(
+                    CASE
+                        WHEN P.id IS NULL OR P.status = 'paid' THEN 0
+                        WHEN P.status = 'suspended' THEN 0
+                        WHEN (P.amount - P.paid_value) >= P.installment_value AND (L.total_liters * L.price_per_liter) >= P.installment_value THEN P.installment_value
+                        WHEN (P.amount - P.paid_value) < P.installment_value AND (L.total_liters * L.price_per_liter) >= (P.amount - P.paid_value) THEN (P.amount - P.paid_value)
+                        WHEN P.installment_value > (L.total_liters * L.price_per_liter) THEN (L.total_liters * L.price_per_liter)
+                        ELSE 0
+                    END, 0)
+                ) AS new_balance
 
             FROM liquidations L
-            LEFT JOIN loans P ON P.farm_id = L.farm_id
-            AND P.status IN ('active', 'overdue', 'suspended')
-            AND P.created_at = (
-                SELECT MAX(created_at)
-                FROM loans P2
-                WHERE P2.farm_id = L.farm_id
-                AND P2.status IN ('active', 'overdue', 'suspended')
-            );
+            LEFT JOIN (
+                SELECT *
+                FROM loans
+                WHERE status IN ('active', 'overdue', 'suspended')
+                AND created_at IN (
+                    SELECT MAX(created_at)
+                    FROM loans
+                    WHERE status IN ('active', 'overdue', 'suspended')
+                    GROUP BY farm_id
+                )
+            ) P ON P.farm_id = L.farm_id;
         SQL);
     }
 

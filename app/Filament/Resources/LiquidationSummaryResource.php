@@ -6,9 +6,12 @@ use App\Filament\Resources\LiquidationSummaryResource\Pages;
 use App\Filament\Resources\LiquidationSummaryResource\RelationManagers;
 use App\Models\LiquidationSummary;
 use Filament\Forms;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -32,51 +35,75 @@ class LiquidationSummaryResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
+                TextColumn::make('id')
                     ->label('ID')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('date')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('branch.name')
-                    ->label('Sucursal'),
-                Tables\Columns\TextColumn::make('farm.name')
+                TextColumn::make('farm_display')
                     ->label('Proveedor - Finca'),
-                Tables\Columns\TextColumn::make('total_liters')
+                TextColumn::make('total_liters')
                     ->label('Litros')
                     ->numeric()
                     ->alignEnd(),
-                Tables\Columns\TextColumn::make('price_per_liter')
+                TextColumn::make('price_per_liter')
                     ->label('Precio')
                     ->money('COP', locale: 'es_CO')
                     ->alignEnd(),
-                Tables\Columns\TextColumn::make('total_paid')
+                TextColumn::make('total_paid')
                     ->label('Producido')
                     ->money('COP')
                     ->alignEnd(),
-                Tables\Columns\TextColumn::make('loan_amount')
+                TextColumn::make('loan_amount')
                     ->label('Prestado')
                     ->money('COP', locale: 'es_CO')
                     ->alignEnd(),
-                Tables\Columns\TextColumn::make('loan_balance')
+                TextColumn::make('loan_balance')
                     ->label('Debe')
                     ->money('COP', locale: 'es_CO')
                     ->alignEnd(),
-                Tables\Columns\TextColumn::make('installment_value')
+                TextColumn::make('installment_value')
                     ->label('Cuota')
                     ->money('COP', locale: 'es_CO')
                     ->alignEnd(),
-                Tables\Columns\TextColumn::make('discount')
+                TextColumn::make('discount')
                     ->label('Descuento')
                     ->money('COP', locale: 'es_CO')
                     ->alignEnd(),
-                Tables\Columns\TextColumn::make('net_amount')
+                TextColumn::make('new_balance')
+                    ->label('Nuevo saldo')
+                    ->money('COP', locale: 'es_CO')
+                    ->alignEnd(),
+                TextColumn::make('net_amount')
                     ->label('Neto')
                     ->money('COP', locale: 'es_CO')
                     ->alignEnd(),
             ])
-            ->filters([]);
+            ->groups([
+                Tables\Grouping\Group::make('date')
+                    ->label('Fecha')
+                    ->collapsible()
+            ])
+            ->defaultGroup('date')
+            ->groupingSettingsHidden()
+            ->filters([
+                SelectFilter::make('branch_id')
+                    ->label('Sucursal')
+                    ->relationship('branch', 'name')
+                    ->searchable()
+                    ->preload(),
+
+                SelectFilter::make('farm_id')
+                    ->label('Proveedor - Finca')
+                    ->options(function () {
+                        return \App\Models\Farm::with('user')->get()->mapWithKeys(function ($farm) {
+                            $label = ($farm->user->name ?? '—') . ' - ' . $farm->name;
+                            return [$farm->id => $label];
+                        });
+                    })
+                    ->searchable()
+                    ->preload(),
+            ])
+            ->persistFiltersInSession();
     }
 
     public static function getRelations(): array
