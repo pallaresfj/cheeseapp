@@ -32,18 +32,49 @@ class LiquidationSummaryResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')->label('ID')->numeric()->sortable(),
-                Tables\Columns\TextColumn::make('date')->date()->sortable(),
-                Tables\Columns\TextColumn::make('branch_id')->numeric()->sortable(),
-                Tables\Columns\TextColumn::make('farm_id')->numeric()->sortable(),
-                Tables\Columns\TextColumn::make('total_liters')->numeric()->sortable(),
-                Tables\Columns\TextColumn::make('price_per_liter')->numeric()->sortable(),
-                Tables\Columns\TextColumn::make('total_paid')->numeric()->sortable(),
-                Tables\Columns\TextColumn::make('loan_amount')->numeric()->sortable(),
-                Tables\Columns\TextColumn::make('loan_balance')->numeric()->sortable(),
-                Tables\Columns\TextColumn::make('installment_value')->numeric()->sortable(),
-                Tables\Columns\TextColumn::make('discount')->numeric()->sortable(),
-                Tables\Columns\TextColumn::make('net_amount')->numeric()->sortable(),
+                Tables\Columns\TextColumn::make('id')
+                    ->label('ID')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('date')
+                    ->date()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('branch.name')
+                    ->label('Sucursal'),
+                Tables\Columns\TextColumn::make('farm.name')
+                    ->label('Proveedor - Finca'),
+                Tables\Columns\TextColumn::make('total_liters')
+                    ->label('Litros')
+                    ->numeric()
+                    ->alignEnd(),
+                Tables\Columns\TextColumn::make('price_per_liter')
+                    ->label('Precio')
+                    ->money('COP', locale: 'es_CO')
+                    ->alignEnd(),
+                Tables\Columns\TextColumn::make('total_paid')
+                    ->label('Producido')
+                    ->money('COP')
+                    ->alignEnd(),
+                Tables\Columns\TextColumn::make('loan_amount')
+                    ->label('Prestado')
+                    ->money('COP', locale: 'es_CO')
+                    ->alignEnd(),
+                Tables\Columns\TextColumn::make('loan_balance')
+                    ->label('Debe')
+                    ->money('COP', locale: 'es_CO')
+                    ->alignEnd(),
+                Tables\Columns\TextColumn::make('installment_value')
+                    ->label('Cuota')
+                    ->money('COP', locale: 'es_CO')
+                    ->alignEnd(),
+                Tables\Columns\TextColumn::make('discount')
+                    ->label('Descuento')
+                    ->money('COP', locale: 'es_CO')
+                    ->alignEnd(),
+                Tables\Columns\TextColumn::make('net_amount')
+                    ->label('Neto')
+                    ->money('COP', locale: 'es_CO')
+                    ->alignEnd(),
             ])
             ->filters([]);
     }
