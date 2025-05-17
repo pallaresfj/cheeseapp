@@ -121,6 +121,42 @@ class LiquidationSummaryResource extends Resource
                             </div>'
                         )
                     ),
+                Tables\Actions\Action::make('alternar_estado_prestamo')
+                    ->label('')
+                    ->icon(fn (LiquidationSummary $record) => match (\App\Models\Loan::find($record->loan_id)?->status) {
+                        'active' => 'heroicon-o-pause-circle',
+                        'suspended' => 'heroicon-o-check-circle',
+                        default => 'heroicon-o-minus-circle',
+                    })
+                    ->color(fn (LiquidationSummary $record) => match (\App\Models\Loan::find($record->loan_id)?->status) {
+                        'active' => 'success',
+                        'suspended' => 'warning',
+                        default => 'gray',
+                    })
+                    ->tooltip(fn (LiquidationSummary $record) => match (\App\Models\Loan::find($record->loan_id)?->status) {
+                        'active' => 'Suspender préstamo',
+                        'suspended' => 'Activar préstamo',
+                        default => 'Estado no disponible',
+                    })
+                    ->iconSize('h-6 w-6')
+                    ->disabled(fn (LiquidationSummary $record) =>
+                        ! $record->loan_id || ! \App\Models\Loan::where('id', $record->loan_id)
+                            ->whereIn('status', ['active', 'suspended'])
+                            ->exists()
+                    )
+                    ->action(function (LiquidationSummary $record) {
+                        $loan = \App\Models\Loan::find($record->loan_id);
+
+                        if ($loan && in_array($loan->status, ['active', 'suspended'])) {
+                            $loan->status = $loan->status === 'active' ? 'suspended' : 'active';
+                            $loan->save();
+
+                            Notification::make()
+                                ->title('Estado del préstamo actualizado')
+                                ->success()
+                                ->send();
+                        }
+                    }),
             ])
             ->groups([
                 Tables\Grouping\Group::make('date')
