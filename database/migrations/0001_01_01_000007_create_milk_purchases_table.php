@@ -18,6 +18,7 @@ return new class extends Migration
             $table->date('date');
             $table->decimal('liters', 10, 2);
             $table->enum('status', ['pending', 'liquidated'])->default('pending');
+            $table->foreignId('liquidation_id')->nullable()->constrained()->nullOnDelete();
             $table->timestamps();
         
             $table->unique(['farm_id', 'date']);
