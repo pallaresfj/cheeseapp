@@ -7,8 +7,10 @@ use App\Filament\Resources\LiquidationSummaryResource\RelationManagers;
 use App\Models\LiquidationSummary;
 use App\Models\MilkPurchase;
 use App\Models\Liquidation;
+use App\Models\LoanPayment;
 use Carbon\Carbon;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Form;
@@ -149,21 +151,65 @@ class LiquidationSummaryResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\BulkAction::make('delete')
-                    ->label('Deshacer liquidación')
-                    ->icon('heroicon-o-arrow-uturn-down')
-                    ->color('warning')
-                    ->requiresConfirmation()
-                    ->action(function (Collection $records) {
-                        foreach ($records as $record) {
-                            MilkPurchase::where('liquidation_id', $record->id)
-                                ->update([
-                                    'status' => 'pending',
-                                    'liquidation_id' => null,
-                                ]);
+                        ->label('Deshacer liquidación')
+                        ->icon('heroicon-o-arrow-uturn-down')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records) {
+                            foreach ($records as $record) {
+                                MilkPurchase::where('liquidation_id', $record->id)
+                                    ->update([
+                                        'status' => 'pending',
+                                        'liquidation_id' => null,
+                                    ]);
 
-                            Liquidation::where('id', $record->id)->delete();
-                        }
-                    }),
+                                Liquidation::where('id', $record->id)->delete();
+                            }
+
+                            Notification::make()
+                                ->title('Liquidaciones deshechas')
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                    Tables\Actions\BulkAction::make('approve')
+                        ->label('Aprobar liquidación')
+                        ->icon('heroicon-o-check')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records) {
+                            foreach ($records as $record) {
+                                // Si hay descuento
+                                if ($record->discount > 0) {
+                                    $loan = \App\Models\Loan::where('farm_id', $record->farm_id)
+                                        ->whereIn('status', ['active', 'overdue', 'suspended'])
+                                        ->orderByDesc('created_at')
+                                        ->first();
+
+                                    if ($loan) {
+                                        LoanPayment::create([
+                                            'loan_id' => $loan->id,
+                                            'date' => Carbon::parse($record->date),
+                                            'amount' => $record->discount,
+                                        ]);
+                                    }
+                                }
+
+                                // Actualiza la liquidación
+                                \App\Models\Liquidation::where('id', $record->id)->update([
+                                    'loan_amount' => $record->loan_amount,
+                                    'previous_balance' => $record->loan_balance,
+                                    'discounts' => $record->discount,
+                                    'status' => 'liquidated',
+                                ]);
+                            }
+
+                            Notification::make()
+                                ->title('Liquidaciones aprobadas')
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
                 ]),
             ]);
     }

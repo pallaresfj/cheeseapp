@@ -22,6 +22,7 @@ return new class extends Migration
                 L.details,
                 L.total_liters,
                 L.price_per_liter,
+                P.id AS loan_id,
                 (L.total_liters * L.price_per_liter) AS total_paid,
 
                 COALESCE(
@@ -93,7 +94,8 @@ return new class extends Migration
                     WHERE status IN ('active', 'overdue', 'suspended')
                     GROUP BY farm_id
                 )
-            ) P ON P.farm_id = L.farm_id;
+            ) P ON P.farm_id = L.farm_id
+            WHERE L.status = 'pending';
         SQL);
     }
 
