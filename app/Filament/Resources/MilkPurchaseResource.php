@@ -73,6 +73,92 @@ class MilkPurchaseResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->headerActions([
+                Tables\Actions\Action::make('liquidarCompras')
+                    ->label('Liquidar compras')
+                    ->icon('heroicon-o-calculator')
+                    ->color('success')
+                    ->form([
+                        Forms\Components\Select::make('branch_id')
+                            ->label('Sucursal')
+                            ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
+                            ->required()
+                            ->searchable()
+                            ->preload()
+                            ->reactive()
+                            ->afterStateUpdated(function (callable $set, $state) {
+                                $startDate = \App\Models\MilkPurchase::where('branch_id', $state)
+                                    ->where('status', 'pending')
+                                    ->orderBy('date')
+                                    ->value('date');
+
+                                if ($startDate) {
+                                    $ciclo = (int) \App\Models\Setting::where('key', 'facturacion.ciclo')->value('value') ?? 7;
+                                    $endDate = \Carbon\Carbon::parse($startDate)->addDays($ciclo - 1);
+                                    $settlementDate = $endDate->copy()->addDay();
+
+                                    $set('start_date', $startDate);
+                                    $set('end_date', $endDate->toDateString());
+                                    $set('settlement_date', $settlementDate->toDateString());
+                                }
+                            }),
+
+                        Forms\Components\DatePicker::make('start_date')
+                            ->label('Fecha inicio')
+                            ->required()
+                            ->reactive(),
+
+                        Forms\Components\DatePicker::make('end_date')
+                            ->label('Fecha final')
+                            ->required()
+                            ->reactive(),
+
+
+                        Forms\Components\Placeholder::make('resumen_liquidacion')
+                            ->label('Resumen')
+                            ->content(function (callable $get) {
+                                $branchId = $get('branch_id');
+                                $start = $get('start_date');
+                                $end = $get('end_date');
+
+                                if (!$branchId || !$start || !$end) return 'Seleccione sucursal y fechas';
+
+                                $query = \App\Models\MilkPurchase::where('branch_id', $branchId)
+                                    ->where('status', 'pending')
+                                    ->whereBetween('date', [$start, $end]);
+
+                                $count = $query->count();
+                                $totalLitros = number_format($query->sum('liters'), 2);
+
+                                $startFormatted = \Carbon\Carbon::parse($start)->translatedFormat('F d/Y');
+                                $endFormatted = \Carbon\Carbon::parse($end)->translatedFormat('F d/Y');
+                                return "Se liquidarán {$count} compras pendientes entre {$startFormatted} y {$endFormatted}, con un total de {$totalLitros} litros.";
+                            })
+                            ->visible(fn (callable $get) => $get('branch_id') && $get('start_date') && $get('end_date')),
+                    ])
+                    ->action(function (array $data): void {
+                        try {
+                            \Illuminate\Support\Facades\DB::statement("CALL liquidar_compras(?, ?, ?)", [
+                                $data['branch_id'],
+                                $data['start_date'],
+                                $data['end_date'],
+                            ]);
+
+                            \Filament\Notifications\Notification::make()
+                                ->title('Liquidación ejecutada correctamente')
+                                ->success()
+                                ->send();
+                        } catch (\Exception $e) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Error al ejecutar la liquidación')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading('Ejecutar Liquidación')
+            ])
             ->columns([
                 Tables\Columns\TextColumn::make('branch.name')
                     ->label('Sucursal')
