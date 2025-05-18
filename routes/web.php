@@ -9,14 +9,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/admin/liquidation/{liquidation}/pdf', [LiquidationPdfController::class, 'show'])
+Route::get('/admin/liquidation/{liquidation}/pdf', [LiquidationPdfController::class, 'onlypdf'])
     ->name('filament.liquidation.pdf');
 
-Route::get('/admin/liquidations/pdf/bulk', function (Request $request) {
-    $ids = explode(',', $request->ids);
-    $liquidations = \App\Models\Liquidation::with('farm.user')->findMany($ids);
-
-    $pdf = Pdf::loadView('pdfs.liquidations_bulk', compact('liquidations'));
-
-    return $pdf->stream('liquidaciones.pdf');
-})->name('filament.liquidations.bulk-pdf');
+Route::get('/admin/liquidations/pdf/bulk', [LiquidationPdfController::class, 'allpdf'])
+    ->name('filament.liquidations.bulk-pdf');

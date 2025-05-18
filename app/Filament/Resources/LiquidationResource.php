@@ -7,12 +7,14 @@ use App\Filament\Resources\LiquidationResource\RelationManagers;
 use App\Models\Liquidation;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 
 class LiquidationResource extends Resource
@@ -163,7 +165,7 @@ class LiquidationResource extends Resource
 
                         $record->delete();
 
-                        \Filament\Notifications\Notification::make()
+                        Notification::make()
                             ->title('Liquidación deshecha correctamente')
                             ->success()
                             ->send();
@@ -189,7 +191,7 @@ class LiquidationResource extends Resource
                                 $record->delete();
                             }
 
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->title('Liquidaciones deshechas correctamente')
                                 ->success()
                                 ->send();
@@ -199,11 +201,8 @@ class LiquidationResource extends Resource
                         ->label('Descargar PDF')
                         ->icon('heroicon-o-printer')
                         ->color('success')
-                        ->requiresConfirmation()
-                        ->modalHeading('¿Generar PDF?')
-                        ->modalDescription('Esto generará un archivo PDF con todas las liquidaciones seleccionadas.')
-                        ->action(function (\Illuminate\Support\Collection $records) {
-                            \Filament\Notifications\Notification::make()
+                        ->action(function (Collection $records) {
+                            Notification::make()
                                 ->title('Generando archivo PDF…')
                                 ->success()
                                 ->send();
