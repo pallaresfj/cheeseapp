@@ -140,9 +140,16 @@ class LiquidationResource extends Resource
                             </div>'
                         )
                     ),
+                Tables\Actions\Action::make('generar_pdf')
+                    ->label('')
+                    ->icon('heroicon-o-printer')
+                    ->color('success')
+                    ->tooltip('Descargar PDF')
+                    ->url(fn ($record) => route('filament.liquidation.pdf', $record), true),
                 Tables\Actions\Action::make('delete')
                     ->label('')
                     ->icon('heroicon-o-arrow-uturn-down')
+                    ->tooltip('Deshacer liquidación')
                     ->color('warning')
                     ->requiresConfirmation()
                     ->modalHeading('¿Desea deshacer esta liquidación?')
@@ -186,6 +193,23 @@ class LiquidationResource extends Resource
                                 ->title('Liquidaciones deshechas correctamente')
                                 ->success()
                                 ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                    Tables\Actions\BulkAction::make('descargar_pdf')
+                        ->label('Descargar PDF')
+                        ->icon('heroicon-o-printer')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('¿Generar PDF?')
+                        ->modalDescription('Esto generará un archivo PDF con todas las liquidaciones seleccionadas.')
+                        ->action(function (\Illuminate\Support\Collection $records) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Generando archivo PDF…')
+                                ->success()
+                                ->send();
+
+                            $ids = $records->pluck('id')->implode(',');
+                            return redirect()->to(route('filament.liquidations.bulk-pdf', ['ids' => $ids]));
                         })
                         ->deselectRecordsAfterCompletion(),
                 ])
