@@ -56,6 +56,9 @@ class AdminPanelProvider extends PanelProvider
                      ->label('Compras')
                      ->icon('heroicon-o-shopping-cart'),
                 NavigationGroup::make()
+                     ->label('Liquidaciones')
+                     ->icon('heroicon-o-calculator'),
+                NavigationGroup::make()
                     ->label('Ventas')
                     ->icon('heroicon-o-currency-dollar'),
                 NavigationGroup::make()

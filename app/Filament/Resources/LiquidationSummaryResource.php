@@ -28,11 +28,11 @@ class LiquidationSummaryResource extends Resource
 {
     protected static ?string $model = LiquidationSummary::class;
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 2;
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
-    protected static ?string $navigationGroup = 'Compras';
-    protected static ?string $label = 'Liquidación';
-    protected static ?string $pluralLabel = 'Liquidaciones';
+    protected static ?string $navigationGroup = 'Liquidaciones';
+    protected static ?string $label = 'Liquidación Previa';
+    protected static ?string $pluralLabel = 'Liquidaciones Previas';
 
     public static function canCreate(): bool
     {
@@ -42,7 +42,6 @@ class LiquidationSummaryResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->heading('Liquidaciones Previas')
             ->description('Revise antes de generar las liquidaciones definitivas.')
             ->columns([
                 TextColumn::make('id')
@@ -80,7 +79,7 @@ class LiquidationSummaryResource extends Resource
                     ->money('COP', locale: 'es_CO')
                     ->alignEnd(),
                 TextColumn::make('new_balance')
-                    ->label('Nuevo saldo')
+                    ->label('Nuevo Saldo')
                     ->money('COP', locale: 'es_CO')
                     ->alignEnd(),
                 TextColumn::make('net_amount')
@@ -103,7 +102,7 @@ class LiquidationSummaryResource extends Resource
                         new HtmlString(
                             '<div class="overflow-x-auto text-sm w-full">
                                 <table class="table-auto w-full border border-gray-300">
-                                    <thead class="bg-gray-100 text-left">
+                                    <thead class="bg-gray-100 dark:bg-gray-800 text-left text-gray-700 dark:text-gray-200">
                                         <tr>
                                             <th class="px-4 py-2 border-b">Fecha</th>
                                             <th class="px-4 py-2 border-b">Litros</th>

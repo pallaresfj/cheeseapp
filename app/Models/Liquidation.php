@@ -15,6 +15,10 @@ class Liquidation extends Model
         'loan_amount', 'previous_balance', 'discounts', 'details', 'status'
     ];
 
+    protected $casts = [
+        'details' => 'array',
+    ];
+
     public function branch() : BelongsTo
     { 
         return $this->belongsTo(Branch::class); 
