@@ -18,7 +18,7 @@ class SaleResource extends Resource
     protected static ?string $model = Sale::class;
     protected static ?int $navigationSort = 2;
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
-    protected static ?string $navigationGroup = 'Ventas';
+    protected static ?string $navigationGroup = 'Operaciones';
     protected static ?string $label = 'Venta';
     protected static ?string $pluralLabel = 'Ventas';
 

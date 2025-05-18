@@ -28,9 +28,9 @@ class LiquidationSummaryResource extends Resource
 {
     protected static ?string $model = LiquidationSummary::class;
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 4;
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
-    protected static ?string $navigationGroup = 'Liquidaciones';
+    protected static ?string $navigationGroup = 'Operaciones';
     protected static ?string $label = 'Liquidación Previa';
     protected static ?string $pluralLabel = 'Liquidaciones Previas';
 

@@ -16,9 +16,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class CheeseProductionResource extends Resource
 {
     protected static ?string $model = CheeseProduction::class;
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 6;
     protected static ?string $navigationIcon = 'heroicon-o-stop';
-    protected static ?string $navigationGroup = 'Compras';
+    protected static ?string $navigationGroup = 'Operaciones';
     protected static ?string $label = 'Producción de Queso';
     protected static ?string $pluralLabel = 'Producción de Queso';
 

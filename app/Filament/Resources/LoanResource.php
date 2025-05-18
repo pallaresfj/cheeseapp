@@ -17,9 +17,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class LoanResource extends Resource
 {
     protected static ?string $model = Loan::class;
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
     protected static ?string $navigationIcon = 'heroicon-o-arrow-left-end-on-rectangle';
-    protected static ?string $navigationGroup = 'Préstamos';
+    protected static ?string $navigationGroup = 'Operaciones';
     protected static ?string $label = 'Préstamo';
     protected static ?string $pluralLabel = 'Préstamos';
 

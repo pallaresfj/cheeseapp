@@ -53,18 +53,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 NavigationGroup::make()
-                     ->label('Compras')
+                     ->label('Operaciones')
                      ->icon('heroicon-o-shopping-cart'),
-                NavigationGroup::make()
-                     ->label('Liquidaciones')
-                     ->icon('heroicon-o-calculator'),
-                NavigationGroup::make()
-                    ->label('Ventas')
-                    ->icon('heroicon-o-currency-dollar'),
-                NavigationGroup::make()
-                    ->label('Préstamos')
-                    ->icon('heroicon-o-arrow-left-end-on-rectangle')
-                    ->collapsed(),
                 NavigationGroup::make()
                     ->label('Empresa')
                     ->icon('heroicon-o-cog-6-tooth')

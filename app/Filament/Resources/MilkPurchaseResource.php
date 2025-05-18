@@ -17,9 +17,9 @@ use Illuminate\Validation\Rule;
 class MilkPurchaseResource extends Resource
 {
     protected static ?string $model = MilkPurchase::class;
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 1;
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
-    protected static ?string $navigationGroup = 'Compras';
+    protected static ?string $navigationGroup = 'Operaciones';
     protected static ?string $label = 'Compra';
     protected static ?string $pluralLabel = 'Compras';
 
