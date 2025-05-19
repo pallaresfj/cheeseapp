@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\MilkPurchasesPivotViewResource\Pages;
 use App\Filament\Resources\MilkPurchasesPivotViewResource\RelationManagers;
+use App\Models\Branch;
 use App\Models\MilkPurchasesPivotView;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -40,6 +41,37 @@ class MilkPurchasesPivotViewResource extends Resource
         return $table
             ->description('Compras de leche por finca y sucursal para la semana actual')
             ->headerActions([
+                Action::make('registrarCompras')
+                    ->label('Registrar Compras')
+                    ->icon('heroicon-o-plus')
+                    ->color('warning')
+                    ->modalHeading('Registrar compras para edición')
+                    ->modalWidth('md')
+                    ->form([
+                        Forms\Components\Select::make('branch_id')
+                            ->label('Sucursal')
+                            ->options(Branch::where('active', true)->pluck('name', 'id'))
+                            ->required()
+                            ->searchable()
+                            ->preload(),
+                        Forms\Components\DatePicker::make('date')
+                            ->label('Fecha')
+                            ->required(),
+                    ])
+                    ->action(function (array $data) {
+                        DB::statement('CALL sp_registrar_compras(?, ?, ?)', [
+                            $data['branch_id'],
+                            $data['date'],
+                            auth()->id(),
+                        ]);
+
+                        Notification::make()
+                            ->title('Compras preparadas para edición')
+                            ->success()
+                            ->send();
+
+                        return redirect(\App\Filament\Resources\PurchaseRegistrationResource::getUrl());
+                    }),
                 Action::make('configurarVista')
                     ->label('Sucursal')
                     ->icon('heroicon-o-building-office')
