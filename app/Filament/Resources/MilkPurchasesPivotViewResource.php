@@ -2,11 +2,17 @@
 
 namespace App\Filament\Resources;
 
+use Illuminate\Support\Facades\Auth;
 use App\Filament\Resources\MilkPurchasesPivotViewResource\Pages;
 use App\Filament\Resources\MilkPurchasesPivotViewResource\RelationManagers;
 use App\Models\Branch;
+use App\Models\MilkPurchase;
 use App\Models\MilkPurchasesPivotView;
+use App\Models\Setting;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -16,6 +22,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Actions\Action;
 use Filament\Notifications\Notification;
+use Filament\Tables\Grouping\Group;
 use Livewire\Component as Livewire;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -41,47 +48,18 @@ class MilkPurchasesPivotViewResource extends Resource
         return $table
             ->description('Compras de leche por finca y sucursal para la semana actual')
             ->headerActions([
-                Action::make('registrarCompras')
-                    ->label('Registrar Compras')
-                    ->icon('heroicon-o-plus')
-                    ->color('warning')
-                    ->modalHeading('Registrar compras para edición')
-                    ->modalWidth('md')
-                    ->form([
-                        Forms\Components\Select::make('branch_id')
-                            ->label('Sucursal')
-                            ->options(Branch::where('active', true)->pluck('name', 'id'))
-                            ->required()
-                            ->searchable()
-                            ->preload(),
-                        Forms\Components\DatePicker::make('date')
-                            ->label('Fecha')
-                            ->required(),
-                    ])
-                    ->action(function (array $data) {
-                        DB::statement('CALL sp_registrar_compras(?, ?, ?)', [
-                            $data['branch_id'],
-                            $data['date'],
-                            auth()->id(),
-                        ]);
-
-                        Notification::make()
-                            ->title('Compras preparadas para edición')
-                            ->success()
-                            ->send();
-
-                        return redirect(\App\Filament\Resources\PurchaseRegistrationResource::getUrl());
-                    }),
                 Action::make('configurarVista')
                     ->label('Sucursal')
                     ->icon('heroicon-o-building-office')
                     ->color('info')
-                    ->modalHeading('Parámetros de la vista')
+                    ->modalHeading('Indique sucursal y fecha de inicio')
+                    ->modalSubmitActionLabel('Actualizar Sucursal')
+                    ->modalDescription('Se actualizará para la sucursal y fecha seleccionadas')
                     ->modalWidth('md')
                     ->form([
-                        Forms\Components\Select::make('branch_id')
+                        Select::make('branch_id')
                             ->label('Sucursal')
-                            ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
+                            ->options(Branch::where('active', true)->pluck('name', 'id'))
                             ->required()
                             ->searchable()
                             ->preload()
@@ -93,35 +71,81 @@ class MilkPurchasesPivotViewResource extends Resource
                                     ->value('date');
                                     $set('start_date', $startDate);
                             }),
-                        Forms\Components\DatePicker::make('start_date')
-                            ->label('Fecha Inicial')
+                        DatePicker::make('start_date')
+                            ->label('Inicio de ciclo')
                             ->required(),
                     ])
                     ->action(function (array $data) {
-                        $ciclo = \App\Models\Setting::where('key', 'facturacion.ciclo')->value('value') ?? 10;
+                        $ciclo = \App\Models\Setting::where('key', 'facturacion.ciclo')->value('value') ?? 7;
                         DB::statement("CALL generate_milk_purchases_pivot_view({$data['branch_id']}, '{$data['start_date']}', $ciclo)");
-                        Notification::make()->title('Vista actualizada')->success()->send();
+                        Notification::make()
+                            ->title('Sucursal y fecha actualizadas')
+                            ->body('La vista de compras se ha actualizado para la sucursal y fecha seleccionadas.')
+                            ->success()
+                            ->send();
+                    }),
+                Action::make('registrarCompras')
+                    ->label('Compras')
+                    ->icon('heroicon-o-plus')
+                    ->color('warning')
+                    ->modalHeading('Registrar Compras')
+                    ->modalSubmitActionLabel('Ver Planilla')
+                    ->modalDescription('Se cargará la planilla de compras para la sucursal y fecha seleccionadas')
+                    ->modalWidth('md')
+                    ->form([
+                        Select::make('branch_id')
+                            ->label('Sucursal')
+                            ->options(Branch::where('active', true)->pluck('name', 'id'))
+                            ->required()
+                            ->searchable()
+                            ->preload()
+                            ->reactive()
+                            ->afterStateUpdated(function (callable $set, $state) {
+                                $startDate = MilkPurchase::where('branch_id', $state)
+                                    ->where('status', 'pending')
+                                    ->orderBy('date')
+                                    ->value('date');
+                                    $set('date', $startDate);
+                            }),
+                        DatePicker::make('date')
+                            ->label('Inicio de ciclo')
+                            ->required(),
+                    ])
+                    ->action(function (array $data) {
+                        DB::statement('CALL sp_registrar_compras(?, ?, ?)', [
+                            $data['branch_id'],
+                            $data['date'],
+                            Auth::id(),
+                        ]);
+
+                        Notification::make()
+                            ->title('Planilla de compras')
+                            ->body('Se ha generado la planilla de compras para la sucursal y fecha seleccionadas.')
+                            ->success()
+                            ->send();
+
+                        return redirect(PurchaseRegistrationResource::getUrl());
                     }),
                 Action::make('liquidarCompras')
                     ->label('Liquidar')
                     ->icon('heroicon-o-calculator')
                     ->color('success')
                     ->form([
-                        Forms\Components\Select::make('branch_id')
+                        Select::make('branch_id')
                             ->label('Sucursal')
-                            ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
+                            ->options(Branch::where('active', true)->pluck('name', 'id'))
                             ->required()
                             ->searchable()
                             ->preload()
                             ->reactive()
                             ->afterStateUpdated(function (callable $set, $state) {
-                                $startDate = \App\Models\MilkPurchase::where('branch_id', $state)
+                                $startDate = MilkPurchase::where('branch_id', $state)
                                     ->where('status', 'pending')
                                     ->orderBy('date')
                                     ->value('date');
 
                                 if ($startDate) {
-                                    $ciclo = (int) \App\Models\Setting::where('key', 'facturacion.ciclo')->value('value') ?? 7;
+                                    $ciclo = (int) Setting::where('key', 'facturacion.ciclo')->value('value') ?? 7;
                                     $endDate = \Carbon\Carbon::parse($startDate)->addDays($ciclo - 1);
                                     $settlementDate = $endDate->copy()->addDay();
 
@@ -131,18 +155,18 @@ class MilkPurchasesPivotViewResource extends Resource
                                 }
                             }),
 
-                        Forms\Components\DatePicker::make('start_date')
+                        DatePicker::make('start_date')
                             ->label('Fecha inicio')
                             ->required()
                             ->reactive(),
 
-                        Forms\Components\DatePicker::make('end_date')
+                        DatePicker::make('end_date')
                             ->label('Fecha final')
                             ->required()
                             ->reactive(),
 
 
-                        Forms\Components\Placeholder::make('resumen_liquidacion')
+                        Placeholder::make('resumen_liquidacion')
                             ->label('Resumen')
                             ->content(function (callable $get) {
                                 $branchId = $get('branch_id');
@@ -151,7 +175,7 @@ class MilkPurchasesPivotViewResource extends Resource
 
                                 if (!$branchId || !$start || !$end) return 'Seleccione sucursal y fechas';
 
-                                $query = \App\Models\MilkPurchase::where('branch_id', $branchId)
+                                $query = MilkPurchase::where('branch_id', $branchId)
                                     ->where('status', 'pending')
                                     ->whereBetween('date', [$start, $end]);
 
@@ -166,18 +190,18 @@ class MilkPurchasesPivotViewResource extends Resource
                     ])
                     ->action(function (array $data): void {
                         try {
-                            \Illuminate\Support\Facades\DB::statement("CALL liquidar_compras(?, ?, ?)", [
+                            DB::statement("CALL liquidar_compras(?, ?, ?)", [
                                 $data['branch_id'],
                                 $data['start_date'],
                                 $data['end_date'],
                             ]);
 
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->title('Liquidación ejecutada correctamente')
                                 ->success()
                                 ->send();
                         } catch (\Exception $e) {
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->title('Error al ejecutar la liquidación')
                                 ->body($e->getMessage())
                                 ->danger()
@@ -189,7 +213,7 @@ class MilkPurchasesPivotViewResource extends Resource
             ])
             ->columns(self::getTableColumns())
             ->groups([
-                Tables\Grouping\Group::make('branch.name')
+                Group::make('branch.name')
                     ->label('Sucursal')
                     ->collapsible()
             ])
@@ -219,14 +243,14 @@ class MilkPurchasesPivotViewResource extends Resource
     protected static function getTableColumns(): array
     {
         $baseColumns = [
-            Tables\Columns\TextColumn::make('farm.name')
+            TextColumn::make('farm.name')
                 ->label('Proveedor - Finca')
                 ->formatStateUsing(fn ($record) => $record->farm->user->name . ' - ' . $record->farm->name),
         ];
 
         $dynamicColumns = collect(Schema::getColumnListing('milk_purchases_pivot_view'))
             ->filter(fn ($col) => preg_match('/^\d{4}_\d{2}_\d{2}$/', $col))
-            ->map(fn ($col) => Tables\Columns\TextColumn::make($col)
+            ->map(fn ($col) => TextColumn::make($col)
                 ->label(\Carbon\Carbon::createFromFormat('Y_m_d', $col)->locale('es_CO')->isoFormat('MMM DD'))
                 ->numeric()
                 ->alignEnd()
@@ -235,15 +259,15 @@ class MilkPurchasesPivotViewResource extends Resource
             ->toArray();
 
         $footerColumns = [
-            Tables\Columns\TextColumn::make('total_litros')
+            TextColumn::make('total_litros')
                 ->label('Litros')
                 ->numeric()
                 ->alignEnd(),
-            Tables\Columns\TextColumn::make('base_price')
+            TextColumn::make('base_price')
                 ->label('Precio')
                 ->money('COP', locale: 'es_CO')
                 ->alignEnd(),
-            Tables\Columns\TextColumn::make('producido')
+            TextColumn::make('producido')
                 ->label('Producido')
                 ->money('COP', locale: 'es_CO')
                 ->alignEnd(),

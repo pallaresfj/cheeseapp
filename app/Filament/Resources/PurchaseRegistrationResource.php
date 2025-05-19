@@ -7,10 +7,12 @@ use App\Filament\Resources\PurchaseRegistrationResource\RelationManagers;
 use App\Models\PurchaseRegistration;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -26,6 +28,11 @@ class PurchaseRegistrationResource extends Resource
     protected static ?string $label = 'Registro de Compras';
     protected static ?string $pluralLabel = 'Registro de Compras';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
+
     public static function canCreate(): bool
     {
         return false;
@@ -35,17 +42,22 @@ class PurchaseRegistrationResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('branch.name')
-                    ->label('Sucursal'),
                 TextColumn::make('farm.name')
                     ->label('Proveedor - Finca')
                     ->formatStateUsing(fn ($state, $record) => "{$record->farm->user->name} - {$record->farm->name}"),
                 TextColumn::make('date')
                     ->label('Fecha')
-                    ->date('d/m/Y'),
+                    ->date(),
                 TextInputColumn::make('liters')
                     ->label('Litros'),
             ])
+            ->groups([
+                Group::make('branch.name')
+                    ->label('Sucursal')
+                    ->collapsible()
+            ])
+            ->defaultGroup('branch.name')
+            ->groupingSettingsHidden()
             ->filters([
                 //
             ])
@@ -59,15 +71,22 @@ class PurchaseRegistrationResource extends Resource
             ])
             ->headerActions([
                 Tables\Actions\Action::make('transferirCompras')
-                    ->label('Transferir Compras')
-                    ->requiresConfirmation()
+                    ->label('Guardar Compras')
+                    ->icon('heroicon-o-folder-plus')
                     ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Guardar Compras')
+                    ->modalDescription('¿Está seguro de guardar las compras actuales?')
+                    ->modalSubmitActionLabel('Guardar')
                     ->action(fn () => DB::statement('CALL sp_transferir_compras(?)', [Auth::id()]))
                     ->after(function () {
-                        \Filament\Notifications\Notification::make()
-                            ->title('Transferencia completada')
+                        Notification::make()
+                            ->title('Compras guardadas')
+                            ->body('Se guardaron todas las compras correctamente.')
                             ->success()
                             ->send();
+
+                        return redirect(MilkPurchasesPivotViewResource::getUrl());
                     }),
             ]);
     }
