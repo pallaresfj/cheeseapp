@@ -21,12 +21,7 @@ class DatabaseSeeder extends Seeder
             FarmTypesTableSeeder::class,
             FarmsTableSeeder::class,
             MilkPurchasesTableSeeder::class,
+            GenerateMilkPurchasesPivotSeeder::class,
         ]);
-        
-         // User::factory(10)->create();
-        /* User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]); */
     }
 }
