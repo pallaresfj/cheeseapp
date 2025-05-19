@@ -11,7 +11,14 @@ class Farm extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'branch_id', 'user_id', 'farm_type_id', 'location', 'status'];
+    protected $fillable = [
+        'name', 
+        'branch_id', 
+        'user_id', 
+        'farm_type_id', 
+        'location', 
+        'status'
+    ];
 
     public function branch() : BelongsTo
     { 

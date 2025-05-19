@@ -10,7 +10,13 @@ class MilkPurchase extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['branch_id', 'farm_id', 'date', 'liters', 'status'];
+    protected $fillable = [
+        'branch_id', 
+        'farm_id', 
+        'date', 
+        'liters', 
+        'status'
+    ];
 
     public function branch() : BelongsTo
     { 
