@@ -53,7 +53,7 @@ class MilkPurchasesPivotViewResource extends Resource
                     ->icon('heroicon-o-building-office')
                     ->color('info')
                     ->modalHeading('Indique sucursal y fecha de inicio')
-                    ->modalSubmitActionLabel('Actualizar Sucursal')
+                    ->modalSubmitActionLabel('Cambiar Sucursal')
                     ->modalDescription('Se actualizará para la sucursal y fecha seleccionadas')
                     ->modalWidth('md')
                     ->form([
@@ -76,6 +76,7 @@ class MilkPurchasesPivotViewResource extends Resource
                             ->required(),
                     ])
                     ->action(function (array $data) {
+                        session(['pivot_branch_id' => $data['branch_id']]);
                         $ciclo = \App\Models\Setting::where('key', 'facturacion.ciclo')->value('value') ?? 7;
                         DB::statement("CALL generate_milk_purchases_pivot_view({$data['branch_id']}, '{$data['start_date']}', $ciclo)");
                         Notification::make()
@@ -84,7 +85,7 @@ class MilkPurchasesPivotViewResource extends Resource
                             ->success()
                             ->send();
                     }),
-                Action::make('registrarCompras')
+                Action::make('planillaPorFecha')
                     ->label('Compras')
                     ->icon('heroicon-o-plus')
                     ->color('warning')
@@ -93,38 +94,46 @@ class MilkPurchasesPivotViewResource extends Resource
                     ->modalDescription('Se cargará la planilla de compras para la sucursal y fecha seleccionadas')
                     ->modalWidth('md')
                     ->form([
-                        Select::make('branch_id')
-                            ->label('Sucursal')
-                            ->options(Branch::where('active', true)->pluck('name', 'id'))
-                            ->required()
+                        Select::make('date')
+                            ->label('Fecha')
                             ->searchable()
                             ->preload()
-                            ->reactive()
-                            ->afterStateUpdated(function (callable $set, $state) {
-                                $startDate = MilkPurchase::where('branch_id', $state)
-                                    ->where('status', 'pending')
-                                    ->orderBy('date')
-                                    ->value('date');
-                                    $set('date', $startDate);
-                            }),
-                        DatePicker::make('date')
-                            ->label('Inicio de ciclo')
-                            ->required(),
+                            ->options(
+                                collect(Schema::getColumnListing('milk_purchases_pivot_view'))
+                                    ->filter(fn ($col) => preg_match('/^\d{4}_\d{2}_\d{2}$/', $col))
+                                    ->mapWithKeys(function ($col) {
+                                        $fecha = \Carbon\Carbon::createFromFormat('Y_m_d', $col);
+                                        $label = $fecha->locale('es_CO')->isoFormat('MMM DD');
+                                        return [$fecha->toDateString() => $label];
+                                    })
+                                    ->toArray()
+                            )
+                            ->required()
                     ])
                     ->action(function (array $data) {
-                        DB::statement('CALL sp_registrar_compras(?, ?, ?)', [
-                            $data['branch_id'],
-                            $data['date'],
+                        $branchId = session('pivot_branch_id');
+                        $date = $data['date'];
+
+                        if (!$branchId || !$date) {
+                            Notification::make()
+                                ->title('Sucursal o fecha no definidas')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
+
+                        DB::statement("CALL sp_registrar_compras(?, ?, ?)", [
+                            $branchId,
+                            $date,
                             Auth::id(),
                         ]);
 
                         Notification::make()
-                            ->title('Planilla de compras')
-                            ->body('Se ha generado la planilla de compras para la sucursal y fecha seleccionadas.')
+                            ->title('Planilla generada')
                             ->success()
                             ->send();
 
-                        return redirect(PurchaseRegistrationResource::getUrl());
+                        return redirect(\App\Filament\Resources\PurchaseRegistrationResource::getUrl());
                     }),
                 Action::make('liquidarCompras')
                     ->label('Liquidar')
@@ -209,7 +218,8 @@ class MilkPurchasesPivotViewResource extends Resource
                         }
                     })
                     ->requiresConfirmation()
-                    ->modalHeading('Ejecutar Liquidación')
+                    ->modalHeading('Ejecutar Liquidación'),
+                // Acción: Planilla por Fecha
             ])
             ->columns(self::getTableColumns())
             ->groups([
@@ -250,11 +260,14 @@ class MilkPurchasesPivotViewResource extends Resource
 
         $dynamicColumns = collect(Schema::getColumnListing('milk_purchases_pivot_view'))
             ->filter(fn ($col) => preg_match('/^\d{4}_\d{2}_\d{2}$/', $col))
-            ->map(fn ($col) => TextColumn::make($col)
-                ->label(\Carbon\Carbon::createFromFormat('Y_m_d', $col)->locale('es_CO')->isoFormat('MMM DD'))
-                ->numeric()
-                ->alignEnd()
-            )
+            ->map(function ($col) {
+                $fecha = \Carbon\Carbon::createFromFormat('Y_m_d', $col);
+                $label = $fecha->locale('es_CO')->isoFormat('MMM DD');
+                return TextColumn::make($col)
+                    ->label($label)
+                    ->numeric()
+                    ->alignEnd();
+            })
             ->values()
             ->toArray();
 
