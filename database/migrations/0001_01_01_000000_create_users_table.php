@@ -15,13 +15,14 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('profile_photo_path')->nullable();
+            $table->string(config('filament-edit-profile.avatar_column', 'avatar_url'))->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('role', ['soporte', 'admin', 'sucursal', 'supplier', 'customer'])->default('supplier');
             $table->string('identification')->nullable();
             $table->string('address')->nullable();
             $table->string('phone')->nullable();
+            $table->json('custom_fields')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
