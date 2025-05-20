@@ -14,7 +14,7 @@ class SettingsSeeder extends Seeder
             ['key' => 'empresa.direccion', 'category' => 'empresa', 'value' => 'Calle 24 65 78, Los Hampton Escocia'],
             ['key' => 'empresa.telefono', 'category' => 'empresa', 'value' => '3458796543'],
             ['key' => 'empresa.nit', 'category' => 'empresa', 'value' => '987654321-0'],
-            ['key' => 'empresa.logo', 'category' => 'empresa', 'value' => 'logo.png'],
+            ['key' => 'empresa.logo', 'category' => 'empresa', 'value' => 'logo-empresa.png'],
             ['key' => 'empresa.slogan', 'category' => 'empresa', 'value' => 'La mejor leche, el mejor queso'],
             ['key' => 'empresa.web', 'category' => 'empresa', 'value' => 'https://queseraesperanza.com'],
             ['key' => 'empresa.correo', 'category' => 'empresa', 'value' => 'info@cqueseraesperanza.com'],
