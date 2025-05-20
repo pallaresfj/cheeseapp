@@ -136,73 +136,55 @@ class MilkPurchasesPivotViewResource extends Resource
                         return redirect(\App\Filament\Resources\PurchaseRegistrationResource::getUrl());
                     }),
                 Action::make('liquidarCompras')
-                    ->label('Liquidar')
+                    ->label('Liquidación')
                     ->icon('heroicon-o-calculator')
                     ->color('success')
                     ->form([
-                        Select::make('branch_id')
-                            ->label('Sucursal')
-                            ->options(Branch::where('active', true)->pluck('name', 'id'))
-                            ->required()
-                            ->searchable()
-                            ->preload()
-                            ->reactive()
-                            ->afterStateUpdated(function (callable $set, $state) {
-                                $startDate = MilkPurchase::where('branch_id', $state)
+                        Placeholder::make('resumen')
+                            ->label(function () {
+                                $branchName = \App\Models\Branch::find(session('pivot_branch_id'))?->name ?? 'seleccionada';
+                                return "Sucursal {$branchName}";
+                            })
+                            ->content(function () {
+                                $branchId = session('pivot_branch_id');
+                                $branchName = Branch::find($branchId)?->name;
+                                $start = MilkPurchase::where('branch_id', $branchId)
                                     ->where('status', 'pending')
                                     ->orderBy('date')
                                     ->value('date');
 
-                                if ($startDate) {
-                                    $ciclo = (int) Setting::where('key', 'facturacion.ciclo')->value('value') ?? 7;
-                                    $endDate = \Carbon\Carbon::parse($startDate)->addDays($ciclo - 1);
-                                    $settlementDate = $endDate->copy()->addDay();
-
-                                    $set('start_date', $startDate);
-                                    $set('end_date', $endDate->toDateString());
-                                    $set('settlement_date', $settlementDate->toDateString());
+                                if (!$start) {
+                                    return 'No hay registros pendientes para procesar.';
                                 }
-                            }),
 
-                        DatePicker::make('start_date')
-                            ->label('Fecha inicio')
-                            ->required()
-                            ->reactive(),
+                                $ciclo = (int) \App\Models\Setting::where('key', 'facturacion.ciclo')->value('value') ?? 7;
+                                $end = \Carbon\Carbon::parse($start)->addDays($ciclo - 1);
 
-                        DatePicker::make('end_date')
-                            ->label('Fecha final')
-                            ->required()
-                            ->reactive(),
-
-
-                        Placeholder::make('resumen_liquidacion')
-                            ->label('Resumen')
-                            ->content(function (callable $get) {
-                                $branchId = $get('branch_id');
-                                $start = $get('start_date');
-                                $end = $get('end_date');
-
-                                if (!$branchId || !$start || !$end) return 'Seleccione sucursal y fechas';
-
-                                $query = MilkPurchase::where('branch_id', $branchId)
+                                $query = \App\Models\MilkPurchase::where('branch_id', $branchId)
                                     ->where('status', 'pending')
-                                    ->whereBetween('date', [$start, $end]);
+                                    ->whereBetween('date', [$start, $end->toDateString()]);
 
                                 $count = $query->count();
-                                $totalLitros = number_format($query->sum('liters'), 2);
-
+                                $litros = number_format($query->sum('liters'), 2);
                                 $startFormatted = \Carbon\Carbon::parse($start)->translatedFormat('F d/Y');
-                                $endFormatted = \Carbon\Carbon::parse($end)->translatedFormat('F d/Y');
-                                return "Se liquidarán {$count} compras pendientes entre {$startFormatted} y {$endFormatted}, con un total de {$totalLitros} litros.";
-                            })
-                            ->visible(fn (callable $get) => $get('branch_id') && $get('start_date') && $get('end_date')),
+                                $endFormatted = $end->translatedFormat('F d/Y');
+
+                                return "Se van a procesar {$count} compras pendientes de esta sucursal entre {$startFormatted} y {$endFormatted}, por un total de {$litros} litros.";
+                            }),
                     ])
                     ->action(function (array $data): void {
                         try {
+                            $start = MilkPurchase::where('branch_id', session('pivot_branch_id'))
+                                ->where('status', 'pending')
+                                ->orderBy('date')
+                                ->value('date');
+
                             DB::statement("CALL liquidar_compras(?, ?, ?)", [
-                                $data['branch_id'],
-                                $data['start_date'],
-                                $data['end_date'],
+                                session('pivot_branch_id'),
+                                $start,
+                                \Carbon\Carbon::parse($start)->addDays(
+                                    (int) Setting::where('key', 'facturacion.ciclo')->value('value') ?? 7
+                                )->toDateString(),
                             ]);
 
                             Notification::make()
