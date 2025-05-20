@@ -49,7 +49,12 @@ class PurchaseRegistrationResource extends Resource
                     ->label('Fecha')
                     ->date(),
                 TextInputColumn::make('liters')
-                    ->label('Litros'),
+                    ->label('Litros')
+                    ->extraAttributes([
+                        'inputmode' => 'decimal',
+                        'pattern' => '^[0-9]+([.,][0-9]{1})?$',
+                    ])
+                    ->rules(['numeric', 'regex:/^\d+(\.\d)?$/', 'min:0'])
             ])
             ->groups([
                 Group::make('branch.name')
