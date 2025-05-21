@@ -84,16 +84,6 @@ class CustomerSupplierUserResource extends Resource
                 Tables\Columns\TextColumn::make('email')
                     ->label('Correo')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('role')
-                    ->label('Rol')
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'soporte' => 'Soporte',
-                        'admin' => 'Administrador',
-                        'sucursal' => 'Sucursal',
-                        'supplier' => 'Proveedor',
-                        'customer' => 'Cliente',
-                        default => ucfirst($state),
-                    }),
             ])
             ->groups([
                 Tables\Grouping\Group::make('role')
@@ -143,7 +133,7 @@ class CustomerSupplierUserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\FarmsRelationManager::class,
         ];
     }
 
