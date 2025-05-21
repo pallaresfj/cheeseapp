@@ -75,8 +75,28 @@ class PurchaseRegistrationResource extends Resource
                 ]),
             ])
             ->headerActions([
+                Tables\Actions\Action::make('cancelarCompras')
+                    ->label('Cancelar')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('gray')
+                    ->requiresConfirmation()
+                    ->modalHeading('Cancelar Registro de Compras')
+                    ->modalDescription('¿Está seguro de cancelar y eliminar los registros actuales? Esta acción no se puede deshacer.')
+                    ->modalSubmitActionLabel('Cancelar Registro')
+                    ->action(function () {
+                        DB::table('purchase_registrations')->where('user_id', Auth::id())->delete();
+                    })
+                    ->after(function () {
+                        Notification::make()
+                            ->title('Registro cancelado')
+                            ->body('Se eliminaron los registros temporales de compras.')
+                            ->danger()
+                            ->send();
+
+                        return redirect(\App\Filament\Resources\MilkPurchasesPivotViewResource::getUrl());
+                    }),
                 Tables\Actions\Action::make('transferirCompras')
-                    ->label('Guardar Compras')
+                    ->label('Guardar')
                     ->icon('heroicon-o-folder-plus')
                     ->color('success')
                     ->requiresConfirmation()

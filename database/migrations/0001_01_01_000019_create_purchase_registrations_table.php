@@ -64,6 +64,50 @@ return new class extends Migration {
                 DELETE FROM purchase_registrations WHERE user_id = p_user_id;
             END
         ");
+
+        DB::unprepared("DROP PROCEDURE IF EXISTS sp_registrar_compras_finca;");
+        DB::unprepared("
+            CREATE PROCEDURE sp_registrar_compras_finca(
+                IN p_branch_id INT,
+                IN p_farm_id INT,
+                IN p_start_date DATE,
+                IN p_end_date DATE,
+                IN p_user_id INT
+            )
+            BEGIN
+                DECLARE pivot_date DATE;
+
+                WHILE p_start_date <= p_end_date DO
+                    SET pivot_date = p_start_date;
+
+                    DELETE FROM purchase_registrations
+                    WHERE user_id = p_user_id AND date = pivot_date AND farm_id = p_farm_id;
+
+                    IF EXISTS (
+                        SELECT 1 FROM milk_purchases mp
+                        WHERE mp.farm_id = p_farm_id
+                        AND mp.date = pivot_date
+                        AND mp.status = 'pending'
+                    ) THEN
+                        INSERT INTO purchase_registrations (branch_id, farm_id, date, liters, user_id, created_at, updated_at)
+                        SELECT f.branch_id, f.id, pivot_date, mp.liters, p_user_id, NOW(), NOW()
+                        FROM farms f
+                        JOIN milk_purchases mp ON mp.farm_id = f.id
+                        WHERE f.id = p_farm_id
+                        AND mp.date = pivot_date
+                        AND mp.status = 'pending';
+                    ELSE
+                        INSERT INTO purchase_registrations (branch_id, farm_id, date, liters, user_id, created_at, updated_at)
+                        SELECT f.branch_id, f.id, pivot_date, 0, p_user_id, NOW(), NOW()
+                        FROM farms f
+                        WHERE f.id = p_farm_id
+                        AND f.status = true;
+                    END IF;
+
+                    SET p_start_date = DATE_ADD(p_start_date, INTERVAL 1 DAY);
+                END WHILE;
+            END
+        ");
     }
 
     public function down(): void
@@ -71,5 +115,6 @@ return new class extends Migration {
         Schema::dropIfExists('purchase_registrations');
         DB::unprepared("DROP PROCEDURE IF EXISTS sp_registrar_compras");
         DB::unprepared("DROP PROCEDURE IF EXISTS sp_transferir_compras");
+        DB::unprepared("DROP PROCEDURE IF EXISTS sp_registrar_compras_finca");
     }
 };

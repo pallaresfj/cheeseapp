@@ -237,7 +237,44 @@ class MilkPurchasesPivotViewResource extends Resource
         $baseColumns = [
             TextColumn::make('farm.name')
                 ->label('Proveedor - Finca')
-                ->formatStateUsing(fn ($record) => $record->farm->user->name . ' - ' . $record->farm->name),
+                ->formatStateUsing(fn ($record) => $record->farm->user->name . ' - ' . $record->farm->name)
+                ->action(function ($record) {
+                    $branchId = $record->branch_id;
+                    $farmId = $record->farm_id;
+
+                    $columns = collect(\Illuminate\Support\Facades\Schema::getColumnListing('milk_purchases_pivot_view'))
+                        ->filter(fn ($col) => preg_match('/^\d{4}_\d{2}_\d{2}$/', $col))
+                        ->map(fn ($col) => \Carbon\Carbon::createFromFormat('Y_m_d', $col)->toDateString())
+                        ->sort()
+                        ->values();
+
+                    $startDate = $columns->first();
+                    $endDate = $columns->last();
+
+                    if (!$branchId || !$farmId || !$startDate || !$endDate) {
+                        \Filament\Notifications\Notification::make()
+                            ->title('Datos incompletos')
+                            ->body('Finca, sucursal o fechas no definidas.')
+                            ->danger()
+                            ->send();
+                        return;
+                    }
+
+                    \Illuminate\Support\Facades\DB::statement("CALL sp_registrar_compras_finca(?, ?, ?, ?, ?)", [
+                        $branchId,
+                        $farmId,
+                        $startDate,
+                        $endDate,
+                        \Illuminate\Support\Facades\Auth::id(),
+                    ]);
+
+                    \Filament\Notifications\Notification::make()
+                        ->title('Planilla individual generada')
+                        ->success()
+                        ->send();
+
+                    return redirect(\App\Filament\Resources\PurchaseRegistrationResource::getUrl());
+                }),
         ];
 
         $dynamicColumns = collect(Schema::getColumnListing('milk_purchases_pivot_view'))
