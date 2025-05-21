@@ -39,10 +39,12 @@ class FarmResource extends Resource
                 Forms\Components\Select::make('branch_id')
                     ->label('Sucursal')
                     ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
+                    ->native(false)
                     ->required(),
                 Forms\Components\Select::make('farm_type_id')
                     ->label('Tipo de finca')
                     ->relationship('farmType', 'name')
+                    ->native(false)
                     ->required(),
                 Forms\Components\TextInput::make('location')
                     ->label('Ubicación')
@@ -83,11 +85,11 @@ class FarmResource extends Resource
                 Tables\Filters\SelectFilter::make('branch_id')
                     ->label('Sucursal')
                     ->relationship('branch', 'name')
-                    ->searchable(),
+                    ->native(false),
                 Tables\Filters\SelectFilter::make('farm_type_id')
                     ->label('Tipo de finca')
                     ->relationship('farmType', 'name')
-                    ->searchable(),
+                    ->native(false),
             ])
             ->persistFiltersInSession()
             ->groups([
@@ -95,6 +97,8 @@ class FarmResource extends Resource
                     ->label('Sucursal')
                     ->collapsible()
             ])
+            ->defaultGroup('branch.name')
+            ->groupingSettingsHidden()
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->label('')
