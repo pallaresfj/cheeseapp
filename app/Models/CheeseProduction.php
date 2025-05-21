@@ -10,7 +10,12 @@ class CheeseProduction extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['date', 'branch_id', 'produced_kilos', 'processed_liters'];
+    protected $fillable = [
+        'date', 
+        'branch_id', 
+        'produced_kilos', 
+        'processed_liters'
+    ];
 
     public function branch() : BelongsTo
     { 

@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\CheeseProductionResource\Pages;
 use App\Filament\Resources\CheeseProductionResource\RelationManagers;
 use App\Models\CheeseProduction;
+use App\Models\MilkPurchase;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -31,20 +32,25 @@ class CheeseProductionResource extends Resource
                     ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
                     ->required()
                     ->reactive()
+                    ->default(fn () => session('cheese_production_branch_id'))
                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                        session(['cheese_production_branch_id' => $state]);
+
                         $branchId = $state;
 
                         // Obtener la fecha más reciente de milk_purchases para la sucursal
-                        $lastDate = \App\Models\MilkPurchase::when($branchId, fn ($query) => $query->where('branch_id', $branchId))
+                        $lastDate = \App\Models\CheeseProduction::when($branchId, fn ($query) => $query->where('branch_id', $branchId))
                             ->orderByDesc('date')
-                            ->value('date') ?? now();
+                            ->value('date');
 
-                        $set('date', $lastDate);
+                        $nextDate = $lastDate ? \Illuminate\Support\Carbon::parse($lastDate)->addDay()->toDateString() : now()->toDateString();
 
-                        $date = $lastDate;
+                        $set('date', $nextDate);
+
+                        $date = $nextDate;
 
                         if ($branchId && $date) {
-                            $totalLiters = \App\Models\MilkPurchase::where('branch_id', $branchId)
+                            $totalLiters = MilkPurchase::where('branch_id', $branchId)
                                 ->whereDate('date', $date)
                                 ->sum('liters');
 
@@ -55,9 +61,11 @@ class CheeseProductionResource extends Resource
                     ->label('Fecha')
                     ->default(function (callable $get) {
                         $branchId = $get('branch_id');
-                        return \App\Models\MilkPurchase::when($branchId, fn ($query) => $query->where('branch_id', $branchId))
+                        $lastDate = \App\Models\CheeseProduction::when($branchId, fn ($query) => $query->where('branch_id', $branchId))
                             ->orderByDesc('date')
-                            ->value('date') ?? now();
+                            ->value('date');
+
+                        return $lastDate ? \Illuminate\Support\Carbon::parse($lastDate)->addDay()->toDateString() : now()->toDateString();
                     })
                     ->required()
                     ->reactive()
@@ -68,7 +76,7 @@ class CheeseProductionResource extends Resource
                         $set('date', $date);
 
                         if ($branchId && $date) {
-                            $totalLiters = \App\Models\MilkPurchase::where('branch_id', $branchId)
+                            $totalLiters = MilkPurchase::where('branch_id', $branchId)
                                 ->whereDate('date', $date)
                                 ->sum('liters');
 
@@ -86,7 +94,7 @@ class CheeseProductionResource extends Resource
                         $date = $get('date');
 
                         if ($branchId && $date) {
-                            $totalLiters = \App\Models\MilkPurchase::where('branch_id', $branchId)
+                            $totalLiters = MilkPurchase::where('branch_id', $branchId)
                                 ->whereDate('date', $date)
                                 ->sum('liters');
 
