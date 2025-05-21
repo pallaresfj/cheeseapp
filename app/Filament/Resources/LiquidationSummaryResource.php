@@ -23,6 +23,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\HtmlString;
+use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Columns\Summarizers\Average;
 
 class LiquidationSummaryResource extends Resource
 {
@@ -53,22 +55,27 @@ class LiquidationSummaryResource extends Resource
                 TextColumn::make('total_liters')
                     ->label('Litros')
                     ->numeric()
+                    ->summarize(Sum::make()->label(''))
                     ->alignEnd(),
                 TextColumn::make('price_per_liter')
                     ->label('Precio')
                     ->money('COP', locale: 'es_CO')
+                    ->summarize(Average::make()->label('')->money('COP', locale: 'es_CO'))
                     ->alignEnd(),
                 TextColumn::make('total_paid')
                     ->label('Producido')
                     ->money('COP', locale: 'es_CO')
+                    ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
                     ->alignEnd(),
                 TextColumn::make('loan_amount')
                     ->label('Prestado')
                     ->money('COP', locale: 'es_CO')
+                    ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
                     ->alignEnd(),
                 TextColumn::make('loan_balance')
                     ->label('Debe')
                     ->money('COP', locale: 'es_CO')
+                    ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
                     ->alignEnd(),
                 TextColumn::make('installment_value')
                     ->label('Cuota')
@@ -77,14 +84,17 @@ class LiquidationSummaryResource extends Resource
                 TextColumn::make('discount')
                     ->label('Descuento')
                     ->money('COP', locale: 'es_CO')
+                    ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
                     ->alignEnd(),
                 TextColumn::make('new_balance')
                     ->label('Nuevo Saldo')
                     ->money('COP', locale: 'es_CO')
+                    ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
                     ->alignEnd(),
                 TextColumn::make('net_amount')
                     ->label('Neto')
                     ->money('COP', locale: 'es_CO')
+                    ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
                     ->alignEnd(),
             ])
             ->actions([

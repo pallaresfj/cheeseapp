@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
+use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Columns\Summarizers\Average;
 
 class LiquidationResource extends Resource
 {
@@ -50,10 +52,12 @@ class LiquidationResource extends Resource
                 Tables\Columns\TextColumn::make('total_liters')
                     ->label('Litros')
                     ->numeric()
+                    ->summarize(Sum::make()->label(''))
                     ->alignEnd(),
                 Tables\Columns\TextColumn::make('price_per_liter')
                     ->label('Precio')
                     ->money('COP', locale: 'es_CO')
+                    ->summarize(Average::make()->label('')->money('COP', locale: 'es_CO'))
                     ->alignEnd(),
                 Tables\Columns\TextColumn::make('total_paid')
                     ->label('Producido')
@@ -63,14 +67,17 @@ class LiquidationResource extends Resource
                 Tables\Columns\TextColumn::make('loan_amount')
                     ->label('Prestado')
                     ->money('COP', locale: 'es_CO')
+                    ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
                     ->alignEnd(),
                 Tables\Columns\TextColumn::make('previous_balance')
                     ->label('Debe')
                     ->money('COP', locale: 'es_CO')
+                    ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
                     ->alignEnd(),
                 Tables\Columns\TextColumn::make('discounts')
                     ->label('Descuentos')
                     ->money('COP', locale: 'es_CO')
+                    ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
                     ->alignEnd(),
                 Tables\Columns\TextColumn::make('new_balance')
                     ->label('Nuevo Saldo')

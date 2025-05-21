@@ -13,6 +13,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Columns\Summarizers\Average;
 
 class CheeseProductionResource extends Resource
 {
@@ -150,7 +152,8 @@ class CheeseProductionResource extends Resource
                 Tables\Columns\TextColumn::make('processed_liters')
                     ->label('Litros Procesados')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->summarize(Sum::make()->label('')),
                 Tables\Columns\TextColumn::make('produced_kilos_sugerido')
                     ->label('Kilos Esperados')
                     ->state(function ($record) {
@@ -160,7 +163,8 @@ class CheeseProductionResource extends Resource
                 Tables\Columns\TextColumn::make('produced_kilos')
                     ->label('Kilos Producidos')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->summarize(Sum::make()->label('')),
                 Tables\Columns\TextColumn::make('produced_kilos_porcentaje')
                     ->label('% Producción')
                     ->state(function ($record) {

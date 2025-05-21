@@ -13,6 +13,8 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Columns\Summarizers\Average;
 
 class LoanResource extends Resource
 {
@@ -167,6 +169,7 @@ class LoanResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('amount')
                     ->label('Monto')
+                    ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
                     ->numeric(),
                 Tables\Columns\TextColumn::make('installments')
                     ->label('Cuotas')
@@ -176,6 +179,7 @@ class LoanResource extends Resource
                     ->numeric(),
                 Tables\Columns\TextColumn::make('paid_value')
                     ->label('Pagado')
+                    ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
                     ->numeric(),
                 Tables\Columns\TextColumn::make('saldo')
                     ->label('Saldo')
