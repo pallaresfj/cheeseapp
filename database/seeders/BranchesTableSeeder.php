@@ -37,6 +37,14 @@ class BranchesTableSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'name' => 'San Basilio',
+                'address' => 'Calle 456 #78-90',
+                'phone' => '3116543210',
+                'active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ]);
     }
 }

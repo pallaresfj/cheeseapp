@@ -21,6 +21,9 @@ return new class extends Migration
             $table->decimal('loan_amount', 10, 2)->default(0);
             $table->decimal('previous_balance', 10, 2)->default(0);
             $table->decimal('discounts', 10, 2)->default(0);
+            $table->decimal('total_paid', 10, 2)->virtualAs('total_liters * price_per_liter');
+            $table->decimal('new_balance', 10, 2)->virtualAs('previous_balance - discounts');
+            $table->decimal('net_total', 10, 2)->virtualAs('(total_liters * price_per_liter) - discounts');
             $table->json('details')->nullable();
             $table->enum('status', ['pending', 'liquidated', 'annulled'])->default('pending');
             $table->timestamps();

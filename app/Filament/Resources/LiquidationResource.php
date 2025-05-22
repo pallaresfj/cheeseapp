@@ -61,8 +61,8 @@ class LiquidationResource extends Resource
                     ->alignEnd(),
                 Tables\Columns\TextColumn::make('total_paid')
                     ->label('Producido')
-                    ->state(fn ($record) => $record->total_liters * $record->price_per_liter)
                     ->money('COP', locale: 'es_CO')
+                    ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
                     ->alignEnd(),
                 Tables\Columns\TextColumn::make('loan_amount')
                     ->label('Prestado')
@@ -81,13 +81,13 @@ class LiquidationResource extends Resource
                     ->alignEnd(),
                 Tables\Columns\TextColumn::make('new_balance')
                     ->label('Nuevo Saldo')
-                    ->state(fn ($record) => $record->previous_balance - $record->discounts)
                     ->money('COP', locale: 'es_CO')
+                    ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
                     ->alignEnd(),
                 Tables\Columns\TextColumn::make('net_total')
                     ->label('Neto')
-                    ->state(fn ($record) => ($record->total_liters * $record->price_per_liter) - $record->discounts)
                     ->money('COP', locale: 'es_CO')
+                    ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
                     ->alignEnd(),
             ])
             ->groups([
