@@ -36,4 +36,13 @@ class Branch extends Model
     { 
         return $this->hasMany(CheeseProduction::class); 
     }
+    public function weeklyBalances(): HasMany
+    {
+        return $this->hasMany(WeeklyBalance::class);
+    }
+
+    public function movements(): HasMany
+    {
+        return $this->hasMany(Movement::class);
+    }
 }
