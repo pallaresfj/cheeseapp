@@ -19,7 +19,7 @@ class MilkPurchasesTableSeeder extends Seeder
         }
 
         $farms = Farm::with('branch')->where('status', true)->whereHas('branch', function ($query) {
-            $query->where('status', true);
+            $query->where('active', true);
         })->get();
 
         foreach ($farms as $farm) {

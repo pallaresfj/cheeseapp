@@ -16,7 +16,7 @@ class GenerateMilkPurchasesPivotSeeder extends Seeder
      */
     public function run(): void
     {
-        $branchId = Branch::where('active', true)->value('id') ?? \App\Models\Branch::value('id');
+        $branchId = Branch::where('active', true)->value('id') ?? Branch::value('id');
 
         if (! $branchId) {
             return;
