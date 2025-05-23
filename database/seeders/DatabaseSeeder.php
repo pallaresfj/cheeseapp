@@ -16,13 +16,12 @@ class DatabaseSeeder extends Seeder
        
         $this->call([
             SettingsSeeder::class,
-            UsersTableSeeder::class,
-            BranchesTableSeeder::class,
             FarmTypesTableSeeder::class,
-            FarmsTableSeeder::class,
-            MilkPurchasesTableSeeder::class,
-            // GenerateMilkPurchasesPivotSeeder::class,
             MovementTypeSeeder::class,
+            UsersTableSeeder::class, // Ingresar el admin
+            BranchesTableSeeder::class,
+            FarmsTableSeeder::class,
+            MilkPurchasesTableSeeder::class, // Borrar este seeder en producción
         ]);
     }
 }
