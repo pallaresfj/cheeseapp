@@ -61,6 +61,9 @@ class AdminPanelProvider extends PanelProvider
                      ->label('Operaciones')
                      ->icon('heroicon-o-shopping-cart'),
                 NavigationGroup::make()
+                     ->label('Contabilidad')
+                     ->icon('heroicon-o-calculator'),
+                NavigationGroup::make()
                     ->label('Empresa')
                     ->icon('heroicon-o-cog-6-tooth')
                     ->collapsed(),

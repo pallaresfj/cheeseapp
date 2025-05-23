@@ -30,14 +30,15 @@ class CustomerClassificationResource extends Resource
                     ->label('Nombre')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('description')
-                    ->label('Descripción')
-                    ->maxLength(255),
                 Forms\Components\TextInput::make('price')
                     ->label('Precio')
                     ->required()
                     ->numeric()
                     ->prefix('$'),
+                Forms\Components\TextInput::make('description')
+                    ->label('Descripción')
+                    ->maxLength(255)
+                    ->columnSpanFull(),
             ]);
     }
 

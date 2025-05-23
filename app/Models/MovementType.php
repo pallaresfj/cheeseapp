@@ -7,7 +7,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MovementType extends Model
 {
-    protected $fillable = ['class', 'description', 'type'];
+    protected $fillable = [
+        'class', 
+        'description', 
+        'type'
+    ];
 
     public function movements(): HasMany
     {

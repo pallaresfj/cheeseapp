@@ -22,7 +22,7 @@ class FarmsTableSeeder extends Seeder
 
         foreach ($suppliers as $supplierId) {
             for ($i = 1; $i <= 2; $i++) {
-                if ($count >= 12) break;
+                if ($count >= 20) break;
 
                 Farm::create([
                     'name' => 'Finca ' . ($count + 1),
@@ -36,7 +36,7 @@ class FarmsTableSeeder extends Seeder
                 $count++;
             }
 
-            if ($count >= 12) break;
+            if ($count >= 20) break;
         }
     }
 }

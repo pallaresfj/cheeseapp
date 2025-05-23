@@ -10,8 +10,8 @@ class Movement extends Model
     protected $fillable = [
         'branch_id',
         'movement_type_id',
-        'movement_date',
-        'movement_value',
+        'date',
+        'value',
         'status',
         'weekly_balance_id'
     ];

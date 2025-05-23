@@ -10,7 +10,7 @@ class WeeklyBalance extends Model
 {
     protected $fillable = [
         'branch_id', 
-        'balance_date', 
+        'date', 
         'incomes', 
         'expenses'
     ];

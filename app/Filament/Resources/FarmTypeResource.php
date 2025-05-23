@@ -20,7 +20,7 @@ class FarmTypeResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
     protected static ?string $navigationGroup = 'Empresa';
     protected static ?string $label = 'Tipo de finca';
-    protected static ?string $pluralLabel = 'Tipos de fincas';
+    protected static ?string $pluralLabel = 'Tipos de finca';
 
     public static function form(Form $form): Form
     {
@@ -30,14 +30,15 @@ class FarmTypeResource extends Resource
                     ->label('Nombre')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('description')
-                    ->label('Descripción')
-                    ->maxLength(255),
                 Forms\Components\TextInput::make('base_price')
                     ->label('Precio base')
                     ->prefix('$')
                     ->required()
                     ->numeric(),
+                Forms\Components\TextInput::make('description')
+                    ->label('Descripción')
+                    ->maxLength(255)
+                    ->columnSpanFull(),
             ]);
     }
 
