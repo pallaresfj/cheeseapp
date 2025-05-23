@@ -38,9 +38,19 @@ class MilkPurchasesPivotViewResource extends Resource
     protected static ?string $label = 'Compra Semanal';
     protected static ?string $pluralLabel = 'Compras Semanales';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
+
     public static function canCreate(): bool
     {
         return false;
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery();
     }
 
     public static function table(Table $table): Table
@@ -234,6 +244,45 @@ class MilkPurchasesPivotViewResource extends Resource
 
     protected static function getTableColumns(): array
     {
+        try {
+            $columnas = Schema::getColumnListing('milk_purchases_pivot_view');
+        } catch (\Exception $e) {
+            // Ejecutar la acción 'configurarVista' si la vista no existe
+            $branchId = session('pivot_branch_id');
+            $startDate = \App\Models\MilkPurchase::where('branch_id', $branchId)
+                ->where('status', 'pending')
+                ->orderBy('date')
+                ->value('date');
+
+            if ($branchId && $startDate) {
+                $ciclo = (int) \App\Models\Setting::where('key', 'facturacion.ciclo')->value('value') ?? 7;
+                try {
+                    \Illuminate\Support\Facades\DB::statement("CALL generate_milk_purchases_pivot_view($branchId, '$startDate', $ciclo)");
+
+                    \Filament\Notifications\Notification::make()
+                        ->title('Vista generada automáticamente')
+                        ->body('La vista no existía y fue generada para la sucursal y fecha seleccionadas.')
+                        ->success()
+                        ->send();
+
+                    // Intentar de nuevo obtener las columnas después de crear la vista
+                    $columnas = Schema::getColumnListing('milk_purchases_pivot_view');
+                } catch (\Exception $e) {
+                    return [
+                        TextColumn::make('error')
+                            ->label('Error')
+                            ->getStateUsing(fn () => 'Error al generar automáticamente la vista: ' . $e->getMessage())
+                    ];
+                }
+            } else {
+                return [
+                    TextColumn::make('mensaje')
+                        ->label('Vista no generada')
+                        ->getStateUsing(fn () => 'Debe seleccionar una sucursal y tener compras pendientes para generar la vista.')
+                ];
+            }
+        }
+
         $baseColumns = [
             TextColumn::make('farm.name')
                 ->label('Proveedor - Finca')
@@ -277,7 +326,7 @@ class MilkPurchasesPivotViewResource extends Resource
                 }),
         ];
 
-        $dynamicColumns = collect(Schema::getColumnListing('milk_purchases_pivot_view'))
+        $dynamicColumns = collect($columnas)
             ->filter(fn ($col) => preg_match('/^\d{4}_\d{2}_\d{2}$/', $col))
             ->map(function ($col) {
                 $fecha = \Carbon\Carbon::createFromFormat('Y_m_d', $col);

@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
             FarmTypesTableSeeder::class,
             FarmsTableSeeder::class,
             MilkPurchasesTableSeeder::class,
-            GenerateMilkPurchasesPivotSeeder::class,
+            // GenerateMilkPurchasesPivotSeeder::class,
             MovementTypeSeeder::class,
         ]);
     }
