@@ -39,24 +39,30 @@ class GenerarVistaPivot extends Page implements HasForms
     protected function getFormSchema(): array
     {
         return [
-            Select::make('branch_id')
-                ->label('Sucursal')
-                ->options(Branch::where('active', true)->pluck('name', 'id'))
-                ->required()
-                ->native(false)
-                ->searchable()
-                ->reactive()
-                ->afterStateUpdated(function (callable $set, $state) {
-                    $start = MilkPurchase::where('branch_id', $this->branch_id)
-                        ->where('status', 'pending')
-                        ->orderBy('date')
-                        ->value('date');
+            Forms\Components\Section::make()
+                ->schema([
+                    Select::make('branch_id')
+                        ->label('Sucursal')
+                        ->options(Branch::where('active', true)->pluck('name', 'id'))
+                        ->required()
+                        ->native(false)
+                        ->searchable()
+                        ->reactive()
+                        ->afterStateUpdated(function (callable $set, $state) {
+                            $start = MilkPurchase::where('branch_id', $this->branch_id)
+                                ->where('status', 'pending')
+                                ->orderBy('date')
+                                ->value('date');
 
-                    $set('start_date', $start);
-                }),
-            DatePicker::make('start_date')
-                ->label('Inicio de ciclo')
-                ->required(),
+                            $set('start_date', $start);
+                        })
+                        ->columnSpanFull(),
+
+                    DatePicker::make('start_date')
+                        ->label('Inicio de ciclo')
+                        ->required()
+                        ->columnSpanFull(),
+                ]),
         ];
     }
 
