@@ -11,6 +11,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -58,13 +59,13 @@ class MovementTypeResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('class')
+                TextColumn::make('class')
                     ->label('Clase')
                     ->formatStateUsing(fn (string $state) => $state === 'income' ? 'Ingreso' : 'Egreso'),
-                Tables\Columns\TextColumn::make('description')
+                TextColumn::make('description')
                     ->label('Descripción')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('type')
+                TextColumn::make('type')
                     ->label('Tipo')
                     ->formatStateUsing(fn (string $state) => $state === 'fixed' ? 'Fijo' : 'Variable')
             ])
