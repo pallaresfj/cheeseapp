@@ -6,6 +6,8 @@ use App\Filament\Resources\MovementTypeResource\Pages;
 use App\Filament\Resources\MovementTypeResource\RelationManagers;
 use App\Models\MovementType;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -27,7 +29,7 @@ class MovementTypeResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('class')
+                Select::make('class')
                     ->label('Clase')
                     ->options([
                         'income' => 'Ingreso',
@@ -35,7 +37,7 @@ class MovementTypeResource extends Resource
                     ])
                     ->native(false)
                     ->required(),
-                Forms\Components\Select::make('type')
+                Select::make('type')
                     ->label('Tipo')
                     ->default('fixed')
                     ->options([
@@ -44,7 +46,7 @@ class MovementTypeResource extends Resource
                     ])
                     ->native(false)
                     ->required(),
-                Forms\Components\TextInput::make('description')
+                TextInput::make('description')
                     ->label('Descripción')
                     ->maxLength(100)
                     ->columnSpanFull(),
