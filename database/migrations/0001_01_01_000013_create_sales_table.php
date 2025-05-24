@@ -19,8 +19,8 @@ return new class extends Migration
             $table->date('sale_date');
             $table->decimal('kilos', 10, 2);
             $table->decimal('price_per_kilo', 10, 2);
-            $table->decimal('amount_paid', 10, 2)->default(0);
-            $table->decimal('balance', 10, 2);
+            $table->decimal('amount_paid', 10, 2)->storedAs('kilos * price_per_kilo');
+            // $table->decimal('balance', 10, 2);
             $table->enum('status', ['active', 'cancelled'])->default('active');
             $table->timestamps();
         });

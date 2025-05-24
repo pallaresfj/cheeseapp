@@ -54,7 +54,7 @@ class CustomerClassificationResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('price')
                     ->label('Precio')
-                    ->money('COP')
+                    ->money('COP', locale: 'es_CO')
                     ->sortable(),
             ])
             ->filters([

@@ -54,7 +54,7 @@ class FarmTypeResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('base_price')
                     ->label('Precio base')
-                    ->money('COP')
+                    ->money('COP', locale: 'es_CO')
                     ->sortable(),
             ])
             ->filters([

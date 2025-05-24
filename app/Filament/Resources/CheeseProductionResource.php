@@ -34,6 +34,7 @@ class CheeseProductionResource extends Resource
                     ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
                     ->required()
                     ->reactive()
+                    ->native(false)
                     ->default(fn () => session('cheese_production_branch_id'))
                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                         session(['cheese_production_branch_id' => $state]);
@@ -201,6 +202,7 @@ class CheeseProductionResource extends Resource
                 Tables\Filters\SelectFilter::make('branch_id')
                     ->label('Sucursal')
                     ->relationship('branch', 'name')
+                    ->native(false)
                     ->searchable()
                     ->preload(),
                 Tables\Filters\Filter::make('date')

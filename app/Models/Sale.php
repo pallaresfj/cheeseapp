@@ -11,9 +11,16 @@ class Sale extends Model
     use HasFactory;
 
     protected $fillable = [
-        'branch_id', 'user_id', 'classification_id', 'sale_date',
-        'kilos', 'price_per_kilo', 'amount_paid', 'balance', 'status'
+        'branch_id', 
+        'user_id', 
+        'classification_id', 
+        'sale_date',
+        'kilos', 
+        'price_per_kilo',
+        'status'
     ];
+
+    // amount_paid es una columna calculada (stored generated column en MySQL)
 
     public function branch() : BelongsTo
     { 

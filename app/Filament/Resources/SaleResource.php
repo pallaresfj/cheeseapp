@@ -4,11 +4,25 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SaleResource\Pages;
 use App\Filament\Resources\SaleResource\RelationManagers;
+use App\Models\Branch;
+use App\Models\CustomerClassification;
 use App\Models\Sale;
+use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -26,40 +40,54 @@ class SaleResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\DatePicker::make('sale_date')
-                    ->label('Fecha de Venta')
-                    ->default(now())
-                    ->required(),
-                Forms\Components\Select::make('branch_id')
-                    ->label('Sucursal')
-                    ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
-                    ->required(),
-                Forms\Components\Select::make('user_id')
-                    ->label('Cliente')
-                    ->searchable()
-                    ->options(\App\Models\User::where('role', 'customer')->pluck('name', 'id'))
-                    ->required(),
-                Forms\Components\Select::make('classification_id')
-                    ->label('Tipo Cliente')
-                    ->relationship('classification', 'name')
-                    ->required()
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(function ($state, callable $set) {
-                        $classification = \App\Models\CustomerClassification::find($state);
-                        if ($classification) {
-                            $set('price_per_kilo', $classification->price);
-                        }
-                    }),
-                Forms\Components\TextInput::make('kilos')
-                    ->label('Kilos')
-                    ->default(0.00)
-                    ->required()
-                    ->numeric()
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                        $set('amount_paid', ($state ?? 0) * ($get('price_per_kilo') ?? 0));
-                    }),
-                Forms\Components\TextInput::make('price_per_kilo')
+                Grid::make()
+                    ->columns(3)
+                    ->schema([
+                        DatePicker::make('sale_date')
+                            ->label('Fecha de Venta')
+                            ->default(now())
+                            ->required(),
+                        Select::make('classification_id')
+                            ->label('Tipo Venta')
+                            ->relationship('classification', 'name')
+                            ->required()
+                            ->native(false)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $classification = CustomerClassification::find($state);
+                                if ($classification) {
+                                    $set('price_per_kilo', $classification->price);
+                                } else {
+                                    $set('price_per_kilo', 0);
+                                }
+                            }),
+                        Select::make('branch_id')
+                            ->label('Sucursal')
+                            ->searchable()
+                            ->native(false)
+                            ->options(Branch::where('active', true)->pluck('name', 'id'))
+                            ->required(),
+                    ]),
+                Grid::make()
+                    ->columns(2)
+                    ->schema([
+                        Select::make('user_id')
+                            ->label('Cliente')
+                            ->searchable()
+                            ->native(false)
+                            ->options(User::where('role', 'customer')->pluck('name', 'id'))
+                            ->required(),
+                        TextInput::make('kilos')
+                            ->label('Kilos')
+                            ->default(0.00)
+                            ->required()
+                            ->numeric()
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                $set('amount_paid', ($state ?? 0) * ($get('price_per_kilo') ?? 0));
+                            }),
+                    ]),
+                TextInput::make('price_per_kilo')
                     ->label('Precio por Kilo')
                     ->default(0.00)
                     ->required()
@@ -67,8 +95,15 @@ class SaleResource extends Resource
                     ->live(onBlur: true)
                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                         $set('amount_paid', ($get('kilos') ?? 0) * ($state ?? 0));
+                    })
+                    ->afterStateHydrated(function ($component, $state) {
+                        $record = $component->getRecord();
+                        if ($record) {
+                            $classification = \App\Models\CustomerClassification::find($record->classification_id);
+                            $component->state($classification?->price ?? 0);
+                        }
                     }),
-                Forms\Components\TextInput::make('amount_paid')
+                TextInput::make('amount_paid')
                     ->label('Monto')
                     ->prefix('$')
                     ->numeric()
@@ -76,24 +111,12 @@ class SaleResource extends Resource
                     ->dehydrated(false)
                     ->reactive()
                     ->default(0.00)
-                    ->afterStateHydrated(function ($component, $state) {
+                    ->afterStateHydrated(function ($component) {
                         $record = $component->getRecord();
                         if ($record) {
-                            $component->state($record->kilos * $record->price_per_kilo);
+                            $component->state($record->amount_paid);
                         }
                     }),
-                Forms\Components\TextInput::make('balance')
-                    ->label('Saldo')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\Select::make('status')
-                    ->label('Estado')
-                    ->options([
-                        'active' => 'Activo',
-                        'cancelled' => 'Cancelado',
-                    ])
-                    ->default('active')
-                    ->required(),
             ]);
     }
 
@@ -101,46 +124,59 @@ class SaleResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('branch.name')
+                TextColumn::make('branch.name')
                     ->label('Sucursal')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('user.name')
+                TextColumn::make('user.name')
                     ->label('Cliente')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('classification.name')
-                    ->label('Tipo Cliente')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('sale_date')
-                    ->label('Fecha de Venta')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('kilos')
+                    ->numeric(),
+                TextColumn::make('classification.name')
+                    ->label('Tipo')
+                    ->numeric(),
+                TextColumn::make('sale_date')
+                    ->label('Fecha')
+                    ->date(),
+                TextColumn::make('kilos')
                     ->label('Kilos')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('price_per_kilo')
-                    ->label('Precio por Kilo')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('amount_paid')
-                    ->label('Monto Pagado')
-                    ->money('COP')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('balance')
-                    ->label('Saldo')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->label('Estado'),
+                    ->numeric(),
+                TextColumn::make('price_per_kilo')
+                    ->label('Precio')
+                    ->money('COP', locale: 'es_CO'),
+                TextColumn::make('amount_paid')
+                    ->label('Venta')
+                    ->money('COP', locale: 'es_CO'),
             ])
+            ->groups([
+                Group::make('branch.name')
+                    ->label('Sucursal')
+                    ->collapsible()
+            ])
+            ->defaultGroup('branch.name')
+            ->groupingSettingsHidden()
             ->filters([
-                //
+                SelectFilter::make('user_id')
+                    ->label('Cliente')
+                    ->options(\App\Models\User::where('role', 'customer')->pluck('name', 'id')),
+
+                SelectFilter::make('classification_id')
+                    ->label('Tipo de Venta')
+                    ->relationship('classification', 'name'),
+
+                Filter::make('sale_date')
+                    ->label('Fecha')
+                    ->form([
+                        DatePicker::make('from')->label('Desde'),
+                        DatePicker::make('until')->label('Hasta'),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        return $query
+                            ->when($data['from'], fn($q) => $q->whereDate('sale_date', '>=', $data['from']))
+                            ->when($data['until'], fn($q) => $q->whereDate('sale_date', '<=', $data['until']));
+                    }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
+                EditAction::make()
                     ->label('')
                     ->icon('heroicon-o-pencil-square')
                     ->color('success')
@@ -154,8 +190,8 @@ class SaleResource extends Resource
                     ->iconSize('h-6 w-6'),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
