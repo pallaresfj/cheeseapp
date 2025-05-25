@@ -78,6 +78,7 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->extremePaginationLinks()
             ->columns([
                 ImageColumn::make('avatar_url')
                     ->label('Avatar')

@@ -135,6 +135,7 @@ class LoanResource extends Resource
     {
         return $table
             ->defaultSort('date', 'desc')
+            ->extremePaginationLinks()
             ->columns([
                 IconColumn::make('status')
                     ->label('Estado')
@@ -169,22 +170,27 @@ class LoanResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('amount')
                     ->label('Monto')
+                    ->money('COP', locale: 'es_CO')
                     ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
-                    ->numeric(),
+                    ->alignEnd(),
                 Tables\Columns\TextColumn::make('installments')
                     ->label('Cuotas')
-                    ->numeric(),
+                    ->numeric()
+                    ->alignEnd(),
                 Tables\Columns\TextColumn::make('installment_value')
                     ->label('Cuota')
-                    ->numeric(),
+                    ->money('COP', locale: 'es_CO')
+                    ->alignEnd(),
                 Tables\Columns\TextColumn::make('paid_value')
                     ->label('Pagado')
+                    ->money('COP', locale: 'es_CO')
                     ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
-                    ->numeric(),
+                    ->alignEnd(),
                 Tables\Columns\TextColumn::make('saldo')
                     ->label('Saldo')
+                    ->money('COP', locale: 'es_CO')
                     ->getStateUsing(fn ($record) => $record->amount - $record->paid_value)
-                    ->numeric(),
+                    ->alignEnd(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('branch_id')

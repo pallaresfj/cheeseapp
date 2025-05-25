@@ -45,6 +45,7 @@ class LiquidationResource extends Resource
     {
         return $table
             ->description('Liquidaciones listas para imprimir recibos.')
+            ->extremePaginationLinks()
             ->columns([
                 Tables\Columns\TextColumn::make('farm.name')
                     ->label('Proveedor - Finca')

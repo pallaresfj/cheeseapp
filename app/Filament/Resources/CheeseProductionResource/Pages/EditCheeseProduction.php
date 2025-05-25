@@ -15,14 +15,16 @@ class EditCheeseProduction extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            // Actions\DeleteAction::make(),
         ];
     }
 
     protected function handleRecordUpdate(\Illuminate\Database\Eloquent\Model $record, array $data): \Illuminate\Database\Eloquent\Model
     {
         try {
-            return parent::handleRecordUpdate($record, $data);
+            $updatedRecord = parent::handleRecordUpdate($record, $data);
+            $this->redirect($this->getRedirectUrl());
+            return $updatedRecord;
         } catch (QueryException $e) {
             if ($e->errorInfo[1] == 1062) { // Código de error para duplicado
                 Notification::make()

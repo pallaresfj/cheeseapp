@@ -73,6 +73,7 @@ class MilkPurchaseResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->extremePaginationLinks()
             ->headerActions([
                 //
             ])

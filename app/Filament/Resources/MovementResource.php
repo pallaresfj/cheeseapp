@@ -5,11 +5,14 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\MovementResource\Pages;
 use App\Filament\Resources\MovementResource\RelationManagers;
 use App\Models\Movement;
+use App\Models\WeeklyBalance;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\Action;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -28,7 +31,7 @@ class MovementResource extends Resource
             ->schema([
                 Forms\Components\Select::make('branch_id')
                     ->label('Sucursal')
-                    ->relationship('branch', 'name')
+                    ->relationship('branch', 'name', fn (Builder $query) => $query->where('active', true))
                     ->native(false)
                     ->required()
                     ->default(function () {
@@ -68,46 +71,65 @@ class MovementResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->extremePaginationLinks()
             ->columns([
-                /* Tables\Columns\TextColumn::make('movementType.class')
-                    ->label('Clase')
-                    ->formatStateUsing(fn (string $state) => $state === 'income' ? 'Ingreso' : 'Egreso')
-                    ->sortable(), */
                 Tables\Columns\TextColumn::make('branch.name')
                     ->label('Sucursal')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('movementType.description')
-                    ->label('Tipo de movimiento')
-                    ->numeric()
-                    ->sortable(),
+                    ->numeric(),
                 Tables\Columns\TextColumn::make('date')
                     ->label('Fecha')
                     ->date('d/m/Y')
-                    ->date()
-                    ->sortable(),
+                    ->date(),
+                Tables\Columns\TextColumn::make('movementType.description')
+                    ->label('Descripción')
+                    ->numeric(),
                 Tables\Columns\TextColumn::make('value')
                     ->label('Valor')
                     ->money('COP', locale: 'es_CO')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->label('Estado'),
+                    ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
+                    ->alignEnd(),
+                Tables\Columns\IconColumn::make('status')
+                    ->label('Estado')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-clock')
+                    ->getStateUsing(fn ($record) => $record->status === 'reconciled'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('branch_id')
                     ->label('Sucursal')
-                    ->relationship('branch', 'name')
+                    ->relationship('branch', 'name', fn (Builder $query) => $query->where('active', true))
                     ->native(false),
+                Tables\Filters\Filter::make('date')
+                    ->label('Rango de fechas')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')->label('Desde'),
+                        Forms\Components\DatePicker::make('until')->label('Hasta'),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        return $query
+                            ->when($data['from'], fn ($q) => $q->whereDate('date', '>=', $data['from']))
+                            ->when($data['until'], fn ($q) => $q->whereDate('date', '<=', $data['until']));
+                    }),
             ])
             ->persistFiltersInSession()
             ->groups([
                 Tables\Grouping\Group::make('movementType.class')
                     ->label('Clase')
+                    ->collapsible()
                     ->getTitleFromRecordUsing(fn ($record) => $record->movementType->class === 'income' ? 'Ingresos' : 'Egresos'),
             ])
             ->defaultGroup('movementType.class')
             ->groupingSettingsHidden()
+            ->modifyQueryUsing(fn (Builder $query) => $query
+                ->orderBy('date', 'desc')
+                ->orderBy(
+                    \App\Models\MovementType::select('description')
+                        ->whereColumn('movement_types.id', 'movements.movement_type_id')
+                        ->limit(1),
+                    'asc'
+                )
+            )
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->label('')
@@ -126,7 +148,47 @@ class MovementResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->headerActions([
+            /* Action::make('conciliar')
+                ->label('Conciliar Movimientos')
+                ->icon('heroicon-o-calculator')
+                ->color('success')
+                ->form([
+                    Forms\Components\Select::make('branch_id')
+                        ->label('Sucursal')
+                        ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
+                        ->required()
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, callable $set) {
+                            $min = \App\Models\Movement::where('branch_id', $state)->where('status', 'pending')->min('date');
+                            $max = \App\Models\Movement::where('branch_id', $state)->where('status', 'pending')->max('date');
+                            $set('from', $min);
+                            $set('until', $max);
+                        }),
+                    Forms\Components\DatePicker::make('from')
+                        ->label('Desde')
+                        ->required(),
+                    Forms\Components\DatePicker::make('until')
+                        ->label('Hasta')
+                        ->required(),
+                    Forms\Components\DatePicker::make('date')
+                        ->label('Fecha del balance')
+                        ->default(now()),
+                ])
+                ->action(function (array $data) {
+                    \Illuminate\Support\Facades\DB::statement(
+                        'CALL reconcile_movements(?, ?, ?, ?)',
+                        [
+                            $data['branch_id'],
+                            $data['from'],
+                            $data['until'],
+                            $data['date'],
+                        ]
+                    );
+                })
+                ->successNotificationTitle('Conciliación realizada correctamente'), */
+        ]);
     }
 
     public static function getRelations(): array

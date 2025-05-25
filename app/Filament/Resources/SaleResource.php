@@ -19,6 +19,8 @@ use Filament\Tables;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\Summarizers\Average;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -123,6 +125,7 @@ class SaleResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->extremePaginationLinks()
             ->columns([
                 TextColumn::make('branch.name')
                     ->label('Sucursal')
@@ -139,13 +142,19 @@ class SaleResource extends Resource
                     ->date(),
                 TextColumn::make('kilos')
                     ->label('Kilos')
-                    ->numeric(),
+                    ->numeric()
+                    ->summarize(Sum::make()->label(''))
+                    ->alignEnd(),
                 TextColumn::make('price_per_kilo')
                     ->label('Precio')
-                    ->money('COP', locale: 'es_CO'),
+                    ->money('COP', locale: 'es_CO')
+                    ->summarize(Average::make()->label('')->money('COP', locale: 'es_CO'))
+                    ->alignEnd(),
                 TextColumn::make('amount_paid')
                     ->label('Venta')
-                    ->money('COP', locale: 'es_CO'),
+                    ->money('COP', locale: 'es_CO')
+                    ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
+                    ->alignEnd(),
             ])
             ->groups([
                 Group::make('branch.name')

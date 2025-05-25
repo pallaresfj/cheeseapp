@@ -41,6 +41,7 @@ class PurchaseRegistrationResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->extremePaginationLinks()
             ->columns([
                 TextColumn::make('farm.name')
                     ->label('Proveedor - Finca')

@@ -141,6 +141,7 @@ class CheeseProductionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->extremePaginationLinks()
             ->columns([
                 Tables\Columns\TextColumn::make('date')
                     ->label('Fecha')
@@ -154,18 +155,21 @@ class CheeseProductionResource extends Resource
                     ->label('Litros Procesados')
                     ->numeric()
                     ->sortable()
-                    ->summarize(Sum::make()->label('')),
+                    ->summarize(Sum::make()->label(''))
+                    ->alignEnd(),
                 Tables\Columns\TextColumn::make('produced_kilos_sugerido')
                     ->label('Kilos Esperados')
                     ->state(function ($record) {
                         $productividad = cache('app_settings')['sistema.productividad'] ?? 0;
                         return round($record->processed_liters * floatval($productividad), 2);
-                    }),
+                    })
+                    ->alignEnd(),
                 Tables\Columns\TextColumn::make('produced_kilos')
                     ->label('Kilos Producidos')
                     ->numeric()
                     ->sortable()
-                    ->summarize(Sum::make()->label('')),
+                    ->summarize(Sum::make()->label(''))
+                    ->alignEnd(),
                 Tables\Columns\TextColumn::make('produced_kilos_porcentaje')
                     ->label('% Producción')
                     ->state(function ($record) {
@@ -189,7 +193,8 @@ class CheeseProductionResource extends Resource
                             default => 'warning',
                         };
                     })
-                    ->badge(),
+                    ->badge()
+                    ->alignCenter(),
             ])
             ->groups([
                 Tables\Grouping\Group::make('branch.name')
@@ -201,7 +206,7 @@ class CheeseProductionResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('branch_id')
                     ->label('Sucursal')
-                    ->relationship('branch', 'name')
+                    ->relationship('branch', 'name', fn (Builder $query) => $query->where('active', true))
                     ->native(false)
                     ->searchable()
                     ->preload(),
