@@ -14,10 +14,14 @@ use App\Models\MilkPurchase;
 use App\Models\Branch;
 use App\Models\Setting;
 use App\Filament\Resources\MilkPurchasesPivotViewResource;
+use Illuminate\Support\Facades\Auth;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
 class GenerarVistaPivot extends Page implements HasForms
 {
     use Forms\Concerns\InteractsWithForms;
+    use HasPageShield;
 
     protected static string $view = 'filament.pages.generar-vista-pivot';
     protected static ?string $navigationLabel = 'Compras Semanales';

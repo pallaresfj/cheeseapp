@@ -17,7 +17,9 @@ class DatabaseSeeder extends Seeder
         $this->call([
             SettingsSeeder::class,
             FarmTypesTableSeeder::class,
+            CustomerClassificationSeeder::class,
             MovementTypeSeeder::class,
+            RoleSeeder::class,
             UsersTableSeeder::class, // Ingresar el admin
             BranchesTableSeeder::class,
             FarmsTableSeeder::class,

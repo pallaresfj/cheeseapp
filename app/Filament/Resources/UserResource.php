@@ -72,6 +72,12 @@ class UserResource extends Resource
                     ->visibleOn('edit'),
                 FileUpload::make('avatar')
                     ->avatar(),
+                Forms\Components\Select::make('roles')
+                    ->label('Roles de acceso')
+                    ->multiple()
+                    ->relationship('roles', 'name')
+                    ->preload()
+                    ->searchable(),
             ]);
     }
 
@@ -89,6 +95,11 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('email')
                     ->label('Correo')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('roles.name')
+                    ->label('Roles de acceso')
+                    ->badge()
+                    ->separator(',')
+                    ->sortable(),
             ])
             ->groups([
                 Tables\Grouping\Group::make('role')

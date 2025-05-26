@@ -10,7 +10,11 @@ class CustomerClassification extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description', 'price'];
+    protected $fillable = [
+        'name', 
+        'description', 
+        'price'
+    ];
 
     public function sales() : HasMany
     { 
