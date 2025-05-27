@@ -49,6 +49,7 @@ class UserResource extends Resource
                         'customer' => 'Cliente',
                     ])
                     ->default('supplier')
+                    ->native(false)
                     ->required(),
                 Forms\Components\TextInput::make('password')
                     ->label('Contraseña')
@@ -77,6 +78,7 @@ class UserResource extends Resource
                     ->multiple()
                     ->relationship('roles', 'name')
                     ->preload()
+                    ->native(false)
                     ->searchable(),
             ]);
     }

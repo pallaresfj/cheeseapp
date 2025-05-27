@@ -31,6 +31,7 @@ class MovementResource extends Resource
             ->schema([
                 Forms\Components\Select::make('branch_id')
                     ->label('Sucursal')
+                    ->placeholder('Seleccione sucursal')
                     ->relationship('branch', 'name', fn (Builder $query) => $query->where('active', true))
                     ->native(false)
                     ->required()
@@ -39,6 +40,7 @@ class MovementResource extends Resource
                     }),
                 Forms\Components\Select::make('movement_type_id')
                     ->label('Tipo de movimiento')
+                    ->placeholder('Seleccione tipo de movimiento')
                     ->options(function () {
                         return \App\Models\MovementType::all()
                             ->groupBy('class')
@@ -150,45 +152,8 @@ class MovementResource extends Resource
                 ]),
             ])
             ->headerActions([
-            /* Action::make('conciliar')
-                ->label('Conciliar Movimientos')
-                ->icon('heroicon-o-calculator')
-                ->color('success')
-                ->form([
-                    Forms\Components\Select::make('branch_id')
-                        ->label('Sucursal')
-                        ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
-                        ->required()
-                        ->reactive()
-                        ->afterStateUpdated(function ($state, callable $set) {
-                            $min = \App\Models\Movement::where('branch_id', $state)->where('status', 'pending')->min('date');
-                            $max = \App\Models\Movement::where('branch_id', $state)->where('status', 'pending')->max('date');
-                            $set('from', $min);
-                            $set('until', $max);
-                        }),
-                    Forms\Components\DatePicker::make('from')
-                        ->label('Desde')
-                        ->required(),
-                    Forms\Components\DatePicker::make('until')
-                        ->label('Hasta')
-                        ->required(),
-                    Forms\Components\DatePicker::make('date')
-                        ->label('Fecha del balance')
-                        ->default(now()),
-                ])
-                ->action(function (array $data) {
-                    \Illuminate\Support\Facades\DB::statement(
-                        'CALL reconcile_movements(?, ?, ?, ?)',
-                        [
-                            $data['branch_id'],
-                            $data['from'],
-                            $data['until'],
-                            $data['date'],
-                        ]
-                    );
-                })
-                ->successNotificationTitle('Conciliación realizada correctamente'), */
-        ]);
+                //
+            ]);
     }
 
     public static function getRelations(): array

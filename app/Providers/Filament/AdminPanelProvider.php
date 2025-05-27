@@ -25,6 +25,7 @@ use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
 use Illuminate\Support\Facades\Auth;
 
 
+
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -63,7 +64,8 @@ class AdminPanelProvider extends PanelProvider
                      ->icon('heroicon-o-shopping-cart'),
                 NavigationGroup::make()
                      ->label('Contabilidad')
-                     ->icon('heroicon-o-calculator'),
+                     ->icon('heroicon-o-calculator')
+                     ->collapsed(),
                 NavigationGroup::make()
                     ->label('Empresa')
                     ->icon('heroicon-o-cog-6-tooth')

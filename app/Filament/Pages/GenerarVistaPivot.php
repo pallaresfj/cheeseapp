@@ -47,6 +47,7 @@ class GenerarVistaPivot extends Page implements HasForms
                 ->schema([
                     Select::make('branch_id')
                         ->label('Sucursal')
+                        ->placeholder('Seleccione sucursal')
                         ->options(Branch::where('active', true)->pluck('name', 'id'))
                         ->required()
                         ->native(false)

@@ -32,6 +32,7 @@ class MovementTypeResource extends Resource
             ->schema([
                 Select::make('class')
                     ->label('Clase')
+                    ->placeholder('Seleccione clase')
                     ->options([
                         'income' => 'Ingreso',
                         'expense' => 'Egreso',
@@ -40,7 +41,7 @@ class MovementTypeResource extends Resource
                     ->required(),
                 Select::make('type')
                     ->label('Tipo')
-                    ->default('fixed')
+                    ->placeholder('Seleccione tipo')
                     ->options([
                         'fixed' => 'Fijo',
                         'variable' => 'Variable',

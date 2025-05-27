@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CheeseProductionResource\Pages;
 use App\Filament\Resources\CheeseProductionResource\RelationManagers;
+use App\Models\Branch;
 use App\Models\CheeseProduction;
 use App\Models\MilkPurchase;
 use Filament\Forms;
@@ -31,7 +32,8 @@ class CheeseProductionResource extends Resource
             ->schema([
                 Forms\Components\Select::make('branch_id')
                     ->label('Sucursal')
-                    ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
+                    ->placeholder('Seleccione sucursal')
+                    ->options(Branch::where('active', true)->orderBy('name')->pluck('name', 'id'))
                     ->required()
                     ->reactive()
                     ->native(false)

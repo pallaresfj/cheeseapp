@@ -31,6 +31,7 @@ class LoanResource extends Resource
             ->schema([
                 Forms\Components\Select::make('user_id')
                     ->label('Proveedor')
+                    ->placeholder('Seleccione proveedor')
                     ->relationship('user', 'name', function (Builder $query, \Filament\Forms\Get $get) {
                         $query->where('role', 'supplier')
                               ->whereHas('farms');
@@ -49,6 +50,7 @@ class LoanResource extends Resource
                     ->disabledOn('edit'),
                 Forms\Components\Select::make('farm_id')
                     ->label('Finca')
+                    ->placeholder('Seleccione finca')
                     ->relationship('farm', 'name', modifyQueryUsing: fn (Builder $query, \Filament\Forms\Get $get) => 
                         $query->where('user_id', $get('user_id'))
                     )

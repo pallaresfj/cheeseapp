@@ -51,6 +51,7 @@ class SaleResource extends Resource
                             ->required(),
                         Select::make('classification_id')
                             ->label('Tipo Venta')
+                            ->placeholder('Seleccione tipo de venta')
                             ->relationship('classification', 'name')
                             ->required()
                             ->native(false)
@@ -65,9 +66,9 @@ class SaleResource extends Resource
                             }),
                         Select::make('branch_id')
                             ->label('Sucursal')
-                            ->searchable()
+                            ->placeholder('Seleccione sucursal')
+                            ->options(Branch::where('active', true)->orderBy('name')->pluck('name', 'id'))
                             ->native(false)
-                            ->options(Branch::where('active', true)->pluck('name', 'id'))
                             ->required(),
                     ]),
                 Grid::make()
@@ -75,6 +76,7 @@ class SaleResource extends Resource
                     ->schema([
                         Select::make('user_id')
                             ->label('Cliente')
+                            ->placeholder('Seleccione cliente')
                             ->searchable()
                             ->native(false)
                             ->options(User::where('role', 'customer')->pluck('name', 'id'))

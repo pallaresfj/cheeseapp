@@ -29,6 +29,7 @@ class FarmResource extends Resource
             ->schema([
                 Forms\Components\Select::make('user_id')
                     ->label('Proveedor')
+                    ->placeholder('Seleccione proveedor')
                     ->searchable()
                     ->options(\App\Models\User::where('role', 'supplier')->pluck('name', 'id'))
                     ->required(),
@@ -38,11 +39,13 @@ class FarmResource extends Resource
                     ->maxLength(255),
                 Forms\Components\Select::make('branch_id')
                     ->label('Sucursal')
+                    ->placeholder('Seleccione sucursal')
                     ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
                     ->native(false)
                     ->required(),
                 Forms\Components\Select::make('farm_type_id')
                     ->label('Tipo de finca')
+                    ->placeholder('Seleccione tipo de finca')
                     ->relationship('farmType', 'name')
                     ->native(false)
                     ->required(),

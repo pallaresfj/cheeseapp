@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\MilkPurchaseResource\Pages;
 use App\Filament\Resources\MilkPurchaseResource\RelationManagers;
+use App\Models\Branch;
 use App\Models\MilkPurchase;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -35,10 +36,9 @@ class MilkPurchaseResource extends Resource
                 Forms\Components\Select::make('branch_id')
                     ->label('Sucursal')
                     ->placeholder('Seleccione sucursal')
-                    ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
+                    ->options(Branch::where('active', true)->orderBy('name')->pluck('name', 'id'))
                     ->required()
-                    ->searchable()
-                    ->preload()
+                    ->native(false)
                     ->default(fn () => session('last_milk_purchase_branch_id'))
                     ->afterStateUpdated(fn ($state) => session(['last_milk_purchase_branch_id' => $state])),
                 Forms\Components\Select::make('farm_id')

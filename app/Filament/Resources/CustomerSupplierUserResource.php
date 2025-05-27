@@ -45,6 +45,7 @@ class CustomerSupplierUserResource extends Resource
                         'customer' => 'Cliente',
                     ])
                     ->default('supplier')
+                    ->native(false)
                     ->required(),
                 Forms\Components\TextInput::make('password')
                     ->label('Contraseña')
