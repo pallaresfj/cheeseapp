@@ -4,6 +4,8 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\LiquidationResource\Pages;
 use App\Filament\Resources\LiquidationResource\RelationManagers;
+use App\Models\Branch;
+use App\Models\Farm;
 use App\Models\Liquidation;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -101,14 +103,13 @@ class LiquidationResource extends Resource
             ->filters([
                 SelectFilter::make('branch_id')
                     ->label('Sucursal')
-                    ->relationship('branch', 'name')
-                    ->searchable()
-                    ->preload(),
-
+                    ->placeholder('Todas las sucursales')
+                    ->options(Branch::where('active', true)->orderBy('name')->pluck('name', 'id'))
+                    ->native(false),
                 SelectFilter::make('farm_id')
                     ->label('Proveedor - Finca')
                     ->options(function () {
-                        return \App\Models\Farm::with('user')->get()->mapWithKeys(function ($farm) {
+                        return Farm::with('user')->get()->mapWithKeys(function ($farm) {
                             $label = ($farm->user->name ?? '—') . ' - ' . $farm->name;
                             return [$farm->id => $label];
                         });

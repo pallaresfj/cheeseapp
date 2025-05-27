@@ -71,7 +71,7 @@ return new class extends Migration {
             END;
         ");
 
-        DB::unprepared("DROP PROCEDURE IF EXISTS reconcile_movements;");
+        DB::unprepared("DROP PROCEDURE IF EXISTS reconcile_movements");
 
         DB::unprepared('
             CREATE PROCEDURE reconcile_movements(
@@ -96,17 +96,21 @@ return new class extends Migration {
                 FROM movement_types
                 WHERE class = "expense";
 
-                SET @sql_incomes = CONCAT("SELECT COALESCE(SUM(value),0) INTO @v_incomes 
+                SET @sql_incomes = CONCAT(
+                    "SELECT COALESCE(SUM(value),0) INTO @v_incomes 
                     FROM movements 
                     WHERE branch_id = ", p_branch_id, " 
                     AND date BETWEEN \'", p_start_date, "\' AND \'", p_end_date, "\' 
-                    AND movement_type_id IN (", v_income_ids, ")");
+                    AND movement_type_id IN (", v_income_ids, ")"
+                );
 
-                SET @sql_expenses = CONCAT("SELECT COALESCE(SUM(value),0) INTO @v_expenses 
+                SET @sql_expenses = CONCAT(
+                    "SELECT COALESCE(SUM(value),0) INTO @v_expenses 
                     FROM movements 
                     WHERE branch_id = ", p_branch_id, " 
                     AND date BETWEEN \'", p_start_date, "\' AND \'", p_end_date, "\' 
-                    AND movement_type_id IN (", v_expense_ids, ")");
+                    AND movement_type_id IN (", v_expense_ids, ")"
+                );
 
                 PREPARE stmt_incomes FROM @sql_incomes;
                 EXECUTE stmt_incomes;
@@ -130,7 +134,7 @@ return new class extends Migration {
                     updated_at = NOW()
                 WHERE branch_id = p_branch_id
                   AND date BETWEEN p_start_date AND p_end_date;
-            END;
+            END
         ');
     }
 

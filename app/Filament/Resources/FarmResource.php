@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\FarmResource\Pages;
 use App\Filament\Resources\FarmResource\RelationManagers;
+use App\Models\Branch;
 use App\Models\Farm;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -40,7 +41,7 @@ class FarmResource extends Resource
                 Forms\Components\Select::make('branch_id')
                     ->label('Sucursal')
                     ->placeholder('Seleccione sucursal')
-                    ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
+                    ->options(Branch::where('active', true)->orderBy('name')->pluck('name', 'id'))
                     ->native(false)
                     ->required(),
                 Forms\Components\Select::make('farm_type_id')

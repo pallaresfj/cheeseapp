@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\WeeklyBalanceResource\Pages;
 
 use App\Filament\Resources\WeeklyBalanceResource;
+use App\Models\Branch;
+use App\Models\Movement;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
 use Filament\Actions\Action;
@@ -22,12 +24,14 @@ class ManageWeeklyBalances extends ManageRecords
                 ->form([
                     Forms\Components\Select::make('branch_id')
                         ->label('Sucursal')
-                        ->options(\App\Models\Branch::where('active', true)->pluck('name', 'id'))
+                        ->placeholder('Selecciona una sucursal')
+                        ->options(Branch::where('active', true)->orderBy('name')->pluck('name', 'id'))
                         ->required()
+                        ->native(false)
                         ->reactive()
                         ->afterStateUpdated(function ($state, callable $set) {
-                            $min = \App\Models\Movement::where('branch_id', $state)->where('status', 'pending')->min('date');
-                            $max = \App\Models\Movement::where('branch_id', $state)->where('status', 'pending')->max('date');
+                            $min = Movement::where('branch_id', $state)->where('status', 'pending')->min('date');
+                            $max = Movement::where('branch_id', $state)->where('status', 'pending')->max('date');
                             $set('from', $min);
                             $set('until', $max);
                         }),

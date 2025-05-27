@@ -100,6 +100,7 @@ class MovementResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('branch_id')
                     ->label('Sucursal')
+                    ->placeholder('Todas las sucursales')
                     ->relationship('branch', 'name', fn (Builder $query) => $query->where('active', true))
                     ->native(false),
                 Tables\Filters\Filter::make('date')
