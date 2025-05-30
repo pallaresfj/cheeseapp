@@ -12,8 +12,15 @@ class Loan extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'farm_id', 'date', 'amount', 'installments',
-        'installment_value', 'paid_value', 'description', 'status'
+        'user_id', 
+        'farm_id', 
+        'date', 
+        'amount', 
+        'installments',
+        'installment_value', 
+        'paid_value', 
+        'description', 
+        'status'
     ];
 
     public function user() : BelongsTo
