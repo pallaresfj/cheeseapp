@@ -12,20 +12,17 @@ class LatestSales extends BaseWidget
     protected static ?string $heading = 'Últimas Ventas';
     protected static ?int $sort = 4;
 
-
-
-    public function getTableRecordsPerPage(): int
-    {
-        return 5;
-    }
-
     public function table(Table $table): Table
     {
         return $table
+            ->striped()
+            ->paginated(false)
             ->query(
                 Sale::query()
                     ->latest('sale_date')
+                    ->limit(5)
             )
+            ->description('Últimas ventas registradas.')
             ->columns([
                 Tables\Columns\TextColumn::make('sale_date')
                     ->label('Fecha')

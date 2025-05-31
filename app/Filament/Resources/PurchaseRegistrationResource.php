@@ -45,12 +45,16 @@ class PurchaseRegistrationResource extends Resource
             ->columns([
                 TextColumn::make('farm.name')
                     ->label('Proveedor - Finca')
+                    ->width('60%')
                     ->formatStateUsing(fn ($state, $record) => "{$record->farm->user->name} - {$record->farm->name}"),
                 TextColumn::make('date')
                     ->label('Fecha')
-                    ->date(),
+                    ->width('20%')
+                    ->date('D d'),
                 TextInputColumn::make('liters')
                     ->label('Litros')
+                    ->type('number')
+                    ->width('20%')
                     ->extraAttributes([
                         'inputmode' => 'decimal',
                         'pattern' => '^[0-9]+([.,][0-9]{1})?$',

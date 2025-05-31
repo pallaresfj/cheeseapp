@@ -12,19 +12,17 @@ class LatestLoans extends BaseWidget
     protected static ?string $heading = 'Últimos Préstamos';
     protected static ?int $sort = 5;
 
-    public function getTableRecordsPerPage(): int
-    {
-        return 5;
-    }
-
-
     public function table(Table $table): Table
     {
         return $table
+            ->striped()
+            ->paginated(false)
             ->query(
                 Loan::query()
                     ->latest('date')
+                    ->limit(5)
             )
+            ->description('Últimos préstamos registrados.')
             ->columns([
                 Tables\Columns\TextColumn::make('date')
                     ->label('Fecha')
