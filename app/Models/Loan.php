@@ -35,7 +35,6 @@ class Loan extends Model
     { 
         return $this->hasMany(LoanPayment::class); 
     }
-
     public function scopeActivosDeUsuario($query, $userId) 
     {
         return $query->where('user_id', $userId)

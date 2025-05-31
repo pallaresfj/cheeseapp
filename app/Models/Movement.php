@@ -20,12 +20,10 @@ class Movement extends Model
     {
         return $this->belongsTo(Branch::class);
     }
-
     public function movementType(): BelongsTo
     {
         return $this->belongsTo(MovementType::class);
     }
-
     public function weeklyBalance(): BelongsTo
     {
         return $this->belongsTo(WeeklyBalance::class);

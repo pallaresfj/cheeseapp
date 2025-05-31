@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LiquidationSummary extends Model
 {
@@ -15,20 +16,18 @@ class LiquidationSummary extends Model
         'details' => 'array',
     ];
 
-    public function branch()
+    public function branch() : BelongsTo
     {
         return $this->belongsTo(Branch::class);
     }
-
+    public function farm() : BelongsTo
+    {
+        return $this->belongsTo(Farm::class);
+    }
     public function getBranchNameAttribute()
     {
         return $this->branch?->name;
     }
-    public function farm()
-    {
-        return $this->belongsTo(Farm::class);
-    }
-
     public function getFarmDisplayAttribute(): string
     {
         $farmName = $this->farm?->name ?? '';

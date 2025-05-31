@@ -24,12 +24,10 @@ class PurchaseRegistration extends Model
     {
         return $this->belongsTo(Branch::class);
     }
-
     public function farm(): BelongsTo
     {
         return $this->belongsTo(Farm::class);
     }
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

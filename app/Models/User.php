@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\HasAvatar;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -55,18 +56,18 @@ class User extends Authenticatable implements HasAvatar
             'password' => 'hashed',
         ];
     }
-    public function activeLoans()
+    public function activeLoans() : HasMany
     {
         return $this->hasMany(Loan::class)
                     ->whereIn('status', ['active', 'overdue', 'suspended']);
     }
 
-    public function loans()
+    public function loans() : HasMany
     {
         return $this->hasMany(Loan::class);
     }
 
-    public function farms()
+    public function farms() : HasMany
     {
         return $this->hasMany(Farm::class);
     }

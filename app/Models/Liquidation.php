@@ -11,8 +11,16 @@ class Liquidation extends Model
     use HasFactory;
 
     protected $fillable = [
-        'branch_id', 'farm_id', 'date', 'total_liters', 'price_per_liter',
-        'loan_amount', 'previous_balance', 'discounts', 'details', 'status'
+        'branch_id', 
+        'farm_id', 
+        'date', 
+        'total_liters', 
+        'price_per_liter',
+        'loan_amount', 
+        'previous_balance', 
+        'discounts', 
+        'details', 
+        'status'
     ];
 
     protected $casts = [

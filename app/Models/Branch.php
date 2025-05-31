@@ -14,7 +14,12 @@ class Branch extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'address', 'phone', 'active'];
+    protected $fillable = [
+        'name', 
+        'address', 
+        'phone', 
+        'active'
+    ];
 
     public function farms() : HasMany
     {

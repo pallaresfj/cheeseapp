@@ -19,12 +19,10 @@ class WeeklyBalance extends Model
     {
         return $this->belongsTo(Branch::class);
     }
-
     public function movements(): HasMany
     {
         return $this->hasMany(Movement::class);
     }
-
     public function getNetBalanceAttribute(): float
     {
         return ($this->incomes ?? 0) - ($this->expenses ?? 0);

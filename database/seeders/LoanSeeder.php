@@ -26,6 +26,11 @@ class LoanSeeder extends Seeder
             $farm = $farms->random();
             $user_id = $farm->user_id;
 
+            // Omitir si el usuario ya tiene un préstamo activo
+            if (Loan::where('user_id', $user_id)->where('status', 'active')->exists()) {
+                continue;
+            }
+
             do {
                 $amount = rand(400, 5000) * 100;
                 $installments = rand(1, 12);

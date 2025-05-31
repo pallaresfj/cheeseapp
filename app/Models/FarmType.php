@@ -10,7 +10,11 @@ class FarmType extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description', 'base_price'];
+    protected $fillable = [
+        'name', 
+        'description', 
+        'base_price'
+    ];
 
     public function farms() : HasMany
     { 
