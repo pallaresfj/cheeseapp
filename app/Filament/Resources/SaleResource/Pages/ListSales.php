@@ -5,6 +5,7 @@ namespace App\Filament\Resources\SaleResource\Pages;
 use App\Filament\Resources\SaleResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use App\Filament\Widgets\ChartCheeseProduction;
 
 class ListSales extends ListRecords
 {
@@ -14,6 +15,13 @@ class ListSales extends ListRecords
     {
         return [
             Actions\CreateAction::make(),
+        ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            ChartCheeseProduction::class,
         ];
     }
 }

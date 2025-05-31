@@ -17,6 +17,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Illuminate\Support\Collection;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -54,6 +55,7 @@ class LiquidationSummaryResource extends Resource
                     ->sortable(),
                 TextColumn::make('farm_display')
                     ->label('Proveedor - Finca')
+                    ->weight(FontWeight::Bold)
                     ->wrap(),
                 TextColumn::make('total_liters')
                     ->label('Litros')
@@ -98,7 +100,19 @@ class LiquidationSummaryResource extends Resource
                     ->label('Neto')
                     ->money('COP', locale: 'es_CO')
                     ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
-                    ->alignEnd(),
+                    ->alignEnd()
+                    ->badge()
+                    ->color(function ($record) {
+                        if (!$record->total_paid || $record->total_paid == 0) {
+                            return 'gray';
+                        }
+                        $percentage = ($record->net_amount / $record->total_paid) * 100;
+                        return match (true) {
+                            $percentage < 50 => 'danger',
+                            $percentage < 70 => 'warning',
+                            default => 'success',
+                        };
+                    }),
             ])
             ->actions([
                 Tables\Actions\Action::make('ver_detalles')
