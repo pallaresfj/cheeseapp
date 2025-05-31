@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             BranchesTableSeeder::class,
             FarmsTableSeeder::class,
             MilkPurchasesTableSeeder::class, // Borrar este seeder en producción
+            LoanSeeder::class,
         ]);
     }
 }
