@@ -52,7 +52,8 @@ class LiquidationResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('farm.name')
                     ->label('Proveedor - Finca')
-                    ->formatStateUsing(fn ($record) => $record->farm->user->name . ' - ' . $record->farm->name),
+                    ->formatStateUsing(fn ($record) => $record->farm->user->name . ' - ' . $record->farm->name)
+                    ->wrap(),
                 Tables\Columns\TextColumn::make('total_liters')
                     ->label('Litros')
                     ->numeric()

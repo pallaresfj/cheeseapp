@@ -141,7 +141,7 @@ class LoanResource extends Resource
             ->striped()
             ->columns([
                 IconColumn::make('status')
-                    ->label('Estado')
+                    ->label('')
                     ->icon(fn (string $state): string => match ($state) {
                         'active' => 'heroicon-o-currency-dollar',
                         'paid' => 'heroicon-o-check-circle',
@@ -159,14 +159,16 @@ class LoanResource extends Resource
                         'paid' => 'Pagado',
                         'overdue' => 'Vencido',
                         'suspended' => 'Suspendido',
-                    }),
+                    })
+                    ->alignCenter(),
                 Tables\Columns\TextColumn::make('proveedor_finca')
                     ->label('Proveedor - Finca')
                     ->getStateUsing(fn ($record) => "{$record->user->name} - {$record->farm->name}")
                     ->searchable(query: function ($query, $search) {
                         return $query->whereHas('user', fn ($q) => $q->where('name', 'like', "%{$search}%"))
                                     ->orWhereHas('farm', fn ($q) => $q->where('name', 'like', "%{$search}%"));
-                    }),
+                    })
+                    ->wrap(),
                 Tables\Columns\TextColumn::make('date')
                     ->label('Fecha')
                     ->date()

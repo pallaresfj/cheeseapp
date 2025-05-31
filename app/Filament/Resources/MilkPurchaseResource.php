@@ -85,6 +85,7 @@ class MilkPurchaseResource extends Resource
                 Tables\Columns\TextColumn::make('farm.name')
                     ->label('Proveedor - Finca')
                     ->sortable()
+                    ->wrap()
                     ->formatStateUsing(fn ($state, $record) => "{$record->farm->user->name} - {$record->farm->name}"),
                 Tables\Columns\TextColumn::make('date')
                     ->label('Fecha')
@@ -121,14 +122,20 @@ class MilkPurchaseResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('branch_id')
                     ->label('Sucursal')
-                    ->relationship('branch', 'name')
+                    ->options(
+                        \App\Models\Branch::where('active', true)
+                            ->orderBy('name')
+                            ->pluck('name', 'id')
+                    )
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->native(false),
                 Tables\Filters\SelectFilter::make('farm_id')
                     ->label('Finca')
                     ->relationship('farm', 'name')
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->native(false),
                 Tables\Filters\Filter::make('date')
                     ->label('Fecha')
                     ->form([

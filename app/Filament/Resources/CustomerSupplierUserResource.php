@@ -83,7 +83,8 @@ class CustomerSupplierUserResource extends Resource
                     ->circular(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nombre')
-                    ->searchable(),
+                    ->searchable()
+                    ->wrap(),
                 Tables\Columns\TextColumn::make('email')
                     ->label('Correo')
                     ->searchable(),

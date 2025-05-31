@@ -40,7 +40,7 @@ class UsersTableSeeder extends Seeder
         // Usuarios Proveedores
         for ($i = 1; $i <= 10; $i++) {
             $user = User::create([
-                'name' => "Proveedor $i",
+                'name' => "Nombre Apellidos Proveedor $i",
                 'email' => "proveedor$i@cheeseapp.com.co",
                 'password' => Hash::make('1234'),
                 'role' => 'supplier',
@@ -51,7 +51,7 @@ class UsersTableSeeder extends Seeder
         // Usuarios Clientes
         for ($i = 1; $i <= 3; $i++) {
             $user = User::create([
-                'name' => "Cliente $i",
+                'name' => "Nombre Apellidos Cliente $i",
                 'email' => "cliente$i@cheeseapp.com.co",
                 'password' => Hash::make('1234'),
                 'role' => 'customer',

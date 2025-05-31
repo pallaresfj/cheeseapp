@@ -28,7 +28,8 @@ class LatestLoans extends BaseWidget
                     ->label('Fecha')
                     ->date(),
                 Tables\Columns\TextColumn::make('user.name')
-                    ->label('Proveedor'),
+                    ->label('Proveedor')
+                    ->wrap(),
                 Tables\Columns\TextColumn::make('amount')
                     ->label('Monto')
                     ->money('COP', locale: 'es_CO')

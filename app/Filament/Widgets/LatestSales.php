@@ -28,7 +28,8 @@ class LatestSales extends BaseWidget
                     ->label('Fecha')
                     ->date(),
                 Tables\Columns\TextColumn::make('user.name')
-                    ->label('Cliente'),
+                    ->label('Cliente')
+                    ->wrap(),
                 Tables\Columns\TextColumn::make('kilos')
                     ->label('Kilos')
                     ->numeric()

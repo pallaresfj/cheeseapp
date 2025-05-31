@@ -53,7 +53,8 @@ class LiquidationSummaryResource extends Resource
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('farm_display')
-                    ->label('Proveedor - Finca'),
+                    ->label('Proveedor - Finca')
+                    ->wrap(),
                 TextColumn::make('total_liters')
                     ->label('Litros')
                     ->numeric()
