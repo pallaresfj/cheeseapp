@@ -59,7 +59,7 @@ class PurchaseRegistrationResource extends Resource
                         'inputmode' => 'decimal',
                         'pattern' => '^[0-9]+([.,][0-9]{1})?$',
                     ])
-                    ->rules(['numeric', 'regex:/^\d+(\.\d)?$/', 'min:0'])
+                    ->rules(['regex:/^\d+(\.\d)?$/', 'min:0'])
             ])
             ->groups([
                 Group::make('branch.name')
