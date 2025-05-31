@@ -138,6 +138,7 @@ class LoanResource extends Resource
         return $table
             ->defaultSort('date', 'desc')
             ->extremePaginationLinks()
+            ->striped()
             ->columns([
                 IconColumn::make('status')
                     ->label('Estado')

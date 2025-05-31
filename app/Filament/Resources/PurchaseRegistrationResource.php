@@ -42,6 +42,7 @@ class PurchaseRegistrationResource extends Resource
     {
         return $table
             ->extremePaginationLinks()
+            ->striped()
             ->columns([
                 TextColumn::make('farm.name')
                     ->label('Proveedor - Finca')
@@ -58,9 +59,10 @@ class PurchaseRegistrationResource extends Resource
                     ->width('20%')
                     ->extraAttributes([
                         'inputmode' => 'decimal',
-                        'pattern' => '^[0-9]+([.,][0-9]{1})?$',
+                        // 'pattern' => '^[0-9]+([.,][0-9]{1})?$',
                     ])
-                    ->rules(['regex:/^\d+(\.\d)?$/', 'min:0'])
+                    ->rules(['min:0'])
+                    // ->rules(['regex:/^\d+(\.\d)?$/', 'min:0'])
             ])
             ->groups([
                 Group::make('branch.name')

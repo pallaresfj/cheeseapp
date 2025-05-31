@@ -59,6 +59,7 @@ class MovementTypeResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->striped()
             ->columns([
                 TextColumn::make('class')
                     ->label('Clase')

@@ -46,6 +46,7 @@ class LiquidationSummaryResource extends Resource
         return $table
             ->description('Revise antes de generar las liquidaciones definitivas.')
             ->extremePaginationLinks()
+            ->striped()
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')

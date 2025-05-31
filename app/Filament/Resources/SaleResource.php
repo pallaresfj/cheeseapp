@@ -128,6 +128,7 @@ class SaleResource extends Resource
     {
         return $table
             ->extremePaginationLinks()
+            ->striped()
             ->columns([
                 TextColumn::make('branch.name')
                     ->label('Sucursal')

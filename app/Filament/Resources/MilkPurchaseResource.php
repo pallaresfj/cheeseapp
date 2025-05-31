@@ -77,6 +77,7 @@ class MilkPurchaseResource extends Resource
             ->headerActions([
                 //
             ])
+            ->striped()
             ->columns([
                 Tables\Columns\TextColumn::make('branch.name')
                     ->label('Sucursal')

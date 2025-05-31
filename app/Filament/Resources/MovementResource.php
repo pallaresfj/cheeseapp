@@ -74,6 +74,7 @@ class MovementResource extends Resource
     {
         return $table
             ->extremePaginationLinks()
+            ->striped()
             ->columns([
                 Tables\Columns\TextColumn::make('branch.name')
                     ->label('Sucursal')

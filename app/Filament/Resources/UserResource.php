@@ -87,6 +87,7 @@ class UserResource extends Resource
     {
         return $table
             ->extremePaginationLinks()
+            ->striped()
             ->columns([
                 ImageColumn::make('avatar_url')
                     ->label('Avatar')

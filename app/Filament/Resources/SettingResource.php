@@ -50,6 +50,7 @@ class SettingResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->striped()
             ->columns([
                 Tables\Columns\TextColumn::make('key')
                     ->label('Clave')

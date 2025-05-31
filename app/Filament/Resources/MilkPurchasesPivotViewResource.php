@@ -213,6 +213,7 @@ class MilkPurchasesPivotViewResource extends Resource
                     ->modalHeading('Ejecutar Liquidación'),
                 // Acción: Planilla por Fecha
             ])
+            ->striped()
             ->columns(self::getTableColumns())
             ->groups([
                 Group::make('branch.name')
@@ -286,6 +287,7 @@ class MilkPurchasesPivotViewResource extends Resource
         $baseColumns = [
             TextColumn::make('farm.name')
                 ->label('Proveedor - Finca')
+                ->wrap()
                 ->formatStateUsing(fn ($record) => $record->farm->user->name . ' - ' . $record->farm->name)
                 ->action(function ($record) {
                     $branchId = $record->branch_id;
@@ -333,6 +335,7 @@ class MilkPurchasesPivotViewResource extends Resource
                 $label = $fecha->locale('es_CO')->isoFormat('MMM DD');
                 return TextColumn::make($col)
                     ->label($label)
+                    ->width('5%')
                     ->numeric()
                     ->alignEnd();
             })
@@ -343,14 +346,17 @@ class MilkPurchasesPivotViewResource extends Resource
             TextColumn::make('total_litros')
                 ->label('Litros')
                 ->numeric()
+                ->width('5%')
                 ->alignEnd(),
             TextColumn::make('base_price')
                 ->label('Precio')
                 ->money('COP', locale: 'es_CO')
+                ->width('10%')
                 ->alignEnd(),
             TextColumn::make('producido')
                 ->label('Producido')
                 ->money('COP', locale: 'es_CO')
+                ->width('10%')
                 ->alignEnd(),
         ];
 

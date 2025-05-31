@@ -144,6 +144,7 @@ class CheeseProductionResource extends Resource
     {
         return $table
             ->extremePaginationLinks()
+            ->striped()
             ->columns([
                 Tables\Columns\TextColumn::make('date')
                     ->label('Fecha')
