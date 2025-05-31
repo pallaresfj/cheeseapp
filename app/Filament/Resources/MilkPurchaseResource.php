@@ -10,6 +10,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -79,6 +80,21 @@ class MilkPurchaseResource extends Resource
             ])
             ->striped()
             ->columns([
+                Tables\Columns\IconColumn::make('status')
+                    ->label('')
+                    ->icon(fn (string $state): string => match ($state) {
+                        'pending' => 'heroicon-o-clock',
+                        'liquidated' => 'heroicon-o-check-circle',
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'pending' => 'warning',
+                        'liquidated' => 'success',
+                    })
+                    ->tooltip(fn (string $state): string => match ($state) {
+                        'pending' => 'Pendiente',
+                        'liquidated' => 'Liquidada',
+                    })
+                    ->alignCenter(),
                 Tables\Columns\TextColumn::make('branch.name')
                     ->label('Sucursal')
                     ->sortable(),
@@ -94,26 +110,11 @@ class MilkPurchaseResource extends Resource
                 Tables\Columns\TextColumn::make('liters')
                     ->label('Litros')
                     ->numeric(),
-                Tables\Columns\IconColumn::make('status')
-                    ->label('Estado')
-                    ->icon(fn (string $state): string => match ($state) {
-                        'pending' => 'heroicon-o-clock',
-                        'liquidated' => 'heroicon-o-check',
-                    })
-                    ->color(fn (string $state): string => match ($state) {
-                        'pending' => 'warning',
-                        'liquidated' => 'success',
-                    })
-                    ->tooltip(fn (string $state): string => match ($state) {
-                        'pending' => 'Pendiente',
-                        'liquidated' => 'Liquidada',
-                    }),
             ])
             ->modifyQueryUsing(fn (Builder $query) =>
                 $query->join('farms', 'milk_purchases.farm_id', '=', 'farms.id')
                     ->join('branches', 'milk_purchases.branch_id', '=', 'branches.id')
                     ->join('users', 'farms.user_id', '=', 'users.id')
-                    ->where('milk_purchases.status', 'pending')
                     ->orderByDesc('milk_purchases.date')
                     ->orderBy('branches.name')
                     ->orderByRaw("CONCAT(users.name, ' - ', farms.name)")
