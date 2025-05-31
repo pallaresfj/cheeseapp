@@ -45,6 +45,7 @@ class PurchaseRegistrationResource extends Resource
             ->columns([
                 TextColumn::make('farm.name')
                     ->label('Proveedor - Finca')
+                    ->wrap()
                     ->width('60%')
                     ->formatStateUsing(fn ($state, $record) => "{$record->farm->user->name} - {$record->farm->name}"),
                 TextColumn::make('date')
