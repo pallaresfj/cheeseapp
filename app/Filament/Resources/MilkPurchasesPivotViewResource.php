@@ -328,6 +328,7 @@ class MilkPurchasesPivotViewResource extends Resource
                 }),
         ];
 
+        
         $dynamicColumns = collect($columnas)
             ->filter(fn ($col) => preg_match('/^\d{4}_\d{2}_\d{2}$/', $col))
             ->map(function ($col) {
@@ -341,6 +342,7 @@ class MilkPurchasesPivotViewResource extends Resource
             })
             ->values()
             ->toArray();
+        
 
         $footerColumns = [
             TextColumn::make('total_litros')
