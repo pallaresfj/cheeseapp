@@ -5,27 +5,31 @@ namespace App\Filament\Widgets;
 use Filament\Widgets\ChartWidget;
 use App\Models\CheeseProduction;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ChartCheeseProduction extends ChartWidget
 {
     protected static ?string $heading = 'Producción de Queso';
     protected static ?int $sort = 3;
+    protected string $leyendaFechas = '';
 
     protected function getData(): array
     {
-        $startDate = now()->subDays(6)->toDateString();
-        $endDate = now()->toDateString();
+        $endDate = CheeseProduction::latest('date')->value('date');
+        $startDate = Carbon::parse($endDate)->subDays(6)->startOfDay();
+        $this->leyendaFechas = 'Kilos producidos por sucursal de '.$startDate->format('d/m/Y') . ' a ' . Carbon::parse($endDate)->endOfDay()->format('d/m/Y');
 
         $data = CheeseProduction::select('branches.name as branch_name', DB::raw('SUM(cheese_productions.produced_kilos) as total_kilos'))
             ->join('branches', 'cheese_productions.branch_id', '=', 'branches.id')
             ->whereBetween('cheese_productions.date', [$startDate, $endDate])
             ->groupBy('cheese_productions.branch_id', 'branches.name')
+            ->orderBy('branches.name')
             ->get();
 
         return [
             'datasets' => [
                 [
-                    'label' => 'Kilos producidos',
+                    'label' => 'Kilos por Sucursal',
                     'data' => $data->pluck('total_kilos'),
                     'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
                     'borderColor' => 'rgba(75, 192, 192, 1)',
@@ -42,6 +46,6 @@ class ChartCheeseProduction extends ChartWidget
     }
     public function getDescription(): ?string
     {
-        return 'Kilos producidos por sucursal en la última semana';
+        return $this->leyendaFechas;
     }
 }
