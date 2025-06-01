@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\MovementResource\Pages;
 use App\Filament\Resources\MovementResource\RelationManagers;
 use App\Models\Movement;
+use App\Models\MovementType;
 use App\Models\WeeklyBalance;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -126,9 +127,8 @@ class MovementResource extends Resource
             ->defaultGroup('movementType.class')
             ->groupingSettingsHidden()
             ->modifyQueryUsing(fn (Builder $query) => $query
-                ->orderBy('date', 'desc')
                 ->orderBy(
-                    \App\Models\MovementType::select('description')
+                    MovementType::select('description')
                         ->whereColumn('movement_types.id', 'movements.movement_type_id')
                         ->limit(1),
                     'asc'
