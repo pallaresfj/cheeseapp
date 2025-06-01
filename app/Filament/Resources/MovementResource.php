@@ -126,14 +126,6 @@ class MovementResource extends Resource
             ])
             ->defaultGroup('movementType.class')
             ->groupingSettingsHidden()
-            ->modifyQueryUsing(fn (Builder $query) => $query
-                ->orderBy(
-                    MovementType::select('description')
-                        ->whereColumn('movement_types.id', 'movements.movement_type_id')
-                        ->limit(1),
-                    'asc'
-                )
-            )
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->label('')
@@ -174,3 +166,5 @@ class MovementResource extends Resource
         ];
     }
 }
+
+    
