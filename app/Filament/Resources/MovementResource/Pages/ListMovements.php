@@ -3,6 +3,9 @@
 namespace App\Filament\Resources\MovementResource\Pages;
 
 use App\Filament\Resources\MovementResource;
+use App\Filament\Resources\MovementResource\Widgets\ChartLiquidationD;
+use App\Filament\Resources\MovementResource\Widgets\ChartLiquidationP;
+use App\Filament\Resources\SaleResource\Widgets\ChartSale;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Pages\ListRecords\Tab;
@@ -15,6 +18,14 @@ class ListMovements extends ListRecords
     {
         return [
             Actions\CreateAction::make(),
+        ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            ChartLiquidationP::class,
+            ChartSale::class,
         ];
     }
 

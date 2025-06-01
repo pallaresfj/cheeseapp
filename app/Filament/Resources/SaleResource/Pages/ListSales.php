@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\SaleResource\Pages;
 
 use App\Filament\Resources\SaleResource;
+use App\Filament\Resources\SaleResource\Widgets\ChartSale;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use App\Filament\Widgets\ChartCheeseProduction;
@@ -22,6 +23,7 @@ class ListSales extends ListRecords
     {
         return [
             ChartCheeseProduction::class,
+            ChartSale::class,
         ];
     }
 }

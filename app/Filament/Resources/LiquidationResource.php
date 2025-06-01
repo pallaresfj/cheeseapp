@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\Summarizers\Average;
 
@@ -52,6 +53,7 @@ class LiquidationResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('farm.name')
                     ->label('Proveedor - Finca')
+                    ->weight(FontWeight::Bold)
                     ->formatStateUsing(fn ($record) => $record->farm->user->name . ' - ' . $record->farm->name)
                     ->wrap(),
                 Tables\Columns\TextColumn::make('total_liters')
@@ -91,6 +93,7 @@ class LiquidationResource extends Resource
                     ->alignEnd(),
                 Tables\Columns\TextColumn::make('net_total')
                     ->label('Neto')
+                    ->weight(FontWeight::Bold)
                     ->money('COP', locale: 'es_CO')
                     ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
                     ->alignEnd(),
