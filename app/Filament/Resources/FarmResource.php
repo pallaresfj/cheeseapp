@@ -6,6 +6,7 @@ use App\Filament\Resources\FarmResource\Pages;
 use App\Filament\Resources\FarmResource\RelationManagers;
 use App\Models\Branch;
 use App\Models\Farm;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -32,7 +33,8 @@ class FarmResource extends Resource
                     ->label('Proveedor')
                     ->placeholder('Seleccione proveedor')
                     ->searchable()
-                    ->options(\App\Models\User::where('role', 'supplier')->pluck('name', 'id'))
+                    ->native(false)
+                    ->options(User::where('role', 'supplier')->where('status', true)->pluck('name', 'id'))
                     ->required(),
                 Forms\Components\TextInput::make('name')
                     ->label('Finca')

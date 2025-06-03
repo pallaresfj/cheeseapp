@@ -32,6 +32,7 @@ class User extends Authenticatable implements HasAvatar
         'address',
         'phone',
         'avatar_url',
+        'status',
     ];
 
     /**
@@ -61,7 +62,6 @@ class User extends Authenticatable implements HasAvatar
         return $this->hasMany(Loan::class)
                     ->whereIn('status', ['active', 'overdue', 'suspended']);
     }
-
     public function loans() : HasMany
     {
         return $this->hasMany(Loan::class);
@@ -70,6 +70,10 @@ class User extends Authenticatable implements HasAvatar
     public function farms() : HasMany
     {
         return $this->hasMany(Farm::class);
+    }
+    public function salePayments() : HasMany
+    {
+        return $this->hasMany(SalePayment::class);
     }
     public function getFilamentAvatarUrl(): ?string
     {

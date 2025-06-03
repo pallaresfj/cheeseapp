@@ -67,6 +67,10 @@ class CustomerSupplierUserResource extends Resource
                     ->label('Verificado')
                     ->default(now())
                     ->visibleOn('edit'),
+                Forms\Components\Toggle::make('status')
+                    ->label('Activo')
+                    ->inline(false)
+                    ->default(true),
                 FileUpload::make('avatar')
                     ->avatar(),
             ]);

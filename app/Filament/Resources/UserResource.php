@@ -80,6 +80,10 @@ class UserResource extends Resource
                     ->preload()
                     ->native(false)
                     ->searchable(),
+                Forms\Components\Toggle::make('status')
+                    ->label('Activo')
+                    ->inline(false)
+                    ->default(true),
             ]);
     }
 

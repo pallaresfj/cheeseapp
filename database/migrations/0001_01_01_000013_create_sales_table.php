@@ -20,7 +20,6 @@ return new class extends Migration
             $table->decimal('kilos', 10, 2);
             $table->decimal('price_per_kilo', 10, 2);
             $table->decimal('amount_paid', 10, 2)->storedAs('kilos * price_per_kilo');
-            // $table->decimal('balance', 10, 2);
             $table->enum('status', ['active', 'cancelled'])->default('active');
             $table->timestamps();
         });
