@@ -40,7 +40,7 @@ class LoanSeeder extends Seeder
             Loan::create([
                 'user_id' => $user_id,
                 'farm_id' => $farm->id,
-                'date' => Carbon::create(2025, 5, rand(17, 23)),
+                'date' => Carbon::create(2025, 5, rand(24, 30)),
                 'amount' => $amount,
                 'installments' => $installments,
                 'installment_value' => $installment_value,
