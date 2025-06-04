@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\Summarizers\Average;
+use Filament\Support\Enums\FontWeight;
+use Filament\Tables\Columns\Layout\Split;
 
 class LoanResource extends Resource
 {
@@ -140,62 +142,72 @@ class LoanResource extends Resource
             ->extremePaginationLinks()
             ->striped()
             ->columns([
-                IconColumn::make('status')
-                    ->label('')
-                    ->icon(fn (string $state): string => match ($state) {
-                        'active' => 'heroicon-o-currency-dollar',
-                        'paid' => 'heroicon-o-check-circle',
-                        'overdue' => 'heroicon-o-x-circle',
-                        'suspended' => 'heroicon-o-pause-circle',
-                    })
-                    ->color(fn (string $state): string => match ($state) {
-                        'active' => 'success',
-                        'paid' => 'info',
-                        'overdue' => 'danger',
-                        'suspended' => 'warning',
-                    })
-                    ->tooltip(fn (string $state): string => match ($state) {
-                        'active' => 'Activo',
-                        'paid' => 'Pagado',
-                        'overdue' => 'Vencido',
-                        'suspended' => 'Suspendido',
-                    })
-                    ->alignCenter(),
-                Tables\Columns\TextColumn::make('proveedor_finca')
-                    ->label('Proveedor - Finca')
-                    ->getStateUsing(fn ($record) => "{$record->user->name} - {$record->farm->name}")
-                    ->searchable(query: function ($query, $search) {
-                        return $query->whereHas('user', fn ($q) => $q->where('name', 'like', "%{$search}%"))
-                                    ->orWhereHas('farm', fn ($q) => $q->where('name', 'like', "%{$search}%"));
-                    })
-                    ->wrap(),
-                Tables\Columns\TextColumn::make('date')
-                    ->label('Fecha')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('amount')
-                    ->label('Monto')
-                    ->money('COP', locale: 'es_CO')
-                    ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
-                    ->alignEnd(),
-                Tables\Columns\TextColumn::make('installments')
-                    ->label('Cuotas')
-                    ->numeric()
-                    ->alignEnd(),
-                Tables\Columns\TextColumn::make('installment_value')
-                    ->label('Cuota')
-                    ->money('COP', locale: 'es_CO')
-                    ->alignEnd(),
-                Tables\Columns\TextColumn::make('paid_value')
-                    ->label('Pagado')
-                    ->money('COP', locale: 'es_CO')
-                    ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
-                    ->alignEnd(),
-                Tables\Columns\TextColumn::make('saldo')
-                    ->label('Saldo')
-                    ->money('COP', locale: 'es_CO')
-                    ->getStateUsing(fn ($record) => $record->amount - $record->paid_value)
-                    ->alignEnd(),
+                Split::make([
+                    IconColumn::make('status')
+                        ->label('')
+                        ->icon(fn (string $state): string => match ($state) {
+                            'active' => 'heroicon-o-currency-dollar',
+                            'paid' => 'heroicon-o-check-circle',
+                            'overdue' => 'heroicon-o-x-circle',
+                            'suspended' => 'heroicon-o-pause-circle',
+                        })
+                        ->color(fn (string $state): string => match ($state) {
+                            'active' => 'success',
+                            'paid' => 'info',
+                            'overdue' => 'danger',
+                            'suspended' => 'warning',
+                        })
+                        ->tooltip(fn (string $state): string => match ($state) {
+                            'active' => 'Activo',
+                            'paid' => 'Pagado',
+                            'overdue' => 'Vencido',
+                            'suspended' => 'Suspendido',
+                        })
+                        ->alignCenter(),
+
+                    Tables\Columns\TextColumn::make('proveedor_finca')
+                        ->label('Proveedor - Finca')
+                        ->getStateUsing(fn ($record) => "{$record->user->name} - {$record->farm->name}")
+                        ->searchable(query: function ($query, $search) {
+                            return $query->whereHas('user', fn ($q) => $q->where('name', 'like', "%{$search}%"))
+                                        ->orWhereHas('farm', fn ($q) => $q->where('name', 'like', "%{$search}%"));
+                        })
+                        ->wrap()
+                        ->weight(FontWeight::Bold),
+
+                    Tables\Columns\TextColumn::make('date')
+                        ->label('Fecha')
+                        ->date()
+                        ->sortable(),
+
+                    Tables\Columns\TextColumn::make('amount')
+                        ->label('Monto')
+                        ->money('COP', locale: 'es_CO')
+                        ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
+                        ->alignEnd(),
+
+                    Tables\Columns\TextColumn::make('installments')
+                        ->label('Cuotas')
+                        ->numeric()
+                        ->alignEnd(),
+
+                    Tables\Columns\TextColumn::make('installment_value')
+                        ->label('Cuota')
+                        ->money('COP', locale: 'es_CO')
+                        ->alignEnd(),
+
+                    Tables\Columns\TextColumn::make('paid_value')
+                        ->label('Pagado')
+                        ->money('COP', locale: 'es_CO')
+                        ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
+                        ->alignEnd(),
+
+                    Tables\Columns\TextColumn::make('saldo')
+                        ->label('Saldo')
+                        ->money('COP', locale: 'es_CO')
+                        ->getStateUsing(fn ($record) => $record->amount - $record->paid_value)
+                        ->alignEnd(),
+                ])->from('md'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('branch_id')

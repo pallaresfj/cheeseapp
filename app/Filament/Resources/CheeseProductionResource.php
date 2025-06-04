@@ -148,16 +148,14 @@ class CheeseProductionResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('date')
                     ->label('Fecha')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('branch.name')
+                    ->date(),
+                /* Tables\Columns\TextColumn::make('branch.name')
                     ->label('Sucursal')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable(), */
                 Tables\Columns\TextColumn::make('processed_liters')
                     ->label('Litros Procesados')
                     ->numeric()
-                    ->sortable()
                     ->summarize(Sum::make()->label(''))
                     ->alignEnd(),
                 Tables\Columns\TextColumn::make('produced_kilos_sugerido')
@@ -170,7 +168,6 @@ class CheeseProductionResource extends Resource
                 Tables\Columns\TextColumn::make('produced_kilos')
                     ->label('Kilos Producidos')
                     ->numeric()
-                    ->sortable()
                     ->summarize(Sum::make()->label(''))
                     ->alignEnd(),
                 Tables\Columns\TextColumn::make('produced_kilos_porcentaje')
