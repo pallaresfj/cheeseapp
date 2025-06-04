@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Filament\Resources\SaleResource\Widgets;
+namespace App\Filament\Resources\UserSalesResource\Widgets;
 
 use App\Models\Sale;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
-class ChartSale extends ChartWidget
+class UserSalesChart extends ChartWidget
 {
     protected static ?string $heading = 'Ventas por Sucursal';
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 1;
     protected string $leyendaFechas = '';
 
     protected function getData(): array

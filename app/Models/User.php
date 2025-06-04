@@ -66,10 +66,13 @@ class User extends Authenticatable implements HasAvatar
     {
         return $this->hasMany(Loan::class);
     }
-
     public function farms() : HasMany
     {
         return $this->hasMany(Farm::class);
+    }
+    public function sales() : HasMany
+    {
+        return $this->hasMany(Sale::class);
     }
     public function salePayments() : HasMany
     {

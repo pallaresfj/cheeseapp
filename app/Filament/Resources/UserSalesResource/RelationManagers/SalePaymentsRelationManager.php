@@ -1,41 +1,30 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\UserSalesResource\RelationManagers;
 
-use App\Filament\Resources\SalePaymentResource\Pages;
-use App\Filament\Resources\SalePaymentResource\RelationManagers;
-use App\Models\SalePayment;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Support\Enums\FontWeight;
+use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class SalePaymentResource extends Resource
+class SalePaymentsRelationManager extends RelationManager
 {
-    protected static ?string $model = SalePayment::class;
+    protected static string $relationship = 'salePayments';
+    protected static ?string $modelLabel = 'Pago';
+    protected static ?string $pluralLabel = 'Pagos';
+    protected static ?string $title = 'Pagos';
 
-    protected static ?int $navigationSort = 9;
-    protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
-    protected static ?string $navigationGroup = 'Operaciones';
-    protected static ?string $label = 'Pago de Venta';
-    protected static ?string $pluralLabel = 'Pagos de Venta';
-
-    public static function form(Form $form): Form
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('user_id')
-                    ->label('Cliente')
-                    ->relationship('user', 'name')
-                    ->placeholder('Seleccione cliente')
-                    ->searchable()
-                    ->native(false)
-                    ->options(User::where('role', 'customer')->where('status', true)->pluck('name', 'id'))
+                Forms\Components\Hidden::make('user_id')
+                    ->default(fn (RelationManager $livewire) => $livewire->getOwnerRecord()->id)
                     ->required(),
                 Forms\Components\DatePicker::make('date')
                     ->label('Fecha')
@@ -48,24 +37,14 @@ class SalePaymentResource extends Resource
             ]);
     }
 
-    public static function table(Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('amount')
+            ->extremePaginationLinks()
+            ->defaultSort('date', 'desc')
             ->striped()
             ->columns([
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('Cliente')
-                    ->weight(FontWeight::Bold)
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('date')
-                    ->label('Fecha')
-                    ->date()
-                    ->alignEnd(),
-                Tables\Columns\TextColumn::make('amount')
-                    ->label('Monto')
-                    ->money('COP', locale: 'es_CO')
-                    ->alignEnd(),
                 Tables\Columns\IconColumn::make('status')
                     ->label('')
                     ->icon(fn (string $state): string => match ($state) {
@@ -81,9 +60,23 @@ class SalePaymentResource extends Resource
                         'reconciled' => 'Conciliado',
                     })
                     ->alignCenter(),
+                Tables\Columns\TextColumn::make('date')
+                    ->label('Fecha')
+                    ->date(),
+                Tables\Columns\TextColumn::make('amount')
+                    ->label('Monto')
+                    ->money('COP', locale: 'es_CO')
+                    ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
+                    ->alignEnd(),
             ])
             ->filters([
                 //
+            ])
+            ->headerActions([
+                Tables\Actions\CreateAction::make()
+                    ->after(function (RelationManager $livewire) {
+                        $livewire->dispatch('refresh-parent');
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
@@ -104,21 +97,5 @@ class SalePaymentResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListSalePayments::route('/'),
-            'create' => Pages\CreateSalePayment::route('/create'),
-            'edit' => Pages\EditSalePayment::route('/{record}/edit'),
-        ];
     }
 }

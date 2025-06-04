@@ -6,6 +6,7 @@ use App\Filament\Resources\MovementResource;
 use App\Filament\Resources\MovementResource\Widgets\ChartLiquidationD;
 use App\Filament\Resources\MovementResource\Widgets\ChartLiquidationP;
 use App\Filament\Resources\SaleResource\Widgets\ChartSale;
+use App\Filament\Resources\UserSalesResource\Widgets\UserSalesChart;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Pages\ListRecords\Tab;
@@ -25,7 +26,7 @@ class ListMovements extends ListRecords
     {
         return [
             ChartLiquidationP::class,
-            ChartSale::class,
+            UserSalesChart::class,
         ];
     }
 
