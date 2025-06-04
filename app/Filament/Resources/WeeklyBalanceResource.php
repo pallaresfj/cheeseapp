@@ -19,7 +19,7 @@ class WeeklyBalanceResource extends Resource
 {
     protected static ?string $model = WeeklyBalance::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
+    protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Contabilidad';
     protected static ?string $label = 'Balance Semanal';
     protected static ?string $pluralLabel = 'Balances Semanales';

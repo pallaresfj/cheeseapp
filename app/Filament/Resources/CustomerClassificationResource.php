@@ -17,7 +17,7 @@ class CustomerClassificationResource extends Resource
 {
     protected static ?string $model = CustomerClassification::class;
     protected static ?int $navigationSort = 6;
-    protected static ?string $navigationIcon = 'heroicon-o-user-circle';
+    protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Empresa';
     protected static ?string $label = 'Tipo de Cliente';
     protected static ?string $pluralLabel = 'Tipos de Clientes';

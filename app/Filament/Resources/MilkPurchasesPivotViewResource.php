@@ -33,7 +33,7 @@ class MilkPurchasesPivotViewResource extends Resource
     protected static ?string $model = MilkPurchasesPivotView::class;
     protected static ?string $primaryKey = 'farm_id';
     protected static ?int $navigationSort = 1;
-    protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Operaciones';
     protected static ?string $label = 'Compra Semanal';
     protected static ?string $pluralLabel = 'Compras Semanales';

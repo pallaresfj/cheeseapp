@@ -23,7 +23,7 @@ class PurchaseRegistrationResource extends Resource
 {
     protected static ?string $model = PurchaseRegistration::class;
     protected static ?int $navigationSort = 10;
-    protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Operaciones';
     protected static ?string $label = 'Registro de Compras';
     protected static ?string $pluralLabel = 'Registro de Compras';

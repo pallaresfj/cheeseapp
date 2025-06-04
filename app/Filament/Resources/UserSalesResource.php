@@ -20,7 +20,7 @@ class UserSalesResource extends Resource
     protected static ?string $model = User::class;
 
     protected static ?int $navigationSort = 6;
-    protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Operaciones';
     protected static ?string $label = 'Venta';
     protected static ?string $pluralLabel = 'Ventas';

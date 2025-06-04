@@ -21,7 +21,7 @@ class MovementTypeResource extends Resource
     protected static ?string $model = MovementType::class;
 
     protected static ?int $navigationSort = 5;
-    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
+    protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Empresa';
     protected static ?string $label = 'Tipo de movimiento';
     protected static ?string $pluralLabel = 'Tipos de movimiento';

@@ -17,7 +17,7 @@ class FarmTypeResource extends Resource
 {
     protected static ?string $model = FarmType::class;
     protected static ?int $navigationSort = 5;
-    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
+    protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Empresa';
     protected static ?string $label = 'Tipo de finca';
     protected static ?string $pluralLabel = 'Tipos de finca';

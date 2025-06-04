@@ -21,7 +21,7 @@ class MovementResource extends Resource
 {
     protected static ?string $model = Movement::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
+    protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Contabilidad';
     protected static ?string $label = 'Movimiento';
     protected static ?string $pluralLabel = 'Movimientos';

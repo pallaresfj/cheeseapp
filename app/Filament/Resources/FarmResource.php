@@ -20,7 +20,7 @@ class FarmResource extends Resource
 {
     protected static ?string $model = Farm::class;
     protected static ?int $navigationSort = 2;
-    protected static ?string $navigationIcon = 'heroicon-o-swatch';
+    protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Empresa';
     protected static ?string $label = 'Finca';
     protected static ?string $pluralLabel = 'Fincas';

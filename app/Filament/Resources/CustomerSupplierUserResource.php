@@ -20,7 +20,7 @@ class CustomerSupplierUserResource extends Resource
 {
     protected static ?string $model = User::class;
     protected static ?int $navigationSort = 7;
-    protected static ?string $navigationIcon = 'heroicon-o-swatch';
+    protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Empresa';
     protected static ?string $label = 'Proveedor - Cliente';
     protected static ?string $pluralLabel = 'Proveedores - Clientes';

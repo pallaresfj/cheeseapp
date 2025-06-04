@@ -22,7 +22,7 @@ class LoanResource extends Resource
 {
     protected static ?string $model = Loan::class;
     protected static ?int $navigationSort = 3;
-    protected static ?string $navigationIcon = 'heroicon-o-arrow-left-end-on-rectangle';
+    protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Operaciones';
     protected static ?string $label = 'Préstamo';
     protected static ?string $pluralLabel = 'Préstamos';
@@ -167,6 +167,7 @@ class LoanResource extends Resource
 
                     Tables\Columns\TextColumn::make('proveedor_finca')
                         ->label('Proveedor - Finca')
+                        ->icon('heroicon-o-user-circle')
                         ->getStateUsing(fn ($record) => "{$record->user->name} - {$record->farm->name}")
                         ->searchable(query: function ($query, $search) {
                             return $query->whereHas('user', fn ($q) => $q->where('name', 'like', "%{$search}%"))
@@ -177,33 +178,40 @@ class LoanResource extends Resource
 
                     Tables\Columns\TextColumn::make('date')
                         ->label('Fecha')
+                        ->icon('heroicon-o-calendar')
                         ->date()
-                        ->sortable(),
+                        ->sortable()
+                        ->alignEnd(),
 
                     Tables\Columns\TextColumn::make('amount')
                         ->label('Monto')
+                        ->icon('heroicon-o-currency-dollar')
                         ->money('COP', locale: 'es_CO')
                         ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
                         ->alignEnd(),
 
                     Tables\Columns\TextColumn::make('installments')
                         ->label('Cuotas')
+                        ->prefix('Cuotas ')
                         ->numeric()
                         ->alignEnd(),
 
                     Tables\Columns\TextColumn::make('installment_value')
                         ->label('Cuota')
+                        ->prefix('Cuota ')
                         ->money('COP', locale: 'es_CO')
                         ->alignEnd(),
 
                     Tables\Columns\TextColumn::make('paid_value')
                         ->label('Pagado')
+                        ->prefix('Pagado ')
                         ->money('COP', locale: 'es_CO')
                         ->summarize(Sum::make()->label('')->money('COP', locale: 'es_CO'))
                         ->alignEnd(),
 
                     Tables\Columns\TextColumn::make('saldo')
                         ->label('Saldo')
+                        ->icon('heroicon-o-document-currency-dollar')
                         ->money('COP', locale: 'es_CO')
                         ->getStateUsing(fn ($record) => $record->amount - $record->paid_value)
                         ->alignEnd(),

@@ -20,7 +20,7 @@ class MilkPurchaseResource extends Resource
 {
     protected static ?string $model = MilkPurchase::class;
     protected static ?int $navigationSort = 1;
-    protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Operaciones';
     protected static ?string $label = 'Compra';
     protected static ?string $pluralLabel = 'Compras individuales';

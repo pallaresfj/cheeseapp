@@ -21,7 +21,7 @@ class CheeseProductionResource extends Resource
 {
     protected static ?string $model = CheeseProduction::class;
     protected static ?int $navigationSort = 6;
-    protected static ?string $navigationIcon = 'heroicon-o-stop';
+    protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Operaciones';
     protected static ?string $label = 'Producción de Queso';
     protected static ?string $pluralLabel = 'Producción de Queso';
