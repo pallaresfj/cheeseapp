@@ -24,6 +24,9 @@ class RoleResource extends Resource implements HasShieldPermissions
     use HasShieldFormComponents;
 
     protected static ?string $recordTitleAttribute = 'name';
+    protected static ?int $navigationSort = 4;
+    protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
+    protected static ?string $navigationGroup = 'Usuario';
 
     public static function getPermissionPrefixes(): array
     {
@@ -168,27 +171,27 @@ class RoleResource extends Resource implements HasShieldPermissions
         return Utils::isResourceNavigationRegistered();
     }
 
-    public static function getNavigationGroup(): ?string
+    /* public static function getNavigationGroup(): ?string
     {
         return Utils::isResourceNavigationGroupEnabled()
             ? __('filament-shield::filament-shield.nav.group')
             : '';
-    }
+    } */
 
     public static function getNavigationLabel(): string
     {
         return __('filament-shield::filament-shield.nav.role.label');
     }
 
-    public static function getNavigationIcon(): string
+    /* public static function getNavigationIcon(): string
     {
         return __('filament-shield::filament-shield.nav.role.icon');
-    }
+    } */
 
-    public static function getNavigationSort(): ?int
+    /* public static function getNavigationSort(): ?int
     {
         return Utils::getResourceNavigationSort();
-    }
+    } */
 
     public static function getSubNavigationPosition(): SubNavigationPosition
     {
