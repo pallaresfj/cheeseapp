@@ -92,10 +92,11 @@ class UserResource extends Resource
         return $table
             ->extremePaginationLinks()
             ->striped()
+            ->defaultSort('role')
             ->columns([
-                ImageColumn::make('avatar_url')
-                    ->label('Avatar')
-                    ->circular(),
+                Tables\Columns\IconColumn::make('status')
+                    ->label('')
+                    ->boolean(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nombre')
                     ->searchable()
@@ -106,8 +107,12 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Roles de acceso')
                     ->badge()
+                    ->color('success')
                     ->separator(',')
                     ->sortable(),
+                ImageColumn::make('avatar_url')
+                    ->label('Avatar')
+                    ->circular(),
             ])
             ->groups([
                 Tables\Grouping\Group::make('role')
@@ -155,6 +160,13 @@ class UserResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->orderBy('role')
+            ->orderBy('name');
     }
 
     public static function getRelations(): array

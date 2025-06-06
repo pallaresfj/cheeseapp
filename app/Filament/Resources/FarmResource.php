@@ -66,27 +66,21 @@ class FarmResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->extremePaginationLinks()
             ->striped()
             ->columns([
-                Tables\Columns\TextColumn::make('branch.name')
-                    ->label('Sucursal')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\IconColumn::make('status')
+                    ->label('')
+                    ->boolean(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Proveedor - Finca')
-                    ->sortable()
                     ->searchable()
                     ->formatStateUsing(fn ($state, $record) => "{$record->user->name} - {$record->name}"),
                 Tables\Columns\TextColumn::make('farmType.name')
-                    ->label('Tipo de finca')
-                    ->numeric()
-                    ->sortable(),
+                    ->label('Tipo'),
                 Tables\Columns\TextColumn::make('location')
                     ->label('Ubicación')
                     ->searchable(),
-                Tables\Columns\IconColumn::make('status')
-                    ->label('Estado')
-                    ->boolean(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('branch_id')
@@ -151,5 +145,15 @@ class FarmResource extends Resource
             'create' => Pages\CreateFarm::route('/create'),
             'edit' => Pages\EditFarm::route('/{record}/edit'),
         ];
+    }
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->join('users', 'farms.user_id', '=', 'users.id')
+            ->join('branches', 'farms.branch_id', '=', 'branches.id')
+            ->orderBy('branches.name')
+            ->orderBy('users.name')
+            ->orderBy('farms.name')
+            ->select('farms.*');
     }
 }

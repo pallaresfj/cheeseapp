@@ -82,9 +82,9 @@ class CustomerSupplierUserResource extends Resource
             ->extremePaginationLinks()
             ->striped()
             ->columns([
-                ImageColumn::make('avatar_url')
-                    ->label('Avatar')
-                    ->circular(),
+                Tables\Columns\IconColumn::make('status')
+                    ->label('')
+                    ->boolean(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nombre')
                     ->searchable()
@@ -92,6 +92,9 @@ class CustomerSupplierUserResource extends Resource
                 Tables\Columns\TextColumn::make('email')
                     ->label('Correo')
                     ->searchable(),
+                ImageColumn::make('avatar_url')
+                    ->label('Avatar')
+                    ->circular(),
             ])
             ->groups([
                 Tables\Grouping\Group::make('role')
@@ -155,6 +158,9 @@ class CustomerSupplierUserResource extends Resource
     }
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->whereIn('role', ['supplier', 'customer']);
+        return parent::getEloquentQuery()
+            ->whereIn('role', ['supplier', 'customer'])
+            ->orderBy('role')
+            ->orderBy('name');
     }
 }
