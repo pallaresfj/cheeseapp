@@ -4,7 +4,6 @@ namespace App\Filament\Resources\UserSalesResource\RelationManagers;
 
 use App\Models\Branch;
 use App\Models\CustomerClassification;
-use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;

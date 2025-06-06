@@ -25,12 +25,6 @@ class RoleResource extends Resource implements HasShieldPermissions
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static ?int $navigationSort = 5;
-    protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
-    protected static ?string $navigationGroup = 'Usuario';
-    protected static ?string $label = 'Rol';
-    protected static ?string $pluralLabel = 'Roles';
-
     public static function getPermissionPrefixes(): array
     {
         return [
@@ -124,18 +118,8 @@ class RoleResource extends Resource implements HasShieldPermissions
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->label('')
-                    ->icon('heroicon-o-pencil-square')
-                    ->color('success')
-                    ->tooltip('Editar')
-                    ->iconSize('h-6 w-6'),
-                Tables\Actions\DeleteAction::make()
-                    ->label('')
-                    ->icon('heroicon-o-trash')
-                    ->color('danger')
-                    ->tooltip('Borrar')
-                    ->iconSize('h-6 w-6'),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
@@ -169,7 +153,7 @@ class RoleResource extends Resource implements HasShieldPermissions
         return Utils::getRoleModel();
     }
 
-    /* public static function getModelLabel(): string
+    public static function getModelLabel(): string
     {
         return __('filament-shield::filament-shield.resource.label.role');
     }
@@ -177,21 +161,21 @@ class RoleResource extends Resource implements HasShieldPermissions
     public static function getPluralModelLabel(): string
     {
         return __('filament-shield::filament-shield.resource.label.roles');
-    } */
+    }
 
     public static function shouldRegisterNavigation(): bool
     {
         return Utils::isResourceNavigationRegistered();
     }
 
-    /* public static function getNavigationGroup(): ?string
+    public static function getNavigationGroup(): ?string
     {
         return Utils::isResourceNavigationGroupEnabled()
             ? __('filament-shield::filament-shield.nav.group')
             : '';
-    } */
+    }
 
-    /* public static function getNavigationLabel(): string
+    public static function getNavigationLabel(): string
     {
         return __('filament-shield::filament-shield.nav.role.label');
     }
@@ -204,12 +188,12 @@ class RoleResource extends Resource implements HasShieldPermissions
     public static function getNavigationSort(): ?int
     {
         return Utils::getResourceNavigationSort();
-    } */
+    }
 
-    /* public static function getSubNavigationPosition(): SubNavigationPosition
+    public static function getSubNavigationPosition(): SubNavigationPosition
     {
         return Utils::getSubNavigationPosition() ?? static::$subNavigationPosition;
-    } */
+    }
 
     public static function getSlug(): string
     {

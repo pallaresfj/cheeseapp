@@ -34,8 +34,8 @@ class SalePayment extends Model
     /**
      * Relación: Acceso a las ventas del mismo usuario de este pago.
      */
-    public function sales() : HasMany
+    /* public function sales() : HasMany
     {
         return $this->hasMany(Sale::class, 'user_id', 'user_id');
-    }
+    } */
 }

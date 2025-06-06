@@ -21,7 +21,7 @@ class ListUserSales extends ListRecords
     protected function getHeaderWidgets(): array
     {
         return [
-            UserSalesChart::class,
+            // UserSalesChart::class,
             UserPaymentsChart::class,
         ];
     }
