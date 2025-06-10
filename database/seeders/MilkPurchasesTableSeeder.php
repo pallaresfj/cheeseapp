@@ -10,8 +10,8 @@ class MilkPurchasesTableSeeder extends Seeder
 {
     public function run(): void
     {
-        $startDate = now()->setDate(2025, 5, 24);
-        $endDate = now()->setDate(2025, 5, 30);
+        $startDate = now()->setDate(2025, 5, 31);
+        $endDate = now()->setDate(2025, 6, 6);
         $dateRange = collect();
 
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {

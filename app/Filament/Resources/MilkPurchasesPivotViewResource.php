@@ -121,6 +121,8 @@ class MilkPurchasesPivotViewResource extends Resource
                             ->required()
                     ])
                     ->action(function (array $data) {
+                        DB::table('purchase_registrations')->where('user_id', Auth::id())->delete();
+
                         $branchId = session('pivot_branch_id');
                         $date = $data['date'];
 
@@ -290,6 +292,8 @@ class MilkPurchasesPivotViewResource extends Resource
                 ->wrap()
                 ->formatStateUsing(fn ($record) => $record->farm->user->name . ' - ' . $record->farm->name)
                 ->action(function ($record) {
+                    DB::table('purchase_registrations')->where('user_id', Auth::id())->delete();
+
                     $branchId = $record->branch_id;
                     $farmId = $record->farm_id;
 

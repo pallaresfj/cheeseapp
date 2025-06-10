@@ -38,6 +38,12 @@ class PurchaseRegistrationResource extends Resource
         return false;
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('user_id', Auth::id());
+    }
+
     public static function table(Table $table): Table
     {
         return $table
