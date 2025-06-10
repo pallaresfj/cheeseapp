@@ -4,7 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserSalesResource\Pages;
 use App\Filament\Resources\UserSalesResource\RelationManagers;
-use App\Models\User;
+use App\Models\UserAccount;
 use App\Models\UserSales;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -17,13 +17,13 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UserSalesResource extends Resource
 {
-    protected static ?string $model = User::class;
+    protected static ?string $model = UserAccount::class;
 
     protected static ?int $navigationSort = 6;
     protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Operaciones';
-    protected static ?string $label = 'Cliente';
-    protected static ?string $pluralLabel = 'Clientes';
+    protected static ?string $label = 'Venta';
+    protected static ?string $pluralLabel = 'Ventas';
 
     public static function form(Form $form): Form
     {

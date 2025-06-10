@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\CustomerSupplierUserResource\RelationManagers;
+namespace App\Filament\Resources\UserAccountResource\RelationManagers;
 
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class FarmsRelationManager extends RelationManager
 {
     protected static string $relationship = 'farms';
-    protected static ?string $modelLabel = 'Finca';
+     protected static ?string $modelLabel = 'Finca';
     protected static ?string $pluralLabel = 'Fincas';
     protected static ?string $title = 'Fincas';
 
@@ -54,6 +54,9 @@ class FarmsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
+                Tables\Columns\IconColumn::make('status')
+                    ->label('')
+                    ->boolean(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Proveedor - Finca')
                     ->sortable()
@@ -66,9 +69,6 @@ class FarmsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('location')
                     ->label('Ubicación')
                     ->searchable(),
-                Tables\Columns\IconColumn::make('status')
-                    ->label('Estado')
-                    ->boolean(),
             ])
             ->filters([
                 //

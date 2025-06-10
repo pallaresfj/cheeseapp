@@ -28,6 +28,10 @@ class Farm extends Model
     { 
         return $this->belongsTo(User::class); 
     }
+    public function userAccount() : BelongsTo
+    {
+        return $this->belongsTo(UserAccount::class, 'user_id'); // especifica la clave foránea también
+    }
     public function farmType() : BelongsTo
     { 
         return $this->belongsTo(FarmType::class); 

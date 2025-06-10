@@ -2,23 +2,26 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CustomerSupplierUserResource\Pages;
-use App\Filament\Resources\CustomerSupplierUserResource\RelationManagers;
-use App\Models\User;
+use App\Filament\Resources\UserAccountResource\Pages;
+use App\Filament\Resources\UserAccountResource\RelationManagers;
+use App\Models\UserAccount;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Table;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
-class CustomerSupplierUserResource extends Resource
+class UserAccountResource extends Resource
 {
-    protected static ?string $model = User::class;
+    protected static ?string $model = UserAccount::class;
+
     protected static ?int $navigationSort = 7;
     protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Empresa';
@@ -151,9 +154,9 @@ class CustomerSupplierUserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCustomerSupplierUsers::route('/'),
-            'create' => Pages\CreateCustomerSupplierUser::route('/create'),
-            'edit' => Pages\EditCustomerSupplierUser::route('/{record}/edit'),
+            'index' => Pages\ListUserAccounts::route('/'),
+            'create' => Pages\CreateUserAccount::route('/create'),
+            'edit' => Pages\EditUserAccount::route('/{record}/edit'),
         ];
     }
     public static function getEloquentQuery(): Builder
@@ -162,5 +165,12 @@ class CustomerSupplierUserResource extends Resource
             ->whereIn('role', ['supplier', 'customer'])
             ->orderBy('role')
             ->orderBy('name');
+    }
+    public static function canAccess(): bool
+    {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+
+        return $user?->hasRole(['super_admin', 'Soporte', 'Administrador']);
     }
 }

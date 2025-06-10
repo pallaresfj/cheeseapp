@@ -26,9 +26,13 @@ class SalePayment extends Model
     /**
      * Relación: El pago pertenece a un usuario (cliente).
      */
-    public function user() : BelongsTo
+    /* public function user() : BelongsTo
     {
         return $this->belongsTo(User::class);
+    } */
+    public function userAccount()
+    {
+        return $this->belongsTo(UserAccount::class, 'user_id');
     }
 
     /**
