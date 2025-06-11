@@ -19,8 +19,9 @@ class CustomerClassificationResource extends Resource
     protected static ?int $navigationSort = 6;
     protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Empresa';
-    protected static ?string $label = 'Tipo de Cliente';
-    protected static ?string $pluralLabel = 'Tipos de Clientes';
+    protected static ?string $label = 'Tipo de cliente';
+    protected static ?string $pluralLabel = 'Tipos de clientes';
+    protected static bool $hasTitleCaseModelLabel = false;
 
     public static function form(Form $form): Form
     {

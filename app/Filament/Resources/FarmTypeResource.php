@@ -21,6 +21,7 @@ class FarmTypeResource extends Resource
     protected static ?string $navigationGroup = 'Empresa';
     protected static ?string $label = 'Tipo de finca';
     protected static ?string $pluralLabel = 'Tipos de finca';
+    protected static bool $hasTitleCaseModelLabel = false;
 
     public static function form(Form $form): Form
     {

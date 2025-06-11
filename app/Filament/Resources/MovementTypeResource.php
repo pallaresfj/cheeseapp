@@ -25,6 +25,7 @@ class MovementTypeResource extends Resource
     protected static ?string $navigationGroup = 'Empresa';
     protected static ?string $label = 'Tipo de movimiento';
     protected static ?string $pluralLabel = 'Tipos de movimiento';
+    protected static bool $hasTitleCaseModelLabel = false;
 
     public static function form(Form $form): Form
     {

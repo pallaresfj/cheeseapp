@@ -35,8 +35,9 @@ class MilkPurchasesPivotViewResource extends Resource
     protected static ?int $navigationSort = 1;
     protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Operaciones';
-    protected static ?string $label = 'Compra Semanal';
-    protected static ?string $pluralLabel = 'Compras Semanales';
+    protected static ?string $label = 'Compra semanal';
+    protected static ?string $pluralLabel = 'Compras semanales';
+    protected static bool $hasTitleCaseModelLabel = false;
 
     public static function shouldRegisterNavigation(): bool
     {

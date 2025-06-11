@@ -30,7 +30,8 @@ class LiquidationResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Operaciones';
     protected static ?string $label = 'Liquidación Aprobada';
-    protected static ?string $pluralLabel = 'Liquidaciones Aprobadas';
+    protected static ?string $pluralLabel = 'Liquidaciones aprobadas';
+    protected static bool $hasTitleCaseModelLabel = false;
 
 
     public static function getEloquentQuery(): Builder

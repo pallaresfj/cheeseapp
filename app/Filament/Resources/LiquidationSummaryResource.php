@@ -34,8 +34,9 @@ class LiquidationSummaryResource extends Resource
     protected static ?int $navigationSort = 4;
     protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Operaciones';
-    protected static ?string $label = 'Liquidación Previa';
-    protected static ?string $pluralLabel = 'Liquidaciones Previas';
+    protected static ?string $label = 'Liquidación previa';
+    protected static ?string $pluralLabel = 'Liquidaciones previas';
+    protected static bool $hasTitleCaseModelLabel = false;
 
     public static function canCreate(): bool
     {

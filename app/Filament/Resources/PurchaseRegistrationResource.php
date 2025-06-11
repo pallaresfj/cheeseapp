@@ -27,6 +27,7 @@ class PurchaseRegistrationResource extends Resource
     protected static ?string $navigationGroup = 'Operaciones';
     protected static ?string $label = 'Registro de Compras';
     protected static ?string $pluralLabel = 'Registro de Compras';
+    protected static bool $hasTitleCaseModelLabel = false;
 
     public static function shouldRegisterNavigation(): bool
     {

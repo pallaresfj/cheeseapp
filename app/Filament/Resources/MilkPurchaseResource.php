@@ -24,6 +24,7 @@ class MilkPurchaseResource extends Resource
     protected static ?string $navigationGroup = 'Operaciones';
     protected static ?string $label = 'Compra';
     protected static ?string $pluralLabel = 'Compras individuales';
+    protected static bool $hasTitleCaseModelLabel = false;
 
     public static function form(Form $form): Form
     {

@@ -21,8 +21,9 @@ class WeeklyBalanceResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Contabilidad';
-    protected static ?string $label = 'Balance Semanal';
-    protected static ?string $pluralLabel = 'Balances Semanales';
+    protected static ?string $label = 'Balance semanal';
+    protected static ?string $pluralLabel = 'Balances semanales';
+    protected static bool $hasTitleCaseModelLabel = false;
 
     public static function form(Form $form): Form
     {

@@ -24,11 +24,12 @@ class GenerarVistaPivot extends Page implements HasForms
     use HasPageShield;
 
     protected static string $view = 'filament.pages.generar-vista-pivot';
-    protected static ?string $navigationLabel = 'Compras Semanales';
-    protected static ?string $title = 'Compras Semanales';
+    protected static ?string $navigationLabel = 'Compras semanales';
+    protected static ?string $title = 'Compras semanales';
     protected static ?int $navigationSort = 2;
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
     protected static ?string $navigationGroup = 'Operaciones';
+    protected static bool $hasTitleCaseModelLabel = false;
     
 
     public ?array $data = [];

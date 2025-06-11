@@ -23,8 +23,9 @@ class CheeseProductionResource extends Resource
     protected static ?int $navigationSort = 6;
     protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Operaciones';
-    protected static ?string $label = 'Producción de Queso';
-    protected static ?string $pluralLabel = 'Producción de Queso';
+    protected static ?string $label = 'Producción de queso';
+    protected static ?string $pluralLabel = 'Producción de queso';
+    protected static bool $hasTitleCaseModelLabel = false;
 
     public static function form(Form $form): Form
     {
