@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use App\Models\Setting;
+use Filament\Support\Facades\FilamentView;
+use Illuminate\Support\Facades\Blade;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +26,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        FilamentView::registerRenderHook(
+            'panels::auth.login.form.after',
+            fn (): string => Blade::render('@vite(\'resources/css/custom-login.css\')'),
+        );
+
         if (Schema::hasTable('settings')) {
             $settings = Cache::rememberForever('app_settings', function () {
                 $data = Setting::pluck('value', 'key')->toArray();

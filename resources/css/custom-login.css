@@ -1,0 +1,12 @@
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: 
+        url("/images/bg-establo.jpg") center / cover no-repeat,
+        linear-gradient(0deg, rgba(var(--primary-900), 0.6) 0%, rgba(var(--primary-500), 0.6) 100%);
+}
