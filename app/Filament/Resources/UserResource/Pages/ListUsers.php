@@ -16,4 +16,11 @@ class ListUsers extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+    protected function getTableActions(): array
+    {
+        return [
+            Actions\RestoreAction::make(),
+            Actions\ForceDeleteAction::make(),
+        ];
+    }
 }

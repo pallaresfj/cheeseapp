@@ -12,6 +12,7 @@ return new class extends Migration {
             $table->string('description', 100)->nullable();
             $table->enum('type', ['fixed', 'variable'])->default('fixed');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

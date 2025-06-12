@@ -13,6 +13,7 @@ class UsersTableSeeder extends Seeder
         // Usuario Soporte
         $user = User::create([
             'name' => 'Usuario Soporte',
+            'username' => 'soporte',
             'email' => 'soporte@cheeseapp.com.co',
             'password' => Hash::make('7052'),
             'role' => 'soporte',
@@ -22,6 +23,7 @@ class UsersTableSeeder extends Seeder
         // Usuario Admin
         $user = User::create([
             'name' => 'Usuario Administrador',
+            'username' => 'admin',
             'email' => 'admin@cheeseapp.com.co',
             'password' => Hash::make('7052'),
             'role' => 'admin',
@@ -31,6 +33,7 @@ class UsersTableSeeder extends Seeder
         // Usuario Sucursal
         $user = User::create([
             'name' => 'Usuario Sucursal',
+            'username' => 'sucursal',
             'email' => 'sucursal@cheeseapp.com.co',
             'password' => Hash::make('7052'),
             'role' => 'sucursal',
@@ -41,6 +44,7 @@ class UsersTableSeeder extends Seeder
         for ($i = 1; $i <= 10; $i++) {
             $user = User::create([
                 'name' => "Nombre Apellidos Proveedor $i",
+                'username' => "proveedor$i",
                 'email' => "proveedor$i@cheeseapp.com.co",
                 'password' => Hash::make('1234'),
                 'role' => 'supplier',
@@ -52,6 +56,7 @@ class UsersTableSeeder extends Seeder
         for ($i = 1; $i <= 3; $i++) {
             $user = User::create([
                 'name' => "Nombre Apellidos Cliente $i",
+                'username' => "cliente$i",
                 'email' => "cliente$i@cheeseapp.com.co",
                 'password' => Hash::make('1234'),
                 'role' => 'customer',

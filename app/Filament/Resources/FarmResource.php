@@ -11,6 +11,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -91,6 +92,7 @@ class FarmResource extends Resource
                     ->label('Tipo de finca')
                     ->relationship('farmType', 'name')
                     ->native(false),
+                TrashedFilter::make(),
             ])
             ->persistFiltersInSession()
             ->groups([
@@ -113,6 +115,18 @@ class FarmResource extends Resource
                     ->color('danger')
                     ->tooltip('Borrar')
                     ->iconSize('h-6 w-6'),
+                Tables\Actions\RestoreAction::make()
+                    ->label('')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('warning')
+                    ->tooltip('Restaurar')
+                    ->iconSize('h-6 w-6'),
+                Tables\Actions\ForceDeleteAction::make()
+                    ->label('')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->tooltip('Borrar permanentemente')
+                    ->iconSize('h-6 w-6'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -127,6 +141,8 @@ class FarmResource extends Resource
                         ->icon('heroicon-o-x-circle')
                         ->color('danger')
                         ->action(fn (Collection $records) => $records->each->update(['status' => false])),
+                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
             ]);
     }
