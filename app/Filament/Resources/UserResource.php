@@ -16,6 +16,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
 {
@@ -35,6 +36,11 @@ class UserResource extends Resource
                     ->label('Nombre')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\TextInput::make('username')
+                    ->label('Usuario')
+                    ->required()
+                    ->unique(ignoreRecord: true)
+                    ->maxLength(255),
                 Forms\Components\TextInput::make('email')
                     ->label('Correo')
                     ->email()
@@ -52,12 +58,8 @@ class UserResource extends Resource
                     ->default('supplier')
                     ->native(false)
                     ->required(),
-                Forms\Components\TextInput::make('password')
-                    ->label('Contraseña')
-                    ->password()
-                    ->required(fn (string $context): bool => $context === 'create')
-                    ->maxLength(255)
-                    ->visible(fn (string $context): bool => $context === 'create'),
+                Forms\Components\Hidden::make('password')
+                    ->default(Hash::make('pas123')),
                 Forms\Components\TextInput::make('identification')
                     ->label('Identificación')
                     ->maxLength(255),
@@ -68,12 +70,6 @@ class UserResource extends Resource
                     ->label('Teléfono')
                     ->tel()
                     ->maxLength(255),
-                Forms\Components\DateTimePicker::make('email_verified_at')
-                    ->label('Verificado')
-                    ->default(now())
-                    ->visibleOn('edit'),
-                FileUpload::make('avatar')
-                    ->avatar(),
                 Forms\Components\Select::make('roles')
                     ->label('Roles de acceso')
                     ->multiple()
@@ -81,6 +77,12 @@ class UserResource extends Resource
                     ->preload()
                     ->native(false)
                     ->searchable(),
+                Forms\Components\DateTimePicker::make('email_verified_at')
+                    ->label('Verificado')
+                    ->default(now())
+                    ->visibleOn('edit'),
+                FileUpload::make('avatar')
+                    ->avatar(),
                 Forms\Components\Toggle::make('status')
                     ->label('Activo')
                     ->inline(false)
@@ -102,17 +104,18 @@ class UserResource extends Resource
                     ->label('Nombre')
                     ->searchable()
                     ->wrap(),
-                Tables\Columns\TextColumn::make('email')
-                    ->label('Correo')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('username')
+                    ->label('Usuario')
+                    ->searchable()
+                    ->wrap(),
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Roles de acceso')
                     ->badge()
                     ->color('success')
-                    ->separator(',')
-                    ->sortable(),
+                    ->separator(','),
                 ImageColumn::make('avatar_url')
-                    ->label('Avatar')
+                    ->label('')
+                    ->defaultImageUrl(url('/images/default-avatar.png'))
                     ->circular(),
             ])
             ->groups([

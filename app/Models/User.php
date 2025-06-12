@@ -25,6 +25,7 @@ class User extends Authenticatable implements HasAvatar
      */
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
         'profile_photo_path',

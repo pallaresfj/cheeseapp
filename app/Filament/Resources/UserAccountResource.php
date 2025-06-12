@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserAccountResource extends Resource
 {
@@ -51,12 +52,13 @@ class UserAccountResource extends Resource
                     ->default('supplier')
                     ->native(false)
                     ->required(),
-                Forms\Components\TextInput::make('password')
-                    ->label('Contraseña')
-                    ->password()
-                    ->required(fn (string $context): bool => $context === 'create')
-                    ->maxLength(255)
-                    ->visible(fn (string $context): bool => $context === 'create'),
+                Forms\Components\TextInput::make('username')
+                    ->label('Usuario')
+                    ->required()
+                    ->unique(ignoreRecord: true)
+                    ->maxLength(255),
+                Forms\Components\Hidden::make('password')
+                    ->default(Hash::make('pas123')),
                 Forms\Components\TextInput::make('identification')
                     ->label('Identificación')
                     ->maxLength(255),
@@ -71,12 +73,12 @@ class UserAccountResource extends Resource
                     ->label('Verificado')
                     ->default(now())
                     ->visibleOn('edit'),
+                FileUpload::make('avatar')
+                    ->avatar(),
                 Forms\Components\Toggle::make('status')
                     ->label('Activo')
                     ->inline(false)
                     ->default(true),
-                FileUpload::make('avatar')
-                    ->avatar(),
             ]);
     }
 
@@ -93,11 +95,12 @@ class UserAccountResource extends Resource
                     ->label('Nombre')
                     ->searchable()
                     ->wrap(),
-                Tables\Columns\TextColumn::make('email')
-                    ->label('Correo')
+                Tables\Columns\TextColumn::make('username')
+                    ->label('Usuario')
                     ->searchable(),
                 ImageColumn::make('avatar_url')
-                    ->label('Avatar')
+                    ->label('')
+                    ->defaultImageUrl(url('/images/default-avatar.png'))
                     ->circular(),
             ])
             ->groups([

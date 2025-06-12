@@ -15,6 +15,7 @@ class UserAccount extends Model
 
     protected $fillable = [
        'name',
+        'username',
         'email',
         'password',
         'profile_photo_path',
