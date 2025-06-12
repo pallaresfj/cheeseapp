@@ -1,0 +1,18 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-BTypVYtv.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/css/custom-login.css": {
+    "file": "assets/custom-login-D1ksYBjn.css",
+    "src": "resources/css/custom-login.css",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-T1DpEqax.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  }
+}
