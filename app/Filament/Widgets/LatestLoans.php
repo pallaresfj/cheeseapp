@@ -3,12 +3,14 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Loan;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 
 class LatestLoans extends BaseWidget
 {
+    use HasWidgetShield;
     protected static ?string $heading = 'Últimos Préstamos';
     protected static ?int $sort = 5;
 

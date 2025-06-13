@@ -3,12 +3,14 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Sale;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 
 class LatestSales extends BaseWidget
 {
+    use HasWidgetShield;
     protected static ?string $heading = 'Últimas Ventas';
     protected static ?int $sort = 4;
 

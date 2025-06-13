@@ -5,11 +5,13 @@ namespace App\Filament\Widgets;
 use Filament\Widgets\ChartWidget;
 use App\Models\Branch;
 use App\Models\MilkPurchase;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class ChartMilkPurchase extends ChartWidget
 {
+    use HasWidgetShield;
     protected static ?string $heading = 'Compra de Leche';
     protected static ?int $sort = 2;
     protected string $leyendaFechas = '';

@@ -50,5 +50,6 @@ class EditRole extends EditRecord
         });
 
         $this->record->syncPermissions($permissionModels);
+        $this->redirect($this->getResource()::getUrl('index'));
     }
 }

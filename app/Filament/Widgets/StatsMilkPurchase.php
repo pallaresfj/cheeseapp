@@ -7,10 +7,12 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Models\MilkPurchase;
 use App\Models\CheeseProduction;
 use App\Models\Setting;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Carbon\Carbon;
 
 class StatsMilkPurchase extends BaseWidget
 {
+    use HasWidgetShield;
     protected int | string | array $columnSpan = 'full';
     protected static ?int $sort = 1;
 

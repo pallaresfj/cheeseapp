@@ -4,11 +4,13 @@ namespace App\Filament\Widgets;
 
 use Filament\Widgets\ChartWidget;
 use App\Models\CheeseProduction;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class ChartCheeseProduction extends ChartWidget
 {
+    use HasWidgetShield;
     protected static ?string $heading = 'Producción de Queso';
     protected static ?int $sort = 3;
     protected string $leyendaFechas = '';

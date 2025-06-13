@@ -6,10 +6,12 @@ use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Models\Setting;
 use App\Models\WeeklyBalance;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Carbon\Carbon;
 
 class StatsWeeklyBalance extends BaseWidget
 {
+    use HasWidgetShield;
     protected int | string | array $columnSpan = 'full';
     protected static ?int $sort = 6;
 
