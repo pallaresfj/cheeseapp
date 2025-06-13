@@ -25,6 +25,8 @@ use Filament\Navigation\MenuItem;
 use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
 use Illuminate\Support\Facades\Auth;
 
+use App\Filament\Pages\Login;
+
 
 
 class AdminPanelProvider extends PanelProvider
@@ -36,7 +38,7 @@ class AdminPanelProvider extends PanelProvider
             ->spa()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(Login::class)
             ->profile(isSimple: false)
             ->sidebarCollapsibleOnDesktop()
             ->brandLogo(asset('images/logo-light.svg'))
