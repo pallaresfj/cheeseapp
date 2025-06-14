@@ -31,40 +31,46 @@ class LoanResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('user_id')
-                    ->label('Proveedor')
-                    ->placeholder('Seleccione proveedor')
-                    ->relationship('user', 'name', function (Builder $query, \Filament\Forms\Get $get) {
-                        $query->where('role', 'supplier')
-                              ->whereHas('farms');
+                Forms\Components\Grid::make(12)->schema([
+                    Forms\Components\Select::make('user_id')
+                        ->label('Proveedor')
+                        ->placeholder('Seleccione proveedor')
+                        ->relationship('user', 'name', function (Builder $query, \Filament\Forms\Get $get) {
+                            $query->where('role', 'supplier')
+                                  ->whereHas('farms');
 
-                        // Solo aplicar filtro si es creación (no hay ID aún)
-                        if (blank($get('id'))) {
-                            $query->whereDoesntHave('loans', function ($q) {
-                                $q->whereIn('status', ['active', 'overdue', 'suspended']);
-                            });
-                        }
-                    })
-                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
-                    ->required()
-                    ->searchable()
-                    ->preload()
-                    ->disabledOn('edit'),
-                Forms\Components\Select::make('farm_id')
-                    ->label('Finca')
-                    ->placeholder('Seleccione finca')
-                    ->relationship('farm', 'name', modifyQueryUsing: fn (Builder $query, \Filament\Forms\Get $get) => 
-                        $query->where('user_id', $get('user_id'))
-                    )
-                    ->required()
-                    ->searchable()
-                    ->preload(),
-                Forms\Components\Grid::make(3)->schema([
+                            // Solo aplicar filtro si es creación (no hay ID aún)
+                            if (blank($get('id'))) {
+                                $query->whereDoesntHave('loans', function ($q) {
+                                    $q->whereIn('status', ['active', 'overdue', 'suspended']);
+                                });
+                            }
+                        })
+                        ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
+                        ->required()
+                        ->searchable()
+                        ->preload()
+                        ->disabledOn('edit')
+                        ->columnSpan(6),
+                    Forms\Components\Select::make('farm_id')
+                        ->label('Finca')
+                        ->placeholder('Seleccione finca')
+                        ->relationship('farm', 'name', modifyQueryUsing: fn (Builder $query, \Filament\Forms\Get $get) =>
+                            $query->where('user_id', $get('user_id'))
+                        )
+                        ->getOptionLabelFromRecordUsing(fn ($record) => ($record->status ? '✅' : '❌') . ' ' . $record->name)
+                        ->required()
+                        ->searchable()
+                        ->preload()
+                        ->columnSpan(4),
                     Forms\Components\DatePicker::make('date')
                         ->label('Fecha')
                         ->default(now())
                         ->required()
-                        ->disabledOn('edit'),
+                        ->disabledOn('edit')
+                        ->columnSpan(2),
+                ]),
+                Forms\Components\Grid::make(12)->schema([
                     Forms\Components\TextInput::make('amount')
                         ->label('Monto')
                         ->required()
@@ -77,7 +83,8 @@ class LoanResource extends Resource
                             $set('saldo', round($amount - $paid, 2));
                             $set('installment_value', $installments > 0 ? round(($amount - $paid) / $installments, 2) : 0);
                         })
-                        ->disabledOn('edit'),
+                        ->disabledOn('edit')
+                        ->columnSpan(4),
                     Forms\Components\TextInput::make('installments')
                         ->label('Cuotas')
                         ->required()
@@ -89,49 +96,56 @@ class LoanResource extends Resource
                             $paid = $get('paid_value') ?? 0;
                             $installments = $state ?? 1;
                             $set('installment_value', $installments > 0 ? round(($amount - $paid) / $installments, 2) : 0);
-                        }),
+                        })
+                        ->columnSpan(2),
+                    Forms\Components\Textarea::make('description')
+                        ->label('Descripción')
+                        ->default(now()->format('d/m/Y') . ' - ')
+                        ->columnSpan(6),
                 ]),
-                Forms\Components\Grid::make(3)->schema([
-                    Forms\Components\TextInput::make('paid_value')
-                        ->label('Pagado')
+                Forms\Components\Grid::make(12)
+                    ->schema([
+                        Forms\Components\TextInput::make('installment_value')
+                            ->label('Cuota')
+                            ->disabled()
+                            ->dehydrated()
+                            ->columnSpan(2),
+                        Forms\Components\TextInput::make('paid_value')
+                            ->label('Pagado')
+                            ->required()
+                            ->numeric()
+                            ->default(0.00)
+                            ->live()
+                            ->disabled()
+                            ->afterStateUpdated(function ($state, $set, $get) {
+                                $amount = $get('amount') ?? 0;
+                                $paid = $state ?? 0;
+                                $installments = $get('installments') ?? 1;
+                                $set('saldo', round($amount - $paid, 2));
+                                $set('installment_value', $installments > 0 ? round(($amount - $paid) / $installments, 2) : 0);
+                            })
+                            ->columnSpan(4),
+                        Forms\Components\TextInput::make('saldo')
+                            ->label('Saldo')
+                            ->disabled()
+                            ->dehydrated(false)
+                            ->formatStateUsing(function ($state, $record) {
+                                return $record?->amount - $record?->paid_value;
+                            })
+                        ->columnSpan(4),
+                        Forms\Components\Select::make('status')
+                        ->label('Estado')
+                        ->options(fn (\Filament\Forms\Get $get) => [
+                            'active' => 'Activo',
+                            'overdue' => 'Vencido',
+                            'suspended' => 'Suspendido',
+                            ...($get('status') === 'paid' ? ['paid' => 'Pagado'] : []),
+                        ])
                         ->required()
-                        ->numeric()
-                        ->default(0.00)
-                        ->live()
-                        ->disabled()
-                        ->afterStateUpdated(function ($state, $set, $get) {
-                            $amount = $get('amount') ?? 0;
-                            $paid = $state ?? 0;
-                            $installments = $get('installments') ?? 1;
-                            $set('saldo', round($amount - $paid, 2));
-                            $set('installment_value', $installments > 0 ? round(($amount - $paid) / $installments, 2) : 0);
-                        }),
-                    Forms\Components\TextInput::make('saldo')
-                        ->label('Saldo')
-                        ->disabled()
-                        ->dehydrated(false)
-                        ->formatStateUsing(function ($state, $record) {
-                            return $record?->amount - $record?->paid_value;
-                        }),
-                    Forms\Components\TextInput::make('installment_value')
-                        ->label('Cuota')
-                        ->disabled()
-                        ->dehydrated(),
-                ]),
-                Forms\Components\Textarea::make('description')
-                    ->label('Descripción')
-                    ->columnSpanFull(),
-                Forms\Components\Select::make('status')
-                    ->label('Estado')
-                    ->options(fn (\Filament\Forms\Get $get) => [
-                        'active' => 'Activo',
-                        'overdue' => 'Vencido',
-                        'suspended' => 'Suspendido',
-                        ...($get('status') === 'paid' ? ['paid' => 'Pagado'] : []),
-                    ])
-                    ->required()
-                    ->hiddenOn('create')
-                    ->disabled(fn (\Filament\Forms\Get $get) => $get('status') === 'paid'),
+                        ->hiddenOn('create')
+                        ->disabled(fn (\Filament\Forms\Get $get) => $get('status') === 'paid')
+                        ->columnSpan(2),
+                    ]),
             ]);
     }
 
@@ -243,6 +257,59 @@ class LoanResource extends Resource
                         in_array($record->status, ['overdue', 'suspended']) ||
                         ($record->status === 'active' && $record->amount > $record->paid_value && $record->paid_value > 0)
                     ),
+                Tables\Actions\Action::make('addProgress')
+                    ->label('')
+                    ->icon('heroicon-o-plus-circle')
+                    ->color('info')
+                    ->tooltip('Avance')
+                    ->iconSize('h-6 w-6')
+                    ->modalHeading('Agregar Avance')
+                    ->modalWidth('sm')
+                    ->form([
+                        Forms\Components\TextInput::make('progress')
+                            ->live()
+                            ->label('Avance')
+                            ->numeric()
+                            ->required()
+                            ->minValue(0.01),
+                        Forms\Components\TextInput::make('progress_installments')
+                            ->label('Cuotas')
+                            ->numeric()
+                            ->default(fn ($record) => $record->installments)
+                            ->required()
+                            ->minValue(1)
+                            ->live()
+                            ->hint(function ($get, $record) {
+                                $progress = $get('progress') ?? 0;
+                                $installments = $get('progress_installments') ?? 1;
+                                $currentSaldo = $record->amount - $record->paid_value;
+                                $nuevoSaldo = $currentSaldo + $progress;
+
+                                if ($installments > 0) {
+                                    $cuota = round($nuevoSaldo / $installments, 2);
+                                    return "Nueva cuota: $cuota";
+                                }
+
+                                return null;
+                            }),
+                        Forms\Components\Textarea::make('note')
+                            ->label('Detalle')
+                            ->default(now()->format('d/m/Y') . ' - ')
+                            ->required(),
+                    ])
+                    ->action(function (array $data, $record) {
+                        $record->amount += $data['progress'];
+                        $record->description = trim($record->description . PHP_EOL . $data['note']);
+                        $record->installments = $data['progress_installments'];
+
+                        $saldo = $record->amount - $record->paid_value;
+                        $record->installment_value = $data['progress_installments'] > 0
+                            ? round($saldo / $data['progress_installments'], 2)
+                            : 0;
+
+                        $record->save();
+                    })
+                    ->visible(fn ($record) => $record->status !== 'paid'),
             ])
             ->bulkActions([
                //
