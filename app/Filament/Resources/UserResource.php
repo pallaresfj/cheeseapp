@@ -97,9 +97,10 @@ class UserResource extends Resource
             ->striped()
             ->defaultSort('role')
             ->columns([
-                Tables\Columns\IconColumn::make('status')
+                ImageColumn::make('avatar_url')
                     ->label('')
-                    ->boolean(),
+                    ->defaultImageUrl(url('/images/default-avatar.png'))
+                    ->circular(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nombre')
                     ->searchable()
@@ -113,10 +114,8 @@ class UserResource extends Resource
                     ->badge()
                     ->color('success')
                     ->separator(','),
-                ImageColumn::make('avatar_url')
-                    ->label('')
-                    ->defaultImageUrl(url('/images/default-avatar.png'))
-                    ->circular(),
+                Tables\Columns\ToggleColumn::make('status')
+                    ->label('Activo'),
             ])
             ->groups([
                 Tables\Grouping\Group::make('role')

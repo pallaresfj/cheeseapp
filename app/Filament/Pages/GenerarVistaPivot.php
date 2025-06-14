@@ -84,7 +84,8 @@ class GenerarVistaPivot extends Page implements HasForms
             session(['pivot_branch_id' => $branchId]);
 
             Notification::make()
-                ->title('Vista generada correctamente')
+                ->title('Sucursal y fecha actualizadas')
+                ->body('La vista de compras se ha actualizado para la sucursal y fecha seleccionadas.')
                 ->success()
                 ->send();
 

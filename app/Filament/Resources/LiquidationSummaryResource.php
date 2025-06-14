@@ -50,10 +50,6 @@ class LiquidationSummaryResource extends Resource
             ->extremePaginationLinks()
             ->striped()
             ->columns([
-                TextColumn::make('id')
-                    ->label('ID')
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('farm_display')
                     ->label('Proveedor - Finca')
                     ->weight(FontWeight::Bold)

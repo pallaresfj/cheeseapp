@@ -58,7 +58,8 @@ class UserAccountResource extends Resource
                     ->unique(ignoreRecord: true)
                     ->maxLength(255),
                 Forms\Components\Hidden::make('password')
-                    ->default(Hash::make('pas123')),
+                    ->default(fn () => Hash::make('pas123'))
+                    ->dehydrated(fn ($state, $context) => $context === 'create'),
                 Forms\Components\TextInput::make('identification')
                     ->label('Identificación')
                     ->maxLength(255),
@@ -88,9 +89,10 @@ class UserAccountResource extends Resource
             ->extremePaginationLinks()
             ->striped()
             ->columns([
-                Tables\Columns\IconColumn::make('status')
+                ImageColumn::make('avatar_url')
                     ->label('')
-                    ->boolean(),
+                    ->defaultImageUrl(url('/images/default-avatar.png'))
+                    ->circular(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nombre')
                     ->searchable()
@@ -98,34 +100,13 @@ class UserAccountResource extends Resource
                 Tables\Columns\TextColumn::make('username')
                     ->label('Usuario')
                     ->searchable(),
-                ImageColumn::make('avatar_url')
-                    ->label('')
-                    ->defaultImageUrl(url('/images/default-avatar.png'))
-                    ->circular(),
+                Tables\Columns\ToggleColumn::make('status')
+                    ->label('Activo'),
             ])
             ->groups([
-                Tables\Grouping\Group::make('role')
-                    ->label('Rol')
-                    ->getTitleFromRecordUsing(fn ($record) => match ($record->role) {
-                        'soporte' => 'Soporte',
-                        'admin' => 'Administrador',
-                        'sucursal' => 'Sucursal',
-                        'supplier' => 'Proveedor',
-                        'customer' => 'Cliente',
-                        default => ucfirst($record->role),
-                    })
-                    ->collapsible()
+                //
             ])
-            ->defaultGroup('role')
-            ->groupingSettingsHidden()
             ->filters([
-                Tables\Filters\SelectFilter::make('role')
-                    ->label('Rol')
-                    ->options([
-                        'supplier' => 'Proveedor',
-                        'customer' => 'Cliente',
-                    ])
-                    ->native(false),
                 TrashedFilter::make(),
             ])
             ->actions([

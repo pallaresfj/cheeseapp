@@ -70,19 +70,22 @@ class FarmResource extends Resource
             ->extremePaginationLinks()
             ->striped()
             ->columns([
-                Tables\Columns\IconColumn::make('status')
-                    ->label('')
-                    ->boolean(),
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Proveedor - Finca')
+                Tables\Columns\ToggleColumn::make('status')
+                    ->label('Activa'),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Proveedor')
                     ->searchable()
-                    ->formatStateUsing(fn ($state, $record) => "{$record->user->name} - {$record->name}"),
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Finca')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('farmType.name')
                     ->label('Tipo'),
                 Tables\Columns\TextColumn::make('location')
                     ->label('Ubicación')
                     ->searchable(),
             ])
+            ->defaultSort('user.name')
             ->filters([
                 Tables\Filters\SelectFilter::make('branch_id')
                     ->label('Sucursal')
@@ -95,13 +98,6 @@ class FarmResource extends Resource
                 TrashedFilter::make(),
             ])
             ->persistFiltersInSession()
-            ->groups([
-                Tables\Grouping\Group::make('branch.name')
-                    ->label('Sucursal')
-                    ->collapsible()
-            ])
-            ->defaultGroup('branch.name')
-            ->groupingSettingsHidden()
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->label('')
@@ -161,15 +157,5 @@ class FarmResource extends Resource
             'create' => Pages\CreateFarm::route('/create'),
             'edit' => Pages\EditFarm::route('/{record}/edit'),
         ];
-    }
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->join('users', 'farms.user_id', '=', 'users.id')
-            ->join('branches', 'farms.branch_id', '=', 'branches.id')
-            ->orderBy('branches.name')
-            ->orderBy('users.name')
-            ->orderBy('farms.name')
-            ->select('farms.*');
     }
 }

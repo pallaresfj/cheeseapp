@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Actions\Action;
 use Filament\Notifications\Notification;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Grouping\Group;
 use Livewire\Component as Livewire;
 use Illuminate\Support\Facades\DB;
@@ -178,9 +179,9 @@ class MilkPurchasesPivotViewResource extends Resource
                                     ->whereBetween('date', [$start, $end->toDateString()]);
 
                                 $count = $query->count();
-                                $litros = number_format($query->sum('liters'), 2);
-                                $startFormatted = \Carbon\Carbon::parse($start)->translatedFormat('F d/Y');
-                                $endFormatted = $end->translatedFormat('F d/Y');
+                                $litros = number_format($query->sum('liters'), 2, ',', '.');
+                                $startFormatted = \Carbon\Carbon::parse($start)->translatedFormat('F d \de Y');
+                                $endFormatted = $end->translatedFormat('F d \de Y');
 
                                 return "Se van a procesar {$count} compras pendientes de esta sucursal entre {$startFormatted} y {$endFormatted}, por un total de {$litros} litros.";
                             }),
@@ -290,6 +291,7 @@ class MilkPurchasesPivotViewResource extends Resource
         $baseColumns = [
             TextColumn::make('farm.name')
                 ->label('Proveedor - Finca')
+                ->weight(FontWeight::Bold)
                 ->wrap()
                 ->formatStateUsing(fn ($record) => $record->farm->user->name . ' - ' . $record->farm->name)
                 ->action(function ($record) {
@@ -352,6 +354,7 @@ class MilkPurchasesPivotViewResource extends Resource
         $footerColumns = [
             TextColumn::make('total_litros')
                 ->label('Litros')
+                ->weight(FontWeight::Bold)
                 ->numeric()
                 ->width('5%')
                 ->alignEnd(),
@@ -362,6 +365,7 @@ class MilkPurchasesPivotViewResource extends Resource
                 ->alignEnd(),
             TextColumn::make('producido')
                 ->label('Producido')
+                ->weight(FontWeight::Bold)
                 ->money('COP', locale: 'es_CO')
                 ->width('10%')
                 ->alignEnd(),
