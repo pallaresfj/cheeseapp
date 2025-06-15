@@ -7,7 +7,11 @@ module.exports = {
         './resources/**/*.vue',
     ],
     theme: {
-        extend: {},
+        extend: {
+            backgroundImage: {
+                'cheese-gradient': 'linear-gradient(to right, #E12D39, #FF606F)',
+            },
+        },
     },
     plugins: [],
 }
