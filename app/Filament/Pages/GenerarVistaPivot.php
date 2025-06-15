@@ -27,7 +27,7 @@ class GenerarVistaPivot extends Page implements HasForms
     protected static ?string $navigationLabel = 'Compras semanales';
     protected static ?string $title = 'Compras semanales';
     protected static ?int $navigationSort = 2;
-    protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Operaciones';
     protected static bool $hasTitleCaseModelLabel = false;
     
