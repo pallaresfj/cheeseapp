@@ -4,9 +4,13 @@ namespace App\Filament\Resources\UserAccountResource\Pages;
 
 use App\Filament\Resources\UserAccountResource;
 use App\Models\UserAccount;
+use EightyNine\ExcelImport\ExcelImportAction;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Components\Tab;
+use Illuminate\Validation\Rule;
+use App\Imports\MyUserAccountImport;
+use Filament\Forms\Components\Actions\Action;
 
 class ListUserAccounts extends ListRecords
 {
@@ -30,6 +34,22 @@ class ListUserAccounts extends ListRecords
     {
         return [
             Actions\CreateAction::make(),
+            ExcelImportAction::make()
+                ->label('Importar')
+                ->icon('heroicon-o-cloud-arrow-up')
+                ->modalHeading('Importar Proveedores/Clientes')
+                ->modalSubmitActionLabel('Importar')
+                ->modalDescription('Se importarán los datos de los proveedores o clientes desde un archivo Excel.')
+                ->validateUsing([
+                    'nombre' =>  ['required'],
+                    'correo' => 'required|email',
+                    'rol' => [
+                                'required',
+                                Rule::in(['supplier', 'customer']),
+                              ],
+                    'usuario' =>  ['required', 'unique:users,username'],
+                ])
+                ->use(MyUserAccountImport::class),
         ];
     }
     
