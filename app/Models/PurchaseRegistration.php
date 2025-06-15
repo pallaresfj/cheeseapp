@@ -13,6 +13,7 @@ class PurchaseRegistration extends Model
         'date',
         'liters',
         'user_id',
+        'proveedor_finca',
     ];
 
     protected $casts = [

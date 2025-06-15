@@ -21,7 +21,7 @@ return new class extends Migration {
                 DECLARE pivot_date DATE;
                 DECLARE sql_text LONGTEXT DEFAULT '';
 
-                SET sql_text = 'CREATE OR REPLACE VIEW milk_purchases_pivot_view AS SELECT f.id AS farm_id, f.branch_id, f.user_id, ft.base_price, ';
+                SET sql_text = 'CREATE OR REPLACE VIEW milk_purchases_pivot_view AS SELECT f.id AS farm_id, f.branch_id, f.user_id, CONCAT(u.name, '' - '', f.name) AS proveedor_finca, ft.base_price, ';
 
                 WHILE i < p_days DO
                     SET pivot_date = DATE_ADD(p_start_date, INTERVAL i DAY);
@@ -54,7 +54,8 @@ return new class extends Migration {
                     '), 0) AS producido ',
                     'FROM farms f ',
                     'JOIN farm_types ft ON ft.id = f.farm_type_id ',
-                    'WHERE f.status = true AND f.branch_id = ', p_branch_id
+                    'JOIN users u ON u.id = f.user_id ',
+                    'WHERE f.status = true AND f.branch_id = ', p_branch_id, ' ORDER BY proveedor_finca ASC'
                 );
 
                 SET @s := sql_text;

@@ -289,11 +289,10 @@ class MilkPurchasesPivotViewResource extends Resource
         }
 
         $baseColumns = [
-            TextColumn::make('farm.name')
+            TextColumn::make('proveedor_finca')
                 ->label('Proveedor - Finca')
                 ->weight(FontWeight::Bold)
                 ->wrap()
-                ->formatStateUsing(fn ($record) => $record->farm->user->name . ' - ' . $record->farm->name)
                 ->action(function ($record) {
                     DB::table('purchase_registrations')->where('user_id', Auth::id())->delete();
 

@@ -9,6 +9,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
@@ -51,11 +52,12 @@ class PurchaseRegistrationResource extends Resource
             ->extremePaginationLinks()
             ->striped()
             ->columns([
-                TextColumn::make('farm.name')
+                TextColumn::make('proveedor_finca')
                     ->label('Proveedor - Finca')
                     ->wrap()
                     ->width('60%')
-                    ->formatStateUsing(fn ($state, $record) => "{$record->farm->user->name} - {$record->farm->name}"),
+                    ->weight(FontWeight::Bold)
+                    ->sortable(),
                 TextColumn::make('date')
                     ->label('Fecha')
                     ->width('20%')
@@ -71,6 +73,7 @@ class PurchaseRegistrationResource extends Resource
                     ->rules(['min:0'])
                     // ->rules(['regex:/^\d+(\.\d)?$/', 'min:0'])
             ])
+            ->defaultSort('proveedor_finca')
             ->groups([
                 Group::make('branch.name')
                     ->label('Sucursal')

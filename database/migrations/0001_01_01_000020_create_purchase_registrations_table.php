@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->date('date');
             $table->decimal('liters', 10, 2)->default(0);
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
+            $table->string('proveedor_finca')->nullable();
             $table->timestamps();
         });
 
@@ -29,9 +30,10 @@ return new class extends Migration {
                 DELETE FROM purchase_registrations
                 WHERE user_id = p_user_id AND date = p_date;
 
-                INSERT INTO purchase_registrations (branch_id, farm_id, date, liters, user_id, created_at, updated_at)
-                SELECT f.branch_id, f.id, p_date, 0, p_user_id, NOW(), NOW()
+                INSERT INTO purchase_registrations (branch_id, farm_id, date, liters, user_id, proveedor_finca, created_at, updated_at)
+                SELECT f.branch_id, f.id, p_date, 0, p_user_id, CONCAT(u.name, ' - ', f.name), NOW(), NOW()
                 FROM farms f
+                JOIN users u ON u.id = f.user_id
                 WHERE f.branch_id = p_branch_id
                 AND f.status = true
                 AND NOT EXISTS (
@@ -41,9 +43,10 @@ return new class extends Migration {
                     AND mp.status = 'pending'
                 );
 
-                INSERT INTO purchase_registrations (branch_id, farm_id, date, liters, user_id, created_at, updated_at)
-                SELECT f.branch_id, f.id, p_date, mp.liters, p_user_id, NOW(), NOW()
+                INSERT INTO purchase_registrations (branch_id, farm_id, date, liters, user_id, proveedor_finca, created_at, updated_at)
+                SELECT f.branch_id, f.id, p_date, mp.liters, p_user_id, CONCAT(u.name, ' - ', f.name), NOW(), NOW()
                 FROM farms f
+                JOIN users u ON u.id = f.user_id
                 JOIN milk_purchases mp ON mp.farm_id = f.id AND mp.date = p_date AND mp.status = 'pending'
                 WHERE f.branch_id = p_branch_id AND f.status = true;
             END
