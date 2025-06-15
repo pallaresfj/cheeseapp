@@ -14,23 +14,30 @@ class FarmTypesTableSeeder extends Seeder
     {
         DB::table('farm_types')->insert([
             [
-                'name' => 'Tipo A',
-                'description' => 'Alta Calidad',
-                'base_price' => 1500.00,
+                'name' => 'Tipo 1',
+                'description' => 'Calidad Regular',
+                'base_price' => 1300.00,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'name' => 'Tipo B',
+                'name' => 'Tipo 2',
                 'description' => 'Buena Calidad',
-                'base_price' => 1200.00,
+                'base_price' => 1350.00,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'name' => 'Tipo C',
-                'description' => 'Calidad Media',
-                'base_price' => 1000.00,
+                'name' => 'Tipo 3',
+                'description' => 'Alta Calidad',
+                'base_price' => 1400.00,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Tipo 4',
+                'description' => 'Calidad Premium',
+                'base_price' => 1500.00,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

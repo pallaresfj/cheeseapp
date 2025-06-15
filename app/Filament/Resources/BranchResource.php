@@ -50,9 +50,8 @@ class BranchResource extends Resource
             ->striped()
             ->defaultSort('name')
             ->columns([
-                Tables\Columns\IconColumn::make('active')
-                    ->label('')
-                    ->boolean(),
+                Tables\Columns\ToggleColumn::make('active')
+                    ->label('Activa'),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nombre')
                     ->searchable(),

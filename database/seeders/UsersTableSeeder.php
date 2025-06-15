@@ -30,6 +30,24 @@ class UsersTableSeeder extends Seeder
         ]);
         $user->assignRole('Administrador');
 
+        $user = User::create([
+            'name' => 'Gaspar De la Hoz',
+            'username' => 'gaspar',
+            'email' => 'gaspar@cheeseapp.com.co',
+            'password' => Hash::make('pas123'),
+            'role' => 'admin',
+        ]);
+        $user->assignRole('Administrador');
+
+        $user = User::create([
+            'name' => 'Julio De la Hoz',
+            'username' => 'julio',
+            'email' => 'julio@cheeseapp.com.co',
+            'password' => Hash::make('pas123'),
+            'role' => 'admin',
+        ]);
+        $user->assignRole('Administrador');
+
         // Usuario Sucursal
         $user = User::create([
             'name' => 'Usuario Sucursal',
@@ -40,8 +58,17 @@ class UsersTableSeeder extends Seeder
         ]);
         $user->assignRole('Sucursal');
 
+        $user = User::create([
+            'name' => 'Xenia Rodriguez',
+            'username' => 'xenia',
+            'email' => 'xenia@cheeseapp.com.co',
+            'password' => Hash::make('pas123'),
+            'role' => 'sucursal',
+        ]);
+        $user->assignRole('Sucursal');
+
         // Usuarios Proveedores
-        for ($i = 1; $i <= 10; $i++) {
+        /* for ($i = 1; $i <= 10; $i++) {
             $user = User::create([
                 'name' => "Nombre Apellidos Proveedor $i",
                 'username' => "proveedor$i",
@@ -50,10 +77,10 @@ class UsersTableSeeder extends Seeder
                 'role' => 'supplier',
             ]);
             $user->assignRole('Proveedor');
-        }
+        } */
 
         // Usuarios Clientes
-        for ($i = 1; $i <= 3; $i++) {
+        /* for ($i = 1; $i <= 3; $i++) {
             $user = User::create([
                 'name' => "Nombre Apellidos Cliente $i",
                 'username' => "cliente$i",
@@ -62,6 +89,6 @@ class UsersTableSeeder extends Seeder
                 'role' => 'customer',
             ]);
             $user->assignRole('Cliente');
-        }
+        } */
     }
 }

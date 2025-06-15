@@ -22,9 +22,9 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UsersTableSeeder::class, // Ingresar el admin
             BranchesTableSeeder::class,
-            FarmsTableSeeder::class,
-            MilkPurchasesTableSeeder::class, // Borrar este seeder en producción
-            LoanSeeder::class,
+            // FarmsTableSeeder::class,
+            // MilkPurchasesTableSeeder::class, // Borrar este seeder en producción
+            // LoanSeeder::class,
         ]);
     }
 }
