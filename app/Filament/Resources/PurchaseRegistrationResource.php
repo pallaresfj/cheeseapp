@@ -68,10 +68,8 @@ class PurchaseRegistrationResource extends Resource
                     ->width('20%')
                     ->extraAttributes([
                         'inputmode' => 'decimal',
-                        // 'pattern' => '^[0-9]+([.,][0-9]{1})?$',
                     ])
                     ->rules(['min:0'])
-                    // ->rules(['regex:/^\d+(\.\d)?$/', 'min:0'])
             ])
             ->defaultSort('proveedor_finca')
             ->groups([

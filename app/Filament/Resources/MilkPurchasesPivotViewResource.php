@@ -52,7 +52,8 @@ class MilkPurchasesPivotViewResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery();
+        return parent::getEloquentQuery()
+            ->orderBy('proveedor_finca');
     }
 
     public static function table(Table $table): Table
