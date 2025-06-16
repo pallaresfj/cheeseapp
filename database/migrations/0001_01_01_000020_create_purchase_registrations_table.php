@@ -92,17 +92,19 @@ return new class extends Migration {
                         AND mp.date = pivot_date
                         AND mp.status = 'pending'
                     ) THEN
-                        INSERT INTO purchase_registrations (branch_id, farm_id, date, liters, user_id, created_at, updated_at)
-                        SELECT f.branch_id, f.id, pivot_date, mp.liters, p_user_id, NOW(), NOW()
+                        INSERT INTO purchase_registrations (branch_id, farm_id, date, liters, user_id, proveedor_finca, created_at, updated_at)
+                        SELECT f.branch_id, f.id, pivot_date, mp.liters, p_user_id, CONCAT(u.name, ' - ', f.name), NOW(), NOW()
                         FROM farms f
+                        JOIN users u ON u.id = f.user_id
                         JOIN milk_purchases mp ON mp.farm_id = f.id
                         WHERE f.id = p_farm_id
                         AND mp.date = pivot_date
                         AND mp.status = 'pending';
                     ELSE
-                        INSERT INTO purchase_registrations (branch_id, farm_id, date, liters, user_id, created_at, updated_at)
-                        SELECT f.branch_id, f.id, pivot_date, 0, p_user_id, NOW(), NOW()
+                        INSERT INTO purchase_registrations (branch_id, farm_id, date, liters, user_id, proveedor_finca, created_at, updated_at)
+                        SELECT f.branch_id, f.id, pivot_date, 0, p_user_id, CONCAT(u.name, ' - ', f.name), NOW(), NOW()
                         FROM farms f
+                        JOIN users u ON u.id = f.user_id
                         WHERE f.id = p_farm_id
                         AND f.status = true;
                     END IF;
