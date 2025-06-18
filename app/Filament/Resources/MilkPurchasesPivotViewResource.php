@@ -294,6 +294,7 @@ class MilkPurchasesPivotViewResource extends Resource
                 ->label('Proveedor - Finca')
                 ->weight(FontWeight::Bold)
                 ->wrap()
+                ->searchable()
                 ->action(function ($record) {
                     DB::table('purchase_registrations')->where('user_id', Auth::id())->delete();
 

@@ -57,7 +57,8 @@ class PurchaseRegistrationResource extends Resource
                     ->wrap()
                     ->width('60%')
                     ->weight(FontWeight::Bold)
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('date')
                     ->label('Fecha')
                     ->width('20%')
@@ -65,11 +66,12 @@ class PurchaseRegistrationResource extends Resource
                 TextInputColumn::make('liters')
                     ->label('Litros')
                     ->type('number')
+                    ->default(0)
                     ->width('20%')
                     ->extraAttributes([
                         'inputmode' => 'decimal',
                     ])
-                    ->rules(['min:0'])
+                    ->rules(['required', 'gte:0']),
             ])
             ->defaultSort('proveedor_finca')
             ->groups([
