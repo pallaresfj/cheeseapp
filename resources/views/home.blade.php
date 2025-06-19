@@ -109,7 +109,7 @@
             </div>
             <div class="col-lg-6 align-self-end">
               <div class="hero-image">
-                <img src="{{ asset('assets/img/hero/hero-1/hero-img.svg') }}" alt="">
+                <img src="{{ asset('assets/img/hero/hero-1/hero-img.svg') }}" alt="" style="max-width: 105%; height: auto;">
               </div>
             </div>
           </div>
