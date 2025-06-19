@@ -70,8 +70,18 @@ class PurchaseRegistrationResource extends Resource
                     ->width('20%')
                     ->extraAttributes([
                         'inputmode' => 'decimal',
+                        'x-on:focus' => '$el.select()', // Add this line
                     ])
                     ->rules(['required', 'gte:0']),
+                /* TextInputColumn::make('liters')
+                    ->label('Litros')
+                    ->type('number')
+                    ->default(0)
+                    ->width('20%')
+                    ->extraAttributes([
+                        'inputmode' => 'decimal',
+                    ])
+                    ->rules(['required', 'gte:0']), */
             ])
             ->defaultSort('proveedor_finca')
             ->groups([
