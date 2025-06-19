@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Liquidation;
+use App\Models\Setting;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\View;
 use Illuminate\Http\Request;
@@ -17,9 +18,15 @@ class LiquidationPdfController extends Controller
             abort(500, 'La vista del PDF no está disponible.');
         }
 
-        $pdf = Pdf::setPaper('rec01')->loadView('pdfs.liquidation', [
-            'liquidation' => $liquidation,
-        ]);
+        // Obtener medidas desde configuración
+        $width = Setting::where('key', 'sistema.paper_width_mm')->value('value') * 2.8346;
+        $height = Setting::where('key', 'sistema.paper_height_mm')->value('value') * 2.8346;
+
+        // Configurar el tamaño del papel
+        $pdf = Pdf::setPaper([0, 0, $width, $height])
+            ->loadView('pdfs.liquidation', [
+                'liquidation' => $liquidation,
+            ]);
 
         $filename = strtoupper($liquidation->farm->user->name . ' - ' . $liquidation->farm->name);
         $filename = str_replace(' ', '_', $filename);
@@ -32,8 +39,12 @@ class LiquidationPdfController extends Controller
         $ids = explode(',', $request->ids);
         $liquidations = \App\Models\Liquidation::with('farm.user')->findMany($ids);
 
-        $pdf = Pdf::setPaper('rec01')->loadView('pdfs.liquidations_bulk', compact('liquidations'));
-        // return $pdf->stream('liquidaciones.pdf');
+        // Obtener medidas desde configuración
+        $width = Setting::where('key', 'sistema.paper_width_mm')->value('value') * 2.8346;
+        $height = Setting::where('key', 'sistema.paper_height_mm')->value('value') * 2.8346;
+
+        $pdf = Pdf::setPaper([0, 0, $width, $height])
+            ->loadView('pdfs.liquidations_bulk', compact('liquidations'));
         return $pdf->download('liquidaciones.pdf');
     }
 }

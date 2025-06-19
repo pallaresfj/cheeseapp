@@ -20,6 +20,8 @@ class SettingsSeeder extends Seeder
             ['key' => 'empresa.correo', 'category' => 'empresa', 'value' => 'queserasocios@outlook.com'],
             ['key' => 'facturacion.ciclo', 'category' => 'facturacion', 'value' => '7'],
             ['key' => 'sistema.productividad', 'category' => 'sistema', 'value' => '0.125'],
+            ['key' => 'sistema.paper_width_mm', 'category' => 'sistema', 'value' => '80'],
+            ['key' => 'sistema.paper_height_mm', 'category' => 'sistema', 'value' => '200'],
         ];
 
         foreach ($settings as $setting) {
