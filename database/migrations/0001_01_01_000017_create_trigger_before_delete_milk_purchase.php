@@ -15,10 +15,12 @@ return new class extends Migration
             BEFORE DELETE ON milk_purchases
             FOR EACH ROW
             BEGIN
-                UPDATE milk_purchases
-                SET status = 'pending',
-                    liquidation_id = NULL
-                WHERE liquidation_id = OLD.liquidation_id;
+                IF OLD.status = 'liquidated' THEN
+                    UPDATE milk_purchases
+                    SET status = 'pending',
+                        liquidation_id = NULL
+                    WHERE liquidation_id = OLD.liquidation_id;
+                END IF;
             END
         ");
     }
