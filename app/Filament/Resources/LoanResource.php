@@ -75,7 +75,6 @@ class LoanResource extends Resource
                         ->label('Monto')
                         ->required()
                         ->numeric()
-                        ->live()
                         ->afterStateUpdated(function ($state, $set, $get) {
                             $amount = $state ?? 0;
                             $paid = $get('paid_value') ?? 0;
@@ -84,6 +83,7 @@ class LoanResource extends Resource
                             $set('installment_value', $installments > 0 ? round(($amount - $paid) / $installments, 2) : 0);
                         })
                         ->disabledOn('edit')
+                        ->live(debounce: 500)
                         ->columnSpan(4),
                     Forms\Components\TextInput::make('installments')
                         ->label('Cuotas')
