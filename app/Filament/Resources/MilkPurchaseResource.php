@@ -15,6 +15,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Validation\Rule;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
 
 class MilkPurchaseResource extends Resource
 {
@@ -162,6 +164,11 @@ class MilkPurchaseResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    ExportBulkAction::make()->exports([
+                        ExcelExport::make('form')
+                            ->fromForm()
+                            ->withFilename(date('Ymd') . '_Compras'),
+                    ]),
                 ]),
             ]);
     }
