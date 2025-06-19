@@ -125,6 +125,12 @@ class MilkPurchaseResource extends Resource
                     ->select('milk_purchases.*')
             )
             ->filters([
+                Tables\Filters\SelectFilter::make('branch_id')
+                    ->label('Sucursal')
+                    ->relationship('branch', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->native(false),
                 Tables\Filters\SelectFilter::make('farm_id')
                     ->label('Finca')
                     ->relationship('farm', 'name')
