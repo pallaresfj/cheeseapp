@@ -98,6 +98,7 @@ class MilkPurchaseResource extends Resource
                     ->alignCenter(),
                 Tables\Columns\TextColumn::make('branch.name')
                     ->label('Sucursal')
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('farm.name')
                     ->label('Proveedor - Finca')
@@ -122,16 +123,6 @@ class MilkPurchaseResource extends Resource
                     ->select('milk_purchases.*')
             )
             ->filters([
-                Tables\Filters\SelectFilter::make('branch_id')
-                    ->label('Sucursal')
-                    ->options(
-                        \App\Models\Branch::where('active', true)
-                            ->orderBy('name')
-                            ->pluck('name', 'id')
-                    )
-                    ->searchable()
-                    ->preload()
-                    ->native(false),
                 Tables\Filters\SelectFilter::make('farm_id')
                     ->label('Finca')
                     ->relationship('farm', 'name')

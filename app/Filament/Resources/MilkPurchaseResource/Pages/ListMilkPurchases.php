@@ -5,7 +5,7 @@ namespace App\Filament\Resources\MilkPurchaseResource\Pages;
 use App\Filament\Resources\MilkPurchaseResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Resources\Pages\ListRecords\Tab;
+use Filament\Resources\Components\Tab;
 
 class ListMilkPurchases extends ListRecords
 {
