@@ -5,12 +5,12 @@
     <title>{{ $liquidation->farm->user->name }} - {{ $liquidation->farm->name }}</title>
     <style>
         @page {
-            margin: 6mm;
+            margin: 1mm 6mm 6mm 6mm;
         }
 
         body {
             font-family: Helvetica, sans-serif;
-            font-size: 9px;
+            font-size: 11px;
         }
         .footer {
             position: fixed;
@@ -30,7 +30,7 @@
                     <th align="center" valign="middle" width="25%">
                         <img src="images/{{ $settings['empresa.logo'] }}" width="70">
                     </th>
-                    <th align="center" valign="middle" width="75%" style="font-weight: bold; font-size: 13px;">{{ $settings['empresa.nombre'] }}</th>
+                    <th align="center" valign="middle" width="75%" style="font-weight: bold; font-size: 16px;">{{ $settings['empresa.nombre'] }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -44,7 +44,7 @@
                     <td colspan="2" align="center"></td>
                 </tr>
                 <tr>
-                    <td colspan="2" align="right" style="padding-top: 6px; font-size: 11px;">Factura # <b>{{ str_pad($liquidation->id, 6, '0', STR_PAD_LEFT) }}</b> del <b>
+                    <td colspan="2" align="right" style="padding-top: 6px; font-size: 14px;">Factura # <b>{{ str_pad($liquidation->id, 6, '0', STR_PAD_LEFT) }}</b> del <b>
                         @php
                             $fecha = $liquidation->date instanceof \Carbon\Carbon
                                 ? $liquidation->date
@@ -58,9 +58,9 @@
                     <td align="center"></td>
                 </tr>
                 <tr>
-                    <td colspan="2" align="left" style="padding-top: 6px;">
+                    <td colspan="2" align="left" style="padding-top: 6px; font-size: 14px;">
                         Proveedor<br>
-                        <span style="font-weight: bold; font-size: 12px; text-transform: uppercase;">
+                        <span style="font-weight: bold; font-size: 14px; text-transform: uppercase;">
                             {{ $liquidation->farm->user->name }} - {{ $liquidation->farm->name }}
                         </span>
                     </td>
@@ -76,7 +76,7 @@
     @endphp
 
     @if (!empty($detalles))
-        <div style="text-align: center; margin-top: 10px; font-weight: bold; font-size: 11px;">Producción Recibida</div>
+        <div style="text-align: center; margin-top: 10px; font-weight: bold; font-size: 14px;">Producción Recibida</div>
         <table border="0" cellpadding="2" cellspacing="0" width="100%" style="margin-top: 5px;">
             <thead>
                 <tr>
@@ -100,16 +100,16 @@
         <table border="0" cellpadding="0" cellspacing="0" style="margin:auto;" width="100%">
             <tbody>
                 <tr>
-                    <td style="font-weight: bold; text-align:right; padding-top: 12px;">Total Litros:</td>
-                    <td style="font-weight: bold; text-align:right; padding-top: 12px;">{{ number_format($liquidation->total_liters, 2, ',', '.') }}</td>
+                    <td style="font-weight: bold; text-align:right; padding-top: 12px; font-size: 14px;">Total Litros:</td>
+                    <td style="font-weight: bold; text-align:right; padding-top: 12px; font-size: 14px;">{{ number_format($liquidation->total_liters, 2, ',', '.') }}</td>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold; text-align:right;">Valor Litro:</td>
-                    <td style="font-weight: bold; text-align:right;">${{ number_format($liquidation->price_per_liter, 0, ',', '.') }}</td>
+                    <td style="font-weight: bold; text-align:right; font-size: 14px;">Valor Litro:</td>
+                    <td style="font-weight: bold; text-align:right; font-size: 14px;">${{ number_format($liquidation->price_per_liter, 0, ',', '.') }}</td>
                 </tr>
                 <tr>
-                    <td style="text-align: left; font-weight: bold; padding-top: 12px;">Total Ingresos:</td>
-                    <td style="text-align: right; font-weight: bold; padding-top: 12px;">${{ number_format($liquidation->total_liters * $liquidation->price_per_liter, 0, ',', '.') }}</td>
+                    <td style="text-align: left; font-weight: bold; padding-top: 12px; font-size: 14px;">Total Ingresos:</td>
+                    <td style="text-align: right; font-weight: bold; padding-top: 12px; font-size: 14px;">${{ number_format($liquidation->total_liters * $liquidation->price_per_liter, 0, ',', '.') }}</td>
                 </tr>
                 <tr>
                     <td style="text-align: left;">-Prestamos</td>
@@ -128,8 +128,8 @@
                     <td style="text-align:right;">${{ number_format($liquidation->previous_balance - $liquidation->discounts, 0, ',', '.') }}</td>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold; text-align:left; padding-top: 12px;">Neto a Pagar</td>
-                    <td style="font-weight: bold; text-align:right; padding-top: 12px;">${{ number_format(($liquidation->total_liters * $liquidation->price_per_liter) - $liquidation->discounts, 0, ',', '.') }}</td>
+                    <td style="font-weight: bold; text-align:left; padding-top: 12px; font-size: 14px">Neto a Pagar</td>
+                    <td style="font-weight: bold; text-align:right; padding-top: 12px; font-size: 14px">${{ number_format(($liquidation->total_liters * $liquidation->price_per_liter) - $liquidation->discounts, 0, ',', '.') }}</td>
                 </tr>
             </tbody>
         </table>
@@ -139,10 +139,10 @@
         <table border="0" cellpadding="0" cellspacing="0" style="margin:auto;">
             <tbody>
                 <tr>
-                    <td style="font-weight: bold; text-align:center; padding-top: 12px;">Concepto Préstamo</td>
+                    <td style="font-weight: bold; text-align:center; padding-top: 12px; font-size: 14px">Concepto Préstamo</td>
                 </tr>
                 <tr>
-                    <td style="text-align: left; padding-top: 6px;">
+                    <td style="text-align: left; padding-top: 6px; font-size: 14px">
                         {!! nl2br(e(
                             preg_replace('/^\h+/m', '', trim(
                                 \App\Models\Loan::where('user_id', $liquidation->farm->user_id)
