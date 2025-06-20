@@ -23,7 +23,7 @@ class LiquidationPdfController extends Controller
         // $height = Setting::where('key', 'sistema.paper_height_mm')->value('value') * 2.8346;
         $width = 80 * 2.8346; // Ancho en mm convertido a puntos
         $height = 200 * 2.8346; // Alto en mm convertido a
-        dd($width, $height);
+        
         // Configurar el tamaño del papel
         $pdf = Pdf::setPaper([0, 0, $width, $height])
             ->loadView('pdfs.liquidation', [
