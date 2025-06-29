@@ -221,6 +221,7 @@ class MilkPurchasesPivotViewResource extends Resource
                                 return "Se van a procesar {$count} compras entre {$startFormatted} y {$endFormatted}, por un total de {$litros} litros.";
                             }),
                     ])
+                    ->visible(fn () => in_array(Auth::user()?->role, ['soporte', 'admin']))
                     ->action(function ($records) {
                         try {
                             // Obtener los farm_id de los registros seleccionados
