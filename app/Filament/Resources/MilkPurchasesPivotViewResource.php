@@ -157,73 +157,6 @@ class MilkPurchasesPivotViewResource extends Resource
 
                         return redirect(\App\Filament\Resources\PurchaseRegistrationResource::getUrl());
                     }),
-                Action::make('liquidarCompras')
-                    ->visible(fn () => in_array(Auth::user()?->role, ['soporte', 'admin']))
-                    ->label('Liquidación')
-                    ->icon('heroicon-o-calculator')
-                    ->color('success')
-                    ->form([
-                        Placeholder::make('resumen')
-                            ->label(function () {
-                                $branchName = \App\Models\Branch::find(session('pivot_branch_id_' . Auth::id()))?->name ?? 'seleccionada';
-                                return "Sucursal {$branchName}";
-                            })
-                            ->content(function () {
-                                $branchId = session('pivot_branch_id_' . Auth::id());
-                                $branchName = Branch::find($branchId)?->name;
-                                $start = MilkPurchase::where('branch_id', $branchId)
-                                    ->where('status', 'pending')
-                                    ->orderBy('date')
-                                    ->value('date');
-
-                                if (!$start) {
-                                    return 'No hay registros pendientes para procesar.';
-                                }
-
-                                $ciclo = (int) \App\Models\Setting::where('key', 'facturacion.ciclo')->value('value') ?? 7;
-                                $end = \Carbon\Carbon::parse($start)->addDays($ciclo - 1);
-
-                                $query = \App\Models\MilkPurchase::where('branch_id', $branchId)
-                                    ->where('status', 'pending')
-                                    ->whereBetween('date', [$start, $end->toDateString()]);
-
-                                $count = $query->count();
-                                $litros = number_format($query->sum('liters'), 2, ',', '.');
-                                $startFormatted = \Carbon\Carbon::parse($start)->translatedFormat('F d \de Y');
-                                $endFormatted = $end->translatedFormat('F d \de Y');
-
-                                return "Se van a procesar {$count} compras pendientes de esta sucursal entre {$startFormatted} y {$endFormatted}, por un total de {$litros} litros.";
-                            }),
-                    ])
-                    ->action(function (array $data): void {
-                        try {
-                            $start = MilkPurchase::where('branch_id', session('pivot_branch_id_' . Auth::id()))
-                                ->where('status', 'pending')
-                                ->orderBy('date')
-                                ->value('date');
-
-                            DB::statement("CALL liquidar_compras(?, ?, ?)", [
-                                session('pivot_branch_id_' . Auth::id()),
-                                $start,
-                                \Carbon\Carbon::parse($start)->addDays(
-                                    (int) Setting::where('key', 'facturacion.ciclo')->value('value') ?? 7
-                                )->toDateString(),
-                            ]);
-
-                            Notification::make()
-                                ->title('Liquidación ejecutada correctamente')
-                                ->success()
-                                ->send();
-                        } catch (\Exception $e) {
-                            Notification::make()
-                                ->title('Error al ejecutar la liquidación')
-                                ->body($e->getMessage())
-                                ->danger()
-                                ->send();
-                        }
-                    })
-                    ->requiresConfirmation()
-                    ->modalHeading('Ejecutar Liquidación'),
                 // Acción: Planilla por Fecha
             ])
             ->striped()
@@ -239,7 +172,115 @@ class MilkPurchasesPivotViewResource extends Resource
                 //
             ])
             ->actions([])
-            ->bulkActions([]);
+            ->bulkActions([
+                // Acción masiva: Liquidar fincas seleccionadas
+                Tables\Actions\BulkAction::make('liquidarSeleccionadas')
+                    ->label('Liquidar Selección')
+                    ->icon('heroicon-o-calculator')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Liquidar fincas seleccionadas')
+                    ->form([
+                        Forms\Components\Placeholder::make('resumenLiquidacion')
+                            ->label('Resumen de Liquidación')
+                            ->content(function ($get, $livewire) {
+                                $records = $livewire->getSelectedTableRecords();
+                                $farmIds = collect($records)->pluck('farm_id')->all();
+                                if (empty($farmIds)) {
+                                    return 'No hay fincas seleccionadas.';
+                                }
+
+                                $branchId = session('pivot_branch_id_' . Auth::id());
+                                if (!$branchId) {
+                                    return 'Sucursal no definida.';
+                                }
+
+                                $start = \App\Models\MilkPurchase::where('branch_id', $branchId)
+                                    ->whereIn('farm_id', $farmIds)
+                                    ->where('status', 'pending')
+                                    ->orderBy('date')
+                                    ->value('date');
+
+                                if (!$start) {
+                                    return 'No hay registros pendientes.';
+                                }
+
+                                $ciclo = (int) \App\Models\Setting::where('key', 'facturacion.ciclo')->value('value') ?? 7;
+                                $end = \Carbon\Carbon::parse($start)->addDays($ciclo - 1);
+
+                                $query = \App\Models\MilkPurchase::where('branch_id', $branchId)
+                                    ->whereIn('farm_id', $farmIds)
+                                    ->where('status', 'pending')
+                                    ->whereBetween('date', [$start, $end->toDateString()]);
+
+                                $count = $query->count();
+                                $litros = number_format($query->sum('liters'), 2, ',', '.');
+                                $startFormatted = \Carbon\Carbon::parse($start)->translatedFormat('F d \de Y');
+                                $endFormatted = $end->translatedFormat('F d \de Y');
+
+                                return "Se van a procesar {$count} compras entre {$startFormatted} y {$endFormatted}, por un total de {$litros} litros.";
+                            }),
+                    ])
+                    ->action(function ($records) {
+                        try {
+                            // Obtener los farm_id de los registros seleccionados
+                            $farmIds = collect($records)->pluck('farm_id')->all();
+                            if (empty($farmIds)) {
+                                Notification::make()
+                                    ->title('No hay fincas seleccionadas')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
+                            $farmIdsCsv = implode(',', $farmIds);
+
+                            $branchId = session('pivot_branch_id_' . Auth::id());
+                            if (!$branchId) {
+                                Notification::make()
+                                    ->title('Sucursal no definida')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
+
+                            // Obtener ciclo
+                            $ciclo = (int) Setting::where('key', 'facturacion.ciclo')->value('value') ?? 7;
+
+                            // Obtener fechas de inicio y fin del ciclo
+                            $start = MilkPurchase::where('branch_id', $branchId)
+                                ->where('status', 'pending')
+                                ->orderBy('date')
+                                ->value('date');
+                            if (!$start) {
+                                Notification::make()
+                                    ->title('No hay compras pendientes para procesar')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
+                            $end = \Carbon\Carbon::parse($start)->addDays($ciclo - 1)->toDateString();
+
+                            // Llamar al procedimiento con branch_id, start_date, end_date, farm_ids_csv
+                            DB::statement("CALL liquidar_compras(?, ?, ?, ?)", [
+                                $branchId,
+                                $start,
+                                $end,
+                                $farmIdsCsv,
+                            ]);
+
+                            Notification::make()
+                                ->title('Liquidación ejecutada correctamente')
+                                ->success()
+                                ->send();
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('Error al ejecutar la liquidación')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    }),
+            ]);
     }
 
     public static function getRelations(): array

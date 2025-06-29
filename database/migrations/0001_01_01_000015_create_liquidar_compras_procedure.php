@@ -17,7 +17,8 @@ return new class extends Migration
         CREATE PROCEDURE liquidar_compras(
             IN p_branch_id INT,
             IN p_start_date DATE,
-            IN p_end_date DATE
+            IN p_end_date DATE,
+            IN p_farm_ids TEXT
         )
         BEGIN
             DECLARE done INT DEFAULT FALSE;
@@ -33,6 +34,7 @@ return new class extends Migration
                 WHERE branch_id = p_branch_id
                 AND status = 'pending'
                 AND date BETWEEN p_start_date AND p_end_date
+                AND FIND_IN_SET(farm_id, p_farm_ids)
                 GROUP BY farm_id;
 
             DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
