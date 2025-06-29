@@ -15,6 +15,7 @@ class RoleSeeder extends Seeder
             'Soporte',
             'Administrador',
             'Sucursal',
+            'Vendedor',
             'Proveedor',
             'Cliente',
         ];

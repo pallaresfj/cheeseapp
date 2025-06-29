@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string(config('filament-edit-profile.avatar_column', 'avatar_url'))->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['soporte', 'admin', 'sucursal', 'supplier', 'customer'])->default('supplier');
+            $table->enum('role', ['soporte', 'admin', 'sucursal', 'vendedor', 'supplier', 'customer'])->default('supplier');
             $table->string('identification')->nullable();
             $table->string('address')->nullable();
             $table->string('phone')->nullable();

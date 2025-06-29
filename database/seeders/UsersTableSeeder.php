@@ -67,6 +67,25 @@ class UsersTableSeeder extends Seeder
         ]);
         $user->assignRole('Sucursal');
 
+        // Usuario Vendedor
+        $user = User::create([
+            'name' => 'Usuario Vendedor',
+            'username' => 'vendedor',
+            'email' => 'vendedor@cheeseapp.com.co',
+            'password' => Hash::make('7052'),
+            'role' => 'vendedor',
+        ]);
+        $user->assignRole('Vendedor');
+
+        $user = User::create([
+            'name' => 'Leonardo Pallares',
+            'username' => 'leonardo',
+            'email' => 'leonardo@cheeseapp.com.co',
+            'password' => Hash::make('pas123'),
+            'role' => 'vendedor',
+        ]);
+        $user->assignRole('Vendedor');
+
         // Usuarios Proveedores
         /* for ($i = 1; $i <= 10; $i++) {
             $user = User::create([
