@@ -158,6 +158,7 @@ class MilkPurchasesPivotViewResource extends Resource
                         return redirect(\App\Filament\Resources\PurchaseRegistrationResource::getUrl());
                     }),
                 Action::make('liquidarCompras')
+                    ->visible(fn () => in_array(Auth::user()?->role, ['soporte', 'admin']))
                     ->label('Liquidación')
                     ->icon('heroicon-o-calculator')
                     ->color('success')
