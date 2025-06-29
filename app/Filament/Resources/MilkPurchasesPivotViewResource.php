@@ -89,9 +89,16 @@ class MilkPurchasesPivotViewResource extends Resource
                             ->required(),
                     ])
                     ->action(function (array $data) {
-                        session(['pivot_branch_id' => $data['branch_id']]);
+                        session(['pivot_branch_id_' . Auth::id() => $data['branch_id']]);
+                        // Eliminar la vista anterior del usuario si existe
+                        $viewName = 'milk_purchases_pivot_view_user_' . Auth::id();
+                        try {
+                            DB::statement("DROP VIEW IF EXISTS $viewName");
+                        } catch (\Throwable $e) {
+                            // Manejo opcional de error al eliminar la vista anterior
+                        }
                         $ciclo = \App\Models\Setting::where('key', 'facturacion.ciclo')->value('value') ?? 7;
-                        DB::statement("CALL generate_milk_purchases_pivot_view({$data['branch_id']}, '{$data['start_date']}', $ciclo)");
+                        DB::statement("CALL generate_milk_purchases_pivot_view({$data['branch_id']}, '{$data['start_date']}', $ciclo, " . Auth::id() . ")");
                         Notification::make()
                             ->title('Sucursal y fecha actualizadas')
                             ->body('La vista de compras se ha actualizado para la sucursal y fecha seleccionadas.')
@@ -112,7 +119,7 @@ class MilkPurchasesPivotViewResource extends Resource
                             ->searchable()
                             ->preload()
                             ->options(
-                                collect(Schema::getColumnListing('milk_purchases_pivot_view'))
+                                collect(Schema::getColumnListing('milk_purchases_pivot_view_user_' . Auth::id()))
                                     ->filter(fn ($col) => preg_match('/^\d{4}_\d{2}_\d{2}$/', $col))
                                     ->mapWithKeys(function ($col) {
                                         $fecha = \Carbon\Carbon::createFromFormat('Y_m_d', $col);
@@ -126,7 +133,7 @@ class MilkPurchasesPivotViewResource extends Resource
                     ->action(function (array $data) {
                         DB::table('purchase_registrations')->where('user_id', Auth::id())->delete();
 
-                        $branchId = session('pivot_branch_id');
+                        $branchId = session('pivot_branch_id_' . Auth::id());
                         $date = $data['date'];
 
                         if (!$branchId || !$date) {
@@ -157,11 +164,11 @@ class MilkPurchasesPivotViewResource extends Resource
                     ->form([
                         Placeholder::make('resumen')
                             ->label(function () {
-                                $branchName = \App\Models\Branch::find(session('pivot_branch_id'))?->name ?? 'seleccionada';
+                                $branchName = \App\Models\Branch::find(session('pivot_branch_id_' . Auth::id()))?->name ?? 'seleccionada';
                                 return "Sucursal {$branchName}";
                             })
                             ->content(function () {
-                                $branchId = session('pivot_branch_id');
+                                $branchId = session('pivot_branch_id_' . Auth::id());
                                 $branchName = Branch::find($branchId)?->name;
                                 $start = MilkPurchase::where('branch_id', $branchId)
                                     ->where('status', 'pending')
@@ -189,13 +196,13 @@ class MilkPurchasesPivotViewResource extends Resource
                     ])
                     ->action(function (array $data): void {
                         try {
-                            $start = MilkPurchase::where('branch_id', session('pivot_branch_id'))
+                            $start = MilkPurchase::where('branch_id', session('pivot_branch_id_' . Auth::id()))
                                 ->where('status', 'pending')
                                 ->orderBy('date')
                                 ->value('date');
 
                             DB::statement("CALL liquidar_compras(?, ?, ?)", [
-                                session('pivot_branch_id'),
+                                session('pivot_branch_id_' . Auth::id()),
                                 $start,
                                 \Carbon\Carbon::parse($start)->addDays(
                                     (int) Setting::where('key', 'facturacion.ciclo')->value('value') ?? 7
@@ -251,10 +258,10 @@ class MilkPurchasesPivotViewResource extends Resource
     protected static function getTableColumns(): array
     {
         try {
-            $columnas = Schema::getColumnListing('milk_purchases_pivot_view');
+            $columnas = Schema::getColumnListing('milk_purchases_pivot_view_user_' . Auth::id());
         } catch (\Exception $e) {
             // Ejecutar la acción 'configurarVista' si la vista no existe
-            $branchId = session('pivot_branch_id');
+            $branchId = session('pivot_branch_id_' . Auth::id());
             $startDate = \App\Models\MilkPurchase::where('branch_id', $branchId)
                 ->where('status', 'pending')
                 ->orderBy('date')
@@ -263,7 +270,7 @@ class MilkPurchasesPivotViewResource extends Resource
             if ($branchId && $startDate) {
                 $ciclo = (int) \App\Models\Setting::where('key', 'facturacion.ciclo')->value('value') ?? 7;
                 try {
-                    \Illuminate\Support\Facades\DB::statement("CALL generate_milk_purchases_pivot_view($branchId, '$startDate', $ciclo)");
+                    \Illuminate\Support\Facades\DB::statement("CALL generate_milk_purchases_pivot_view($branchId, '$startDate', $ciclo, " . Auth::id() . ")");
 
                     \Filament\Notifications\Notification::make()
                         ->title('Vista generada automáticamente')
@@ -272,7 +279,7 @@ class MilkPurchasesPivotViewResource extends Resource
                         ->send();
 
                     // Intentar de nuevo obtener las columnas después de crear la vista
-                    $columnas = Schema::getColumnListing('milk_purchases_pivot_view');
+                    $columnas = Schema::getColumnListing('milk_purchases_pivot_view_user_' . Auth::id());
                 } catch (\Exception $e) {
                     return [
                         TextColumn::make('error')
@@ -301,7 +308,7 @@ class MilkPurchasesPivotViewResource extends Resource
                     $branchId = $record->branch_id;
                     $farmId = $record->farm_id;
 
-                    $columns = collect(\Illuminate\Support\Facades\Schema::getColumnListing('milk_purchases_pivot_view'))
+                    $columns = collect(\Illuminate\Support\Facades\Schema::getColumnListing('milk_purchases_pivot_view_user_' . Auth::id()))
                         ->filter(fn ($col) => preg_match('/^\d{4}_\d{2}_\d{2}$/', $col))
                         ->map(fn ($col) => \Carbon\Carbon::createFromFormat('Y_m_d', $col)->toDateString())
                         ->sort()

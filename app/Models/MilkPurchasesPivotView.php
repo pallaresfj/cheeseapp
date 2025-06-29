@@ -2,12 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MilkPurchasesPivotView extends Model
 {
-    protected $table = 'milk_purchases_pivot_view';
+    protected $table;
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->setTable('milk_purchases_pivot_view_user_' . Auth::id());
+    }
 
     public $incrementing = false;
     public $timestamps = false;

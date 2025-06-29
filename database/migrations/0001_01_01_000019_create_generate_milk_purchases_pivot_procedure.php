@@ -14,14 +14,22 @@ return new class extends Migration {
             CREATE PROCEDURE generate_milk_purchases_pivot_view(
                 IN p_branch_id INT,
                 IN p_start_date DATE,
-                IN p_days INT
+                IN p_days INT,
+                IN p_user_id INT
             )
             BEGIN
                 DECLARE i INT DEFAULT 0;
                 DECLARE pivot_date DATE;
                 DECLARE sql_text LONGTEXT DEFAULT '';
+                SET @view_name := CONCAT('milk_purchases_pivot_view_user_', p_user_id);
 
-                SET sql_text = 'CREATE OR REPLACE VIEW milk_purchases_pivot_view AS SELECT f.id AS farm_id, f.branch_id, f.user_id, CONCAT(u.name, '' - '', f.name) AS proveedor_finca, ft.base_price, ';
+                -- Drop the user-specific view if it already exists
+                SET @drop_view_sql := CONCAT('DROP VIEW IF EXISTS ', 'milk_purchases_pivot_view_user_', p_user_id);
+                PREPARE drop_stmt FROM @drop_view_sql;
+                EXECUTE drop_stmt;
+                DEALLOCATE PREPARE drop_stmt;
+
+                SET sql_text = CONCAT('CREATE OR REPLACE VIEW ', @view_name, ' AS SELECT f.id AS farm_id, f.branch_id, f.user_id, CONCAT(u.name, '' - '', f.name) AS proveedor_finca, ft.base_price, ');
 
                 WHILE i < p_days DO
                     SET pivot_date = DATE_ADD(p_start_date, INTERVAL i DAY);

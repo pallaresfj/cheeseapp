@@ -79,9 +79,17 @@ class GenerarVistaPivot extends Page implements HasForms
         $startDate = $state['start_date'];
         $ciclo = (int) Setting::where('key', 'facturacion.ciclo')->value('value') ?? 7;
 
+        $viewName = 'milk_purchases_pivot_view_user_' . Auth::id();
         try {
-            DB::statement("CALL generate_milk_purchases_pivot_view($branchId, '$startDate', $ciclo)");
-            session(['pivot_branch_id' => $branchId]);
+            DB::statement("DROP VIEW IF EXISTS $viewName");
+        } catch (\Throwable $e) {
+            // Log optional: fallo al eliminar vista anterior
+        }
+
+        try {
+            DB::statement("CALL generate_milk_purchases_pivot_view($branchId, '$startDate', $ciclo, " . Auth::id() . ")");
+            session(['pivot_branch_id_' . Auth::id() => $branchId]);
+            session(['pivot_start_date_' . Auth::id() => $startDate]);
 
             Notification::make()
                 ->title('Sucursal y fecha actualizadas')
