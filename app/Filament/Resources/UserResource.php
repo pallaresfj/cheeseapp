@@ -52,6 +52,7 @@ class UserResource extends Resource
                         'soporte' => 'Soporte',
                         'admin' => 'Administrador',
                         'sucursal' => 'Sucursal',
+                        'vendedor' => 'Vendedor',
                         'supplier' => 'Proveedor',
                         'customer' => 'Cliente',
                     ])
@@ -124,6 +125,7 @@ class UserResource extends Resource
                         'soporte' => 'Soporte',
                         'admin' => 'Administrador',
                         'sucursal' => 'Sucursal',
+                        'vendedor' => 'Vendedor',
                         'supplier' => 'Proveedor',
                         'customer' => 'Cliente',
                         default => ucfirst($record->role),
