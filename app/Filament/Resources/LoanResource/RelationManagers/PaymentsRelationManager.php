@@ -59,7 +59,7 @@ class PaymentsRelationManager extends RelationManager
                     ->sortable(),
                 Tables\Columns\TextColumn::make('amount')
                     ->label('Valor')
-                    ->money('COP'),
+                    ->money('COP', locale: 'es_CO'),
             ])
             ->filters([
                 //

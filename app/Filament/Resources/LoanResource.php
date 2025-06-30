@@ -152,7 +152,7 @@ class LoanResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultSort('date', 'desc')
+            ->defaultSort('proveedor_finca')
             ->extremePaginationLinks()
             ->striped()
             ->columns([
@@ -187,6 +187,13 @@ class LoanResource extends Resource
                             return $query->whereHas('user', fn ($q) => $q->where('name', 'like', "%{$search}%"))
                                         ->orWhereHas('farm', fn ($q) => $q->where('name', 'like', "%{$search}%"));
                         })
+                        ->sortable(query: function (Builder $query, string $direction) {
+                            $query
+                                ->join('users', 'loans.user_id', '=', 'users.id')
+                                ->join('farms', 'loans.farm_id', '=', 'farms.id')
+                                ->orderByRaw("CONCAT(users.name, ' - ', farms.name) {$direction}")
+                                ->select('loans.*');
+                        })
                         ->wrap()
                         ->weight(FontWeight::Bold),
 
@@ -194,7 +201,6 @@ class LoanResource extends Resource
                         ->label('Fecha')
                         ->icon('heroicon-o-calendar')
                         ->date()
-                        ->sortable()
                         ->alignEnd(),
 
                     Tables\Columns\TextColumn::make('amount')

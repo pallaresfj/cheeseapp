@@ -53,7 +53,16 @@ class LiquidationSummaryResource extends Resource
                 TextColumn::make('farm_display')
                     ->label('Proveedor - Finca')
                     ->weight(FontWeight::Bold)
-                    ->wrap(),
+                    ->wrap()
+                    ->searchable(query: function (Builder $query, string $search) {
+                        $query->whereHas('farm', function (Builder $farmQuery) use ($search) {
+                            $farmQuery
+                                ->where('name', 'like', "%{$search}%")
+                                ->orWhereHas('user', function (Builder $userQuery) use ($search) {
+                                    $userQuery->where('name', 'like', "%{$search}%");
+                                });
+                        });
+                    }),
                 TextColumn::make('total_liters')
                     ->label('Litros')
                     ->numeric()

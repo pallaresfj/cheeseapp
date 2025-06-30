@@ -37,7 +37,8 @@ class LiquidationResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->where('status', 'liquidated');
+            ->where('status', 'liquidated')
+            ->orderByDesc('date');
     }
 
     public static function canCreate(): bool
@@ -56,7 +57,16 @@ class LiquidationResource extends Resource
                     ->label('Proveedor - Finca')
                     ->weight(FontWeight::Bold)
                     ->formatStateUsing(fn ($record) => $record->farm->user->name . ' - ' . $record->farm->name)
-                    ->wrap(),
+                    ->wrap()
+                    ->searchable(query: function (Builder $query, string $search) {
+                        $query->whereHas('farm', function (Builder $farmQuery) use ($search) {
+                            $farmQuery
+                                ->where('name', 'like', "%{$search}%")
+                                ->orWhereHas('user', function (Builder $userQuery) use ($search) {
+                                    $userQuery->where('name', 'like', "%{$search}%");
+                                });
+                        });
+                    }),
                 Tables\Columns\TextColumn::make('total_liters')
                     ->label('Litros')
                     ->numeric()
