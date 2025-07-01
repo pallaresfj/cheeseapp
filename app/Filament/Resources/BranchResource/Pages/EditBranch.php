@@ -20,4 +20,12 @@ class EditBranch extends EditRecord
     {
         $this->redirect($this->getResource()::getUrl('index'));
     }
+    public function hasCombinedRelationManagerTabsWithContent(): bool
+    {
+        return true;
+    }
+    public function getContentTabLabel(): ?string
+    {
+        return 'Sucursal';
+    }
 }
