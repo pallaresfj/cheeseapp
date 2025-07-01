@@ -99,10 +99,6 @@ class PurchaseRegistrationResource extends Resource
                     ->label('Cancelar')
                     ->icon('heroicon-o-x-circle')
                     ->color('gray')
-                    /* ->requiresConfirmation()
-                    ->modalHeading('Cancelar Registro de Compras')
-                    ->modalDescription('¿Está seguro de cancelar y eliminar los registros actuales? Esta acción no se puede deshacer.')
-                    ->modalSubmitActionLabel('Cancelar Registro') */
                     ->action(function () {
                         DB::table('purchase_registrations')->where('user_id', Auth::id())->delete();
                     })
@@ -119,10 +115,6 @@ class PurchaseRegistrationResource extends Resource
                     ->label('Guardar')
                     ->icon('heroicon-o-folder-plus')
                     ->color('success')
-                    /* ->requiresConfirmation()
-                    ->modalHeading('Guardar Compras')
-                    ->modalDescription('¿Está seguro de guardar las compras actuales?')
-                    ->modalSubmitActionLabel('Guardar') */
                     ->action(fn () => DB::statement('CALL sp_transferir_compras(?)', [Auth::id()]))
                     ->after(function () {
                         Notification::make()
