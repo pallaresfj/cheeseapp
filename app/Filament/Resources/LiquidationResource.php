@@ -13,6 +13,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -117,6 +118,29 @@ class LiquidationResource extends Resource
             ->defaultGroup('date')
             ->groupingSettingsHidden()
             ->filters([
+                Filter::make('date')
+                    ->label('Fecha de liquidación')
+                    ->form([
+                        Forms\Components\DatePicker::make('date')
+                            ->label('Fecha')
+                            ->native(false),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['date'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('date', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+
+                        if ($data['date'] ?? null) {
+                            $indicators['date'] = 'Fecha: ' . \Carbon\Carbon::parse($data['date'])->format('d/m/Y');
+                        }
+
+                        return $indicators;
+                    }),
                 SelectFilter::make('branch_id')
                     ->label('Sucursal')
                     ->placeholder('Todas las sucursales')
@@ -234,6 +258,24 @@ class LiquidationResource extends Resource
 
                             $ids = $records->pluck('id')->implode(',');
                             return redirect()->to(route('filament.liquidations.bulk-pdf', ['ids' => $ids]));
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                    Tables\Actions\BulkAction::make('archivar')
+                        ->label('Archivar')
+                        ->icon('heroicon-o-archive-box')
+                        ->color('gray')
+                        ->requiresConfirmation()
+                        ->modalHeading('¿Desea archivar las liquidaciones seleccionadas?')
+                        ->modalDescription('Las liquidaciones archivadas ya no aparecerán en el listado principal.')
+                        ->action(function (\Illuminate\Support\Collection $records) {
+                            $records->each(function ($record) {
+                                $record->update(['status' => 'archived']);
+                            });
+
+                            Notification::make()
+                                ->title('Liquidaciones archivadas correctamente')
+                                ->success()
+                                ->send();
                         })
                         ->deselectRecordsAfterCompletion(),
                 ])
