@@ -30,15 +30,15 @@ class LiquidationResource extends Resource
     protected static ?int $navigationSort = 5;
     protected static ?string $navigationIcon = 'heroicon-m-chevron-right';
     protected static ?string $navigationGroup = 'Operaciones';
-    protected static ?string $label = 'Liquidación Aprobada';
-    protected static ?string $pluralLabel = 'Liquidaciones aprobadas';
+    protected static ?string $label = 'Facturar Liquidación';
+    protected static ?string $pluralLabel = 'Facturar Liquidaciones';
     protected static bool $hasTitleCaseModelLabel = false;
 
 
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->where('status', 'liquidated')
+            ->whereIn('status', ['liquidated', 'archived'])
             ->orderByDesc('date');
     }
 
@@ -52,6 +52,8 @@ class LiquidationResource extends Resource
         return $table
             ->description('Liquidaciones listas para imprimir recibos.')
             ->extremePaginationLinks()
+            ->paginationPageOptions([10, 25, 50, 80, 100, 200])
+            ->defaultPaginationPageOption(25)
             ->striped()
             ->columns([
                 Tables\Columns\TextColumn::make('farm.name')
@@ -202,6 +204,7 @@ class LiquidationResource extends Resource
                     ->icon('heroicon-o-arrow-uturn-down')
                     ->tooltip('Deshacer liquidación')
                     ->color('warning')
+                    ->visible(fn ($record) => $record->status === 'liquidated')
                     ->requiresConfirmation()
                     ->modalHeading('¿Desea deshacer esta liquidación?')
                     ->modalDescription('Al deshacer esta liquidación asegurate de eliminar manualmente el descuento que tenga asociado.')
@@ -226,6 +229,7 @@ class LiquidationResource extends Resource
                         ->label('Deshacer liquidaciones')
                         ->icon('heroicon-o-arrow-uturn-down')
                         ->color('warning')
+                        ->visible(fn (?\Illuminate\Support\Collection $records) => $records?->every(fn ($record) => $record->status === 'liquidated') ?? true)
                         ->requiresConfirmation()
                         ->modalHeading('¿Desea deshacer las liquidaciones seleccionadas?')
                         ->modalDescription('Al deshacer estas liquidaciones asegurate de eliminar manualmente los descuentos que tengan asociados.')
